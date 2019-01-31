@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
    Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 
@@ -15,14 +16,11 @@
    specific language governing permissions and limitations
    under the License.
 -->
-<template xmlns="http://ws.apache.org/ns/synapse" name="getMe">
-    <sequence>
-        <call>
-            <endpoint>
-                <http method="GET"
-                      uri-template="{uri.var.apiUrl}/me?site={uri.var.site}&amp;access_token={uri.var.accessToken}&amp;key={uri.var.key}" />
-            </endpoint>
-        </call>
-        <class name="org.wso2.carbon.connector.DumbDecompressMediator" />
-    </sequence>
-</template>
+<component name="question" type="synapse/template" >
+    <subComponents> 
+		<component name="getQuestionsByUserIds" >
+            <file>getQuestionsByUserIds.xml</file>
+            <description>Get all questions specified by one or more user ids</description>
+		</component>			
+    </subComponents>    
+</component>
