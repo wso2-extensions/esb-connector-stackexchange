@@ -16,7 +16,7 @@
    specific language governing permissions and limitations
    under the License.
 -->
-<component name="users" type="synapse/template" >
+<component name="user" type="synapse/template" >
     <subComponents> 
 		<component name="getMe" >
             <file>getMe.xml</file>

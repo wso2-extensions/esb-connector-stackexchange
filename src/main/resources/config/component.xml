@@ -17,10 +17,10 @@
    under the License.
 -->
 <component name="config" type="synapse/template" >
-    <subComponents> 
-		<component name="init" >
+    <subComponents>
+        <component name="init" >
             <file>init.xml</file>
             <description>Init operation</description>
-		</component>
+	</component>
     </subComponents>    
 </component>

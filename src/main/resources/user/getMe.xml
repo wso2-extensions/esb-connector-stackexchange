@@ -25,5 +25,8 @@
                       uri-template="{uri.var.apiUrl}/me?site={uri.var.site}&amp;access_token={uri.var.accessToken}&amp;key={uri.var.key}" />
             </endpoint>
         </call>
+        <!-- WARN: After removing the content-encoding header mediators after this
+             won't be able to parse the SOAPBody in SOAPEnvelop in MessageContext -->
+        <header name="content-encoding" scope="transport" action="remove"/>
     </sequence>
 </template>
