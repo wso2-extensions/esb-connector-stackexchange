@@ -26,5 +26,9 @@
             <file>addQuestion.xml</file>
             <description>Add a new question</description>
         </component>
+        <component name="getQuestionsWithNoAnswers" >
+            <file>getQuestionsWithNoAnswers.xml</file>
+            <description>Get all questions haven't answered yet in a site</description>
+        </component>
     </subComponents>
 </component>
