@@ -40,6 +40,16 @@
         <property name="uri.var.order" expression="$func:order" />
         <script language="js" >
             <![CDATA[
+                function isOptionalEmpty(optional) {
+                    if (typeof optional === 'undefined') {
+                        return true;
+                    }
+                    if (optional !== null && optional !== '') {
+                        return false;
+                    }
+                    return true;
+                }
+
                 var optionals = {
                     'pagesize': mc.getProperty('uri.var.pagesize'),
                     'page': mc.getProperty('uri.var.page'),
@@ -50,22 +60,15 @@
                     'sort': mc.getProperty('uri.var.sort'),
                     'order': mc.getProperty('uri.var.order')
                 };
-
-                function isOptionalEmpty(optional) {
-                    if (typeof optional === 'undefined') {
-                        return true;
-                    }
-                    if (optional !== null && optional !== '') {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
-
                 var uriVarOptionals = '';
-                for (o in optionals) {
-                    if (optionals.hasOwnProperty(o) && !isOptionalEmpty(optionals[o])) {
-                        uriVarOptionals = uriVarOptionals + o + '=' + optionals[o] + '&';
+
+                for (opt in optionals) {
+                    if (optionals.hasOwnProperty(opt) && !isOptionalEmpty(optionals[opt])) {
+                        uriVarOptionals = String(uriVarOptionals + opt + '=' + String(optionals[opt]) + '&');
+                        /*
+                         * Following possible equivalence does not work
+                         * uriVarOptionals = uriVarOptionals + opt + '=' + String(optionals[opt]) + '&';
+                         */
                     }
                 }
                 if (uriVarOptionals !== '') {

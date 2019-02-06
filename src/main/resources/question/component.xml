@@ -21,6 +21,10 @@
 		<component name="getQuestionsByUserIds" >
             <file>getQuestionsByUserIds.xml</file>
             <description>Get all questions specified by one or more user ids</description>
-		</component>			
-    </subComponents>    
+		</component>
+        <component name="addQuestion" >
+            <file>addQuestion.xml</file>
+            <description>Add a new question</description>
+        </component>
+    </subComponents>
 </component>
