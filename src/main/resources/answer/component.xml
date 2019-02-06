@@ -16,12 +16,11 @@
    specific language governing permissions and limitations
    under the License.
 -->
-<connector>
-    <component name="stackexchange" package="org.wso2.carbon.connector" >
-        <dependency component="config" />
-        <dependency component="user" />
-        <dependency component="question" />
-        <dependency component="answer" />
-        <description>WSO2 StackExchange connector library</description>
-    </component>
-</connector>
+<component name="answer" type="synapse/template" >
+    <subComponents> 
+		<component name="getAnswersByIds" >
+            <file>getAnswersByIds.xml</file>
+            <description>Get questions specified by one or more ids</description>
+		</component>
+    </subComponents>    
+</component>
