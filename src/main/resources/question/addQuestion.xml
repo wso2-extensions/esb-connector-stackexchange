@@ -25,6 +25,7 @@
                             request will only simulate whether it is a valid request or not and will not change
                             anything on the site." />
     <sequence>
+        <property name="uri.var.preview" expression="$func:preview" />
         <header name="Content-Type" scope="transport" value="application/x-www-form-urlencoded"/>
         <payloadFactory media-type="json">
             <format>
@@ -34,8 +35,7 @@
                     "key": "$3",
                     "title": "$4",
                     "body": "$5",
-                    "tags": "$6",
-                    "preview": "$7"
+                    "tags": "$6"
                 }
             </format>
             <args>
@@ -45,9 +45,34 @@
                 <arg evaluator="json" expression="$.title"/>
                 <arg evaluator="json" expression="$.body"/>
                 <arg evaluator="json" expression="$.tags"/>
-                <arg evaluator="json" expression="$.preview"/>
             </args>
         </payloadFactory>
+        <script language="js">
+            <![CDATA[
+                var payload = mc.getPayloadJSON();
+
+                function isOptionalEmpty(optional) {
+                    if (typeof optional === 'undefined') {
+                        return true;
+                    }
+                    if (optional !== null && optional !== '') {
+                        return false;
+                    }
+                    return true;
+                }
+
+                function setNonNullOptional(payload, optionalName) {
+                    var optional = mc.getProperty('uri.var.' + optionalName);
+                    if (!isOptionalEmpty(optional)) {
+                        payload[optionalName] = String(optional);
+                    }
+                }
+
+                setNonNullOptional(payload, 'preview');
+
+                mc.setPayloadJSON(payload);
+            ]]>
+        </script>
         <property name="messageType" value="application/x-www-form-urlencoded" scope="axis2" type="STRING" />
         <call>
             <endpoint>
