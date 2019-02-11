@@ -42,9 +42,9 @@
             <file>editAnswerById.xml</file>
             <description>Edit a answer specified by an id</description>
         </component>
-        <component name="addAnswerById">
-            <file>addAnswerById.xml</file>
-            <description>Add a answer specified by an id</description>
+        <component name="addAnswer">
+            <file>addAnswer.xml</file>
+            <description>Add a answer for a question specified by an id</description>
         </component>
     </subComponents>
 </component>

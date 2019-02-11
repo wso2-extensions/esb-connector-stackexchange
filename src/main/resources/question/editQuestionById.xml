@@ -40,7 +40,7 @@
                 "key": "$3",
                 "title": "$4",
                 "body": "$5",
-                "tags": "$6",
+                "tags": "$6"
                 }
             </format>
             <args>

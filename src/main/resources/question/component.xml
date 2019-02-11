@@ -39,7 +39,7 @@
             <description>Upvote a question specified by an id</description>
         </component>
         <component name="downvoteQuestionById">
-            <file>deleteQuestionById.xml</file>
+            <file>downvoteQuestionById.xml</file>
             <description>Downvote a question specified by an id</description>
         </component>
         <component name="getQuestionsWithNoAnswers">

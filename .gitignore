@@ -30,3 +30,5 @@ target
 # ignore target directories
 target/
 *.*~
+
+.attach_pid*
