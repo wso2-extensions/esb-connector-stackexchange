@@ -31,10 +31,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.wso2.carbon.connector.integration.test.ConnectorTestUtil.TestType;
+import static org.wso2.carbon.connector.integration.test.ConnectorTestUtil.HttpVerb;
+
 /**
  * Sample integration test
  */
 public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationTestBase {
+
     private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
 
     private Map<String, String> eiRequestHeadersMap = new HashMap<String, String>();
@@ -43,15 +47,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @BeforeClass(alwaysRun = true)
     public void setEnvironment() throws Exception {
 
-        StringBuilder connectorName = new StringBuilder()
-                .append(System.getProperty("connector_name"))
-                .append("-")
-                .append("connector")
-                .append("-")
-                .append(System.getProperty("connector_version"))
-                .append(".zip");
-
-        init(connectorName.toString());
+        init(ConnectorTestUtil.getConnectorName());
 
         getApiConfigProperties();
 
@@ -59,27 +55,46 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         eiRequestHeadersMap.put("Content-Type", "application/json");
     }
 
+    /* ======================================= GetMe  ======================================= */
+
     @Test(groups = {"wso2.ei"})
     public void testGetMeWithMandatory() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostRestToEi("getMe", TestType.MANDATORY);
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+    }
 
-        RestResponse<JSONObject> response = sendJsonRestRequest(
-                proxyUrl,
+    @Test(groups = {"wso2.ei"})
+    public void testGetMeWithInvalid_BadRequest() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostRestToEi("getMe", TestType.INVALID, "bad_request");
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+    }
+
+    /* ======================================= addQuestion  ======================================= */
+
+    @Test(groups = {"wso2.ei"})
+    public void testAddQuestionWithMandatory() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostRestToEi("addQuestion", TestType.MANDATORY);
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+    }
+
+    @Test(groups = {"wso2.ei"})
+    public void testAddQuestionWithInvalid_BadRequest() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostRestToEi("addQuestion", TestType.INVALID, "bad_request");
+    }
+
+    /* ======================================= Utils  ======================================= */
+
+    private RestResponse<JSONObject> sendJsonPostRestToEi(String method, TestType type)
+            throws IOException, JSONException {
+        return sendJsonPostRestToEi(method, type, null);
+    }
+
+    private RestResponse<JSONObject> sendJsonPostRestToEi(String method, TestType type, String suffix)
+            throws IOException, JSONException {
+        eiRequestHeadersMap.put("Action", String.format("urn:%s", method));
+        return sendJsonRestRequest(proxyUrl,
                 HttpVerb.POST,
                 eiRequestHeadersMap,
-                mandatoryFilename("getMe"));
-        Assert.assertEquals(response.getHttpStatusCode(), 200);
-    }
-
-    private String mandatoryFilename(String method) {
-        return String.format("%s_mandatory.json", method);
-    }
-
-    private String optionalFilename(String method) {
-        return String.format("%s_optional.json", method);
-    }
-
-    private static class HttpVerb {
-        static final String GET = "GET";
-        static final String POST = "POST";
+                ConnectorTestUtil.filename(method, type, suffix));
     }
 }
