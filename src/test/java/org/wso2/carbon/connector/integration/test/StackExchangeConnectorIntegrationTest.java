@@ -15,8 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.connector.integration.test.StackExchange;
+package org.wso2.carbon.connector.integration.test;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,6 +32,7 @@ import java.util.Map;
  * Sample integration test
  */
 public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationTestBase {
+    private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
 
     private Map<String, String> eiRequestHeadersMap = new HashMap<String, String>();
     private Map<String, String> apiRequestHeadersMap = new HashMap<String, String>();
@@ -37,9 +40,15 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @BeforeClass(alwaysRun = true)
     public void setEnvironment() throws Exception {
 
-        String connectorName = System.getProperty("connector_name") + "-connector-" +
-                System.getProperty("connector_version") + ".zip";
-        init(connectorName);
+        StringBuilder connectorName = new StringBuilder()
+                .append(System.getProperty("connector_name"))
+                .append("-")
+                .append("connector")
+                .append("-")
+                .append(System.getProperty("connector_version"))
+                .append(".zip");
+
+        init(connectorName.toString());
 
         eiRequestHeadersMap.put("Accept-Charset", "UTF-8");
         eiRequestHeadersMap.put("Content-Type", "application/json");

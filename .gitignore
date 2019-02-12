@@ -32,3 +32,6 @@ target/
 *.*~
 
 .attach_pid*
+
+wso2ei-*.zip
+wso2ei-*

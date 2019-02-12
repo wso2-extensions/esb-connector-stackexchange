@@ -17,16 +17,20 @@
   ~ under the License.
   -->
 
-<proxy xmlns="http://ws.apache.org/ns/synapse" name="Sample"
+<proxy xmlns="http://ws.apache.org/ns/synapse" name="stackexchangeProxy"
        transports="https,http" statistics="disable" trace="disable"
        startOnLoad="true">
     <target>
         <inSequence>
-            <property name="generated_param" expression="json-eval(.generated_param)"/>
-            <Sample.sample_template>
-                <generated_param>{$ctx:generated_param}</generated_param>
-            </Sample.sample_template>
-            <log level="full"/>
+            <property expression="json-eval($.accessToken)" name="accessToken"/>
+            <property expression="json-eval($.site)" name="site"/>
+            <property expression="json-eval($.key)" name="key"/>
+            <stackexchange.init>
+                <key>{$ctx:key}</key>
+                <site>{$ctx:site}</site>
+                <accessToken>{$ctx:accessToken}</accessToken>
+            </stackexchange.init>
+            <stackexchange.getMe/>
             <respond/>
         </inSequence>
     </target>
