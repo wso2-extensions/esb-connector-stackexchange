@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 
-<proxy xmlns="http://ws.apache.org/ns/synapse" name="stackexchangeProxy"
+<proxy xmlns="http://ws.apache.org/ns/synapse" name="stackexchange"
        transports="https,http" statistics="disable" trace="disable"
        startOnLoad="true">
     <target>
@@ -33,6 +33,9 @@
             <stackexchange.getMe/>
             <respond/>
         </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
     </target>
     <description/>
 </proxy>

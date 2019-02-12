@@ -30,7 +30,7 @@
 
     <properties>
         <connector.name>stackexchange</connector.name>
-        <integration.base.version>1.0.2</integration.base.version>
+        <integration.base.version>1.0.4</integration.base.version>
         <product.ei.version>6.4.0</product.ei.version>
         <carbon.kernel.version>4.4.17</carbon.kernel.version>
         <automation.framework.utils.version>4.4.2</automation.framework.utils.version>
@@ -218,7 +218,7 @@
                             <goal>attached</goal>
                         </goals>
                         <configuration>
-                            <finalName>${connector.name}-connector-${version}</finalName>
+                            <finalName>${connector.name}-connector-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <filters>
                                 <filter>src/main/assembly/filter.properties</filter>

@@ -19,12 +19,15 @@ package org.wso2.carbon.connector.integration.test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.connector.integration.test.base.ConnectorIntegrationTestBase;
 import org.wso2.connector.integration.test.base.RestResponse;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,15 +53,33 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         init(connectorName.toString());
 
+        getApiConfigProperties();
+
         eiRequestHeadersMap.put("Accept-Charset", "UTF-8");
         eiRequestHeadersMap.put("Content-Type", "application/json");
     }
 
-    @Test(enabled = true, groups = {"wso2.ei"}, description = "StackExchange test case")
-    public void testSample() throws Exception {
+    @Test(groups = {"wso2.ei"})
+    public void testGetMeWithMandatory() throws IOException, JSONException {
 
-        log.info("Successfully tested");
-        RestResponse<JSONObject> eiRestResponse =
-                sendJsonRestRequest(proxyUrl, "POST", eiRequestHeadersMap, "sampleRequest.json");
+        RestResponse<JSONObject> response = sendJsonRestRequest(
+                proxyUrl,
+                HttpVerb.POST,
+                eiRequestHeadersMap,
+                mandatoryFilename("getMe"));
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+    }
+
+    private String mandatoryFilename(String method) {
+        return String.format("%s_mandatory.json", method);
+    }
+
+    private String optionalFilename(String method) {
+        return String.format("%s_optional.json", method);
+    }
+
+    private static class HttpVerb {
+        static final String GET = "GET";
+        static final String POST = "POST";
     }
 }
