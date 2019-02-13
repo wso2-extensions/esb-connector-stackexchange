@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ConnectorTestUtil {
+public class CommonTestUtil {
 
     public static String getConnectorName() {
         /* Note: for string concatenation compile-time optimization is possible */

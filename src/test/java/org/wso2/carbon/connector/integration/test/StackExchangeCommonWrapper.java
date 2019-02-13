@@ -18,51 +18,40 @@
 package org.wso2.carbon.connector.integration.test;
 
 import org.apache.commons.lang.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class StackExchangeFilter {
-    private static final String WRAPPER_ROOT = "items";
-    private static final String DATA_ROOT = "included_fields";
+public class StackExchangeCommonWrapper {
+    private final Set<String> commonKeySet;
 
-    private final Set<String> commonKeys;
-
-    public StackExchangeFilter(JSONObject filter) throws JSONException {
-        JSONArray keys = filter
-                .getJSONArray(WRAPPER_ROOT)
-                .getJSONObject(0)
-                .getJSONArray(DATA_ROOT);
-        commonKeys = getCommonKeys(keys);
-    }
-
-    private static Set<String> getCommonKeys(JSONArray keys) throws JSONException {
-        Set<String> commonKeys = new HashSet<>();
-        for (int i = 0; i < keys.length(); i++) {
-            String k = keys.getString(i);
-            if (isCommonKey(k)) {
-                commonKeys.add(getCommonKeyAsKey(k));
-            }
+    public StackExchangeCommonWrapper(StackExchangeTestUtil.Filter filer) throws Exception {
+        if (filer.hasErrorKeys()) {
+            throw new Exception(
+                    "StackExchange given filter is unknown. " +
+                            "This could happen due to bad property values");
         }
-        return commonKeys;
+        if (!filer.hasData()) {
+            throw new Exception(
+                    "StackExchange given filter does not contain data. " +
+                            "This could happen due to poorly configured filters. See docs for more information.");
+        }
+        commonKeySet = filer.getCommonKeySet();
     }
 
-    private static boolean isCommonKey(String key) {
+    public static boolean isCommonKey(String key) {
         return StringUtils.isNotEmpty(key) && key.charAt(0) == '.';
     }
 
-    private static String getCommonKeyAsKey(String commonKey) {
+    public static String getCommonKeyAsKey(String commonKey) {
         return commonKey.substring(1);
     }
 
     public WrapperType fetchWrapperType(JSONObject json) {
         for (Iterator<String> i = json.keys(); i.hasNext();) {
             String key = i.next();
-            if (!commonKeys.contains(key)) {
+            if (!commonKeySet.contains(key)) {
                 return WrapperType.UNKNOWN;
             }
             if (key.contains("error")) {
