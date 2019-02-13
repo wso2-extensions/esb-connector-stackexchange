@@ -24,15 +24,27 @@ import org.json.JSONObject;
 public class ConnectorTestUtil {
 
     public static String getConnectorName() {
-        return String.format("%s-connector-%s.zip",
-                System.getProperty("connector_name", System.getProperty("connector_version")));
+        /* Note: for string concatenation compile-time optimization is possible */
+        return System.getProperty("connector_name") +
+                "-connector-" +
+                System.getProperty("connector_version") +
+                ".zip";
     }
 
     public static String prettyJson(JSONObject json) throws JSONException {
         return json.toString(2);
     }
 
-    public static String filename(String method, TestType type, String suffix) {
+    public static String clearLogMessage(String middle) {
+        /* Note: for string concatenation compile-time optimization is possible */
+        return String.format("\n" +
+                "====================================================\n" +
+                "%s\n" +
+                "====================================================\n",
+        middle);
+    }
+
+    public static String getFilenameOfPayload(String method, TestType type, String suffix) {
         if (StringUtils.isEmpty(suffix)) {
             return String.format("%s_%s.json", method, type.value);
         }
