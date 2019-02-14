@@ -20,7 +20,7 @@
         <call>
             <endpoint>
                 <http method="GET"
-                      uri-template="{uri.var.apiUrl}/me?site={uri.var.site}&amp;access_token={uri.var.accessToken}&amp;key={uri.var.key}"/>
+                      uri-template="{uri.var.apiDomain}/{uri.var.apiVersion}/me?site={uri.var.site}&amp;access_token={uri.var.accessToken}&amp;key={uri.var.key}"/>
             </endpoint>
         </call>
         <!-- Forces response decompression -->

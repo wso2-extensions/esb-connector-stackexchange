@@ -82,7 +82,7 @@
         <call>
             <endpoint>
                 <http method="GET"
-                      uri-template="{uri.var.apiUrl}/questions/no-answers?site={uri.var.site}&amp;key={uri.var.key}&amp;{uri.var.optionals}"/>
+                      uri-template="{uri.var.apiDomain}/{uri.var.apiVersion}/questions/no-answers?site={uri.var.site}&amp;key={uri.var.key}&amp;{uri.var.optionals}"/>
             </endpoint>
         </call>
         <!-- Forces response decompression -->

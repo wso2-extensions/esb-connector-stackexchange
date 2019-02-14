@@ -18,6 +18,8 @@
 package org.wso2.carbon.connector.integration.test;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,10 +37,13 @@ import static org.wso2.carbon.connector.integration.test.StackExchangeCommonWrap
 
 public class StackExchangeTestUtil {
 
-    public static Filter getFilter(String apiUrl, String filterPath, String filterName)
+    private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
+
+    public static Filter getFilter(String apiDomain, String apiVersion, String filterPath, String filterName)
             throws IOException, JSONException {
 
-        URL url = new URL(apiUrl + filterPath + "/" + filterName);
+        String urlString = String.format("https://%s/%s%s/%s", apiDomain, apiVersion, filterPath, filterName);
+        URL url = new URL(urlString);
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 
         connection.setRequestProperty("Accept-Encoding", "gzip");
@@ -59,16 +64,13 @@ public class StackExchangeTestUtil {
             this.code = code;
         }
 
-        public boolean hasErrorKeys() {
-            return code != 200;
-        }
-
-        public boolean hasData() {
-            return body.has(OUTER_KEY);
+        public boolean isValid() throws JSONException {
+            JSONObject data = body.getJSONArray(OUTER_KEY).getJSONObject(0);
+            return code == 200 && data.has(INNER_KEY);
         }
 
         public Set<String> getCommonKeySet() throws JSONException {
-            if (hasErrorKeys() || !hasData()) {
+            if (!isValid()) {
                 return null;
             }
             JSONArray keys = body.getJSONArray(OUTER_KEY).getJSONObject(0).getJSONArray(INNER_KEY);

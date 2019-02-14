@@ -79,7 +79,7 @@
         <call>
             <endpoint>
                 <http method="POST"
-                      uri-template="{uri.var.apiUrl}/questions/add"/>
+                      uri-template="{uri.var.apiDomain}/{uri.var.apiVersion}/questions/add"/>
             </endpoint>
         </call>
         <!-- Forces response decompression -->

@@ -74,7 +74,7 @@
         <call>
             <endpoint>
                 <http method="POST"
-                      uri-template="{uri.var.apiUrl}/questions/{uri.var.id}/delete"/>
+                      uri-template="{uri.var.apiDomain}/{uri.var.apiVersion}/questions/{uri.var.id}/delete"/>
             </endpoint>
         </call>
         <!-- Forces response decompression -->

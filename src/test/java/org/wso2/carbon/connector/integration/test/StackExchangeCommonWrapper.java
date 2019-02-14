@@ -27,15 +27,10 @@ public class StackExchangeCommonWrapper {
     private final Set<String> commonKeySet;
 
     public StackExchangeCommonWrapper(StackExchangeTestUtil.Filter filer) throws Exception {
-        if (filer.hasErrorKeys()) {
+        if (!filer.isValid()) {
             throw new Exception(
-                    "StackExchange given filter is unknown. " +
-                            "This could happen due to bad property values");
-        }
-        if (!filer.hasData()) {
-            throw new Exception(
-                    "StackExchange given filter does not contain data. " +
-                            "This could happen due to poorly configured filters. See docs for more information.");
+                    "Cannot fetch valid information from given filter properties. " +
+                            "If you override filter name make sure it exists in backend.");
         }
         commonKeySet = filer.getCommonKeySet();
     }

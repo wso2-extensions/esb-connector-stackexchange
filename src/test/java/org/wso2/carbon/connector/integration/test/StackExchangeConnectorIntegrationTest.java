@@ -52,11 +52,12 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         init(getConnectorName());
         getApiConfigProperties();
 
-        String apiUrl = connectorProperties.getProperty("apiUrl");
+        String apiDomain = connectorProperties.getProperty("apiDomain");
+        String apiVersion = connectorProperties.getProperty("apiVersion");
         String filterPath = connectorProperties.getProperty("filterPath");
         String filterName = connectorProperties.getProperty("filterName");
         stackExchangeCommonWrapper = new StackExchangeCommonWrapper(
-                StackExchangeTestUtil.getFilter(apiUrl, filterPath, filterName));
+                StackExchangeTestUtil.getFilter(apiDomain, apiVersion, filterPath, filterName));
     }
 
     /* ======================================= getMe ======================================= */

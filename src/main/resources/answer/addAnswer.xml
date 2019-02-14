@@ -77,7 +77,7 @@
         <call>
             <endpoint>
                 <http method="POST"
-                      uri-template="{uri.var.apiUrl}/questions/{uri.var.id}/answers/add"/>
+                      uri-template="{uri.var.apiDomain}/{uri.var.apiVersion}/questions/{uri.var.id}/answers/add"/>
             </endpoint>
         </call>
         <!-- Forces response decompression -->
