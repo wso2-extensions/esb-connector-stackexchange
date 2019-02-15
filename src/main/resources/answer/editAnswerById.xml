@@ -68,6 +68,7 @@
 
                 setNonNullOptional(payload, 'comment');
                 setNonNullOptional(payload, 'preview');
+                setNonNullOptional(payload, 'filter');
 
                 mc.setPayloadJSON(payload);
             ]]>

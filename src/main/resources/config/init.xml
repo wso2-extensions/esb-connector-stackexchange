@@ -33,6 +33,7 @@
                 <property name="uri.var.apiVersion" value="2.2"/>
             </then>
         </filter>
+        <property name="uri.var.filter" expression="$func:filter"/>
         <property name="uri.var.accessToken" expression="$func:accessToken"/>
         <property name="uri.var.key" expression="$func:key"/>
     </sequence>

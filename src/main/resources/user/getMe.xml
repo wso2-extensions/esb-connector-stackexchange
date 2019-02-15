@@ -17,10 +17,42 @@
   -->
 <template xmlns="http://ws.apache.org/ns/synapse" name="getMe">
     <sequence>
+        <script language="js">
+            <![CDATA[
+                function isOptionalEmpty(optional) {
+                    if (typeof optional === 'undefined') {
+                        return true;
+                    }
+                    if (optional !== null && optional !== '') {
+                        return false;
+                    }
+                    return true;
+                }
+
+                var optionals = {
+                    'filter': mc.getProperty('uri.var.filter')
+                };
+                var uriVarOptionals = '';
+
+                for (opt in optionals) {
+                    if (optionals.hasOwnProperty(opt) && !isOptionalEmpty(optionals[opt])) {
+                        uriVarOptionals = String(uriVarOptionals + opt + '=' + String(optionals[opt]) + '&');
+                        /*
+                         * Following possible equivalence does not work
+                         * uriVarOptionals = uriVarOptionals + opt + '=' + String(optionals[opt]) + '&';
+                         */
+                    }
+                }
+                if (uriVarOptionals !== '') {
+                    uriVarOptionals = uriVarOptionals.substring(0, uriVarOptionals.length - 1);
+                }
+                mc.setProperty('uri.var.optionals', uriVarOptionals);
+            ]]>
+        </script>
         <call>
             <endpoint>
                 <http method="GET"
-                      uri-template="{uri.var.apiDomain}/{uri.var.apiVersion}/me?site={uri.var.site}&amp;access_token={uri.var.accessToken}&amp;key={uri.var.key}"/>
+                      uri-template="{uri.var.apiDomain}/{uri.var.apiVersion}/me?site={uri.var.site}&amp;access_token={uri.var.accessToken}&amp;key={uri.var.key}&amp;{uri.var.optionals}"/>
             </endpoint>
         </call>
         <!-- Forces response decompression -->

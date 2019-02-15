@@ -1,4 +1,5 @@
 {
   "accessToken": "%s(accessToken)",
+  "filter": "%s(filterName)",
   "key": "%s(key)"
 }

@@ -30,8 +30,6 @@ import org.wso2.connector.integration.test.base.ConnectorIntegrationTestBase;
 import org.wso2.connector.integration.test.base.RestResponse;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -134,7 +132,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
     }
 
-    /* ======================================= downvoteQuestion ======================================= */
+    /* ======================================= downvoteQuestionById ======================================= */
 
     @StackExchange(minReputation = 125, privilegeWording = "vote down")
     @Test(groups = {"wso2.ei"})
@@ -149,6 +147,52 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testDownvoteQuestionByIdWithInvalid() throws IOException, JSONException {
         RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteQuestionById", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    /* ======================================= editQuestionById ======================================= */
+
+    /*
+     * @StackExchange(minReputation = 2000, privilegeWording = "edit questions and answers")
+     */
+    @StackExchange
+    @Test(groups = {"wso2.ei"})
+    public void testEditQuestionByIdWithMandatory() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("editQuestionById", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    /*
+     * @StackExchange(minReputation = 2000, privilegeWording = "edit questions and answers")
+     */
+    @StackExchange
+    @Test(groups = {"wso2.ei"})
+    public void testEditQuestionByIdWithInvalid() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("editQuestionById", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    /* ======================================= upvoteQuestionById ======================================= */
+
+    @StackExchange(minReputation = 15, privilegeWording = "vote up")
+    @Test(groups = {"wso2.ei"})
+    public void testUpvoteQuestionByIdWithMandatory() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteQuestionById", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    @StackExchange(minReputation = 15, privilegeWording = "vote up")
+    @Test(groups = {"wso2.ei"})
+    public void testUpvoteQuestionByIdWithInvalid() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteQuestionById", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(r.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);

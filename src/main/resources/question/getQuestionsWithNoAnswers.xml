@@ -60,7 +60,8 @@
                     'max': mc.getProperty('uri.var.max'),
                     'sort': mc.getProperty('uri.var.sort'),
                     'order': mc.getProperty('uri.var.order'),
-                    'tagged': mc.getProperty('uri.var.tagged')
+                    'tagged': mc.getProperty('uri.var.tagged'),
+                    'filter': mc.getProperty('uri.var.filter')
                 };
                 var uriVarOptionals = '';
 

@@ -2,5 +2,6 @@
   "site": "%s(site)",
   "filter": "%s(filterName)",
   "accessToken": "%s(accessToken)",
-  "key": "%s(key)"
+  "key": "%s(key)",
+  "preview": true
 }
