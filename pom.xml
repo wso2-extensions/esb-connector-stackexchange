@@ -39,7 +39,7 @@
         <synapse.version>2.1.7-wso2v19</synapse.version>
         <carbon.mediation.version>4.6.19</carbon.mediation.version>
         <json.version>2.0.0.wso2v1</json.version>
-        <org.testng.version>6.1.1</org.testng.version>
+        <org.testng.version>6.14.3</org.testng.version>
         <jets3t.version>0.9.4</jets3t.version>
         <bouncycastle.version>1.55</bouncycastle.version>
         <rampart.apache.version>1.6.1-wso2v18</rampart.apache.version>

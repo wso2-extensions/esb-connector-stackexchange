@@ -1,0 +1,7 @@
+{
+  "site": "%s(site)",
+  "accessToken": "%s(accessToken)",
+  "key": "%s(key)",
+  "id": "%s(placeHolderId)",
+  "preview": true
+}

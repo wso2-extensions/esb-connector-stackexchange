@@ -60,10 +60,4 @@ public class CommonTestUtil {
             this.value = value;
         }
     }
-
-    public static class HttpVerb {
-        static final String GET = "GET";
-        static final String POST = "POST";
-    }
-
 }

@@ -1,0 +1,8 @@
+{
+  "site":"stackoverflow",
+  "accessToken": "%s(accessToken)",
+  "key": "%s(key)",
+  "title":"URLConnection does not decompress Gzip",
+  "tags":"java",
+  "preview": true
+}

@@ -23,12 +23,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.connector.integration.test.StackExchangeCommonWrapper.WrapperType;
 import org.wso2.connector.integration.test.base.ConnectorIntegrationTestBase;
 import org.wso2.connector.integration.test.base.RestResponse;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,12 +40,13 @@ import static org.wso2.carbon.connector.integration.test.CommonTestUtil.*;
 /**
  * StackExchange connector integration test
  */
+@Listeners(TestNgExecutionListener.class)
 public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationTestBase {
-
+    public static final String STACKEXCHANGE_REPUTATION = "stackexchange.reputation";
     private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
 
     private StackExchangeCommonWrapper stackExchangeCommonWrapper;
-    private Map<String, String> eiRequestHeadersMap = new HashMap<String, String>();
+    private Map<String, String> eiRequestHeadersMap = new HashMap<>();
 
     @BeforeClass(alwaysRun = true)
     public void setEnvironment() throws Exception {
@@ -52,27 +56,39 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         init(getConnectorName());
         getApiConfigProperties();
 
-        String apiDomain = connectorProperties.getProperty("apiDomain");
+        String key = connectorProperties.getProperty("key");
+        String site = connectorProperties.getProperty("site");
         String apiVersion = connectorProperties.getProperty("apiVersion");
-        String filterPath = connectorProperties.getProperty("filterPath");
+        String accessToken = connectorProperties.getProperty("accessToken");
         String filterName = connectorProperties.getProperty("filterName");
+        int placeHolderId = Integer.parseInt(connectorProperties.getProperty("placeHolderId"));
+
         stackExchangeCommonWrapper = new StackExchangeCommonWrapper(
-                StackExchangeTestUtil.getFilter(apiDomain, apiVersion, filterPath, filterName));
+                StackExchangeTestUtil.getFilterKeyIterator(apiVersion, filterName));
+
+        int stackExchangeQuestionId = StackExchangeTestUtil.getQuestionIdIterator(
+                apiVersion, site, placeHolderId).next();
+        connectorProperties.setProperty("questionId", String.valueOf(stackExchangeQuestionId));
+
+        int reputation = StackExchangeTestUtil.getUserReputation(apiVersion, site, accessToken, key);
+        System.setProperty(STACKEXCHANGE_REPUTATION, String.valueOf(reputation));
     }
 
     /* ======================================= getMe ======================================= */
 
+    @StackExchange
     @Test(groups = {"wso2.ei"})
     public void testGetMeWithMandatory() throws IOException, JSONException {
-        RestResponse<JSONObject> r = sendJsonPostRestToEi("getMe", TestType.MANDATORY);
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getMe", TestType.MANDATORY);
 
         Assert.assertEquals(r.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
 
+    @StackExchange
     @Test(groups = {"wso2.ei"})
-    public void testGetMeWithInvalid_BadRequest() throws IOException, JSONException {
-        RestResponse<JSONObject> r = sendJsonPostRestToEi("getMe", TestType.INVALID, "bad_request");
+    public void testGetMeWithInvalid() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getMe", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(r.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
@@ -80,17 +96,59 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= addQuestion ======================================= */
 
+    @StackExchange
     @Test(groups = {"wso2.ei"})
     public void testAddQuestionWithMandatory() throws IOException, JSONException {
-        RestResponse<JSONObject> r = sendJsonPostRestToEi("addQuestion", TestType.MANDATORY);
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("addQuestion", TestType.MANDATORY);
 
         Assert.assertEquals(r.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
 
+    @StackExchange
     @Test(groups = {"wso2.ei"})
-    public void testAddQuestionWithInvalid_BadRequest() throws IOException, JSONException {
-        RestResponse<JSONObject> r = sendJsonPostRestToEi("addQuestion", TestType.INVALID, "bad_request");
+    public void testAddQuestionWithInvalid() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("addQuestion", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    /* ======================================= deleteQuestionById ======================================= */
+
+    @StackExchange
+    @Test(groups = {"wso2.ei"})
+    public void testDeleteQuestionByIdWithMandatory() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("deleteQuestionById", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    @StackExchange
+    @Test(groups = {"wso2.ei"})
+    public void testDeleteQuestionByIdWithInvalid() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("deleteQuestionById", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    /* ======================================= downvoteQuestion ======================================= */
+
+    @StackExchange(minReputation = 125, privilegeWording = "vote down")
+    @Test(groups = {"wso2.ei"})
+    public void testDownvoteQuestionByIdWithMandatory() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteQuestionById", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    @StackExchange(minReputation = 125, privilegeWording = "vote down")
+    @Test(groups = {"wso2.ei"})
+    public void testDownvoteQuestionByIdWithInvalid() throws IOException, JSONException {
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteQuestionById", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(r.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
@@ -98,16 +156,16 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= Helpers  ======================================= */
 
-    private RestResponse<JSONObject> sendJsonPostRestToEi(String method, TestType type)
+    private RestResponse<JSONObject> sendJsonPostReqToEi(String method, TestType type)
             throws IOException, JSONException {
-        return sendJsonPostRestToEi(method, type, null);
+        return sendJsonPostReqToEi(method, type, null);
     }
 
-    private RestResponse<JSONObject> sendJsonPostRestToEi(String method, TestType type, String suffix)
+    private RestResponse<JSONObject> sendJsonPostReqToEi(String method, TestType type, String suffix)
             throws IOException, JSONException {
         eiRequestHeadersMap.put("Action", String.format("urn:%s", method));
         return sendJsonRestRequest(proxyUrl,
-                HttpVerb.POST,
+                "POST",
                 eiRequestHeadersMap,
                 getFilenameOfPayload(method, type, suffix));
     }

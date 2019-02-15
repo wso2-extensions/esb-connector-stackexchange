@@ -24,15 +24,19 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class StackExchangeCommonWrapper {
-    private final Set<String> commonKeySet;
+    private static final String ERROR_STRING = "error";
 
-    public StackExchangeCommonWrapper(StackExchangeTestUtil.Filter filer) throws Exception {
-        if (!filer.isValid()) {
-            throw new Exception(
-                    "Cannot fetch valid information from given filter properties. " +
-                            "If you override filter name make sure it exists in backend.");
+    private final Set<String> commonKeySet;
+    private boolean errorKeysExist = false;
+
+    public StackExchangeCommonWrapper(StackExchangeTestUtil.FilterKeyIterator filter) {
+        commonKeySet = filter.getCommonKeySet();
+        for (String key : commonKeySet) {
+            if (key.contains(ERROR_STRING)) {
+                errorKeysExist = true;
+                break;
+            }
         }
-        commonKeySet = filer.getCommonKeySet();
     }
 
     public static boolean isCommonKey(String key) {
@@ -49,7 +53,7 @@ public class StackExchangeCommonWrapper {
             if (!commonKeySet.contains(key)) {
                 return WrapperType.UNKNOWN;
             }
-            if (key.contains("error")) {
+            if (errorKeysExist && key.contains(ERROR_STRING)) {
                 return WrapperType.ERROR;
             }
         }

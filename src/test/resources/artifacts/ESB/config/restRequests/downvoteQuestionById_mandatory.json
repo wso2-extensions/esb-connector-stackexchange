@@ -1,0 +1,8 @@
+{
+  "site": "%s(site)",
+  "accessToken": "%s(accessToken)",
+  "key": "%s(key)",
+  "id": "%s(questionId)",
+  "preview": true
+}
+
