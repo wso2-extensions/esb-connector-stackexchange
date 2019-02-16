@@ -44,7 +44,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                 return;
             }
             int curReputation = Integer.parseInt(property);
-            int minReputation = stackExchange.minReputation();
+            int minReputation = (stackExchange.self()) ? 1 : stackExchange.minReputation();
 
             if (curReputation < minReputation) {
                 iTestResult.setStatus(TestResult.SKIP);

@@ -1,10 +1,11 @@
 {
-  "site":"stackoverflow",
+  "site":"stackapps",
   "filter": "%s(filterName)",
   "accessToken": "%s(accessToken)",
   "key": "%s(key)",
-  "title":"URLConnection does not decompress Gzip",
+  "id": "%s(placeHolderId)",
   "body":"A simple compressed response from URLConnection instance should be decompressed if Accept-Encoding headers are set correctly. But it doesn't seems to be working. Have you ever experienced this type of problem?",
-  "tags":"java",
+  "comment": "Sample comment",
+  "tags":"library;bug",
   "preview": true
 }

@@ -154,10 +154,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= editQuestionById ======================================= */
 
-    /*
-     * @StackExchange(minReputation = 2000, privilegeWording = "edit questions and answers")
-     */
-    @StackExchange
+    @StackExchange(self = true, minReputation = 2000, privilegeWording = "edit questions and answers")
     @Test(groups = {"wso2.ei"})
     public void testEditQuestionByIdWithMandatory() throws IOException, JSONException {
         RestResponse<JSONObject> r = sendJsonPostReqToEi("editQuestionById", TestType.MANDATORY);
@@ -166,10 +163,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
 
-    /*
-     * @StackExchange(minReputation = 2000, privilegeWording = "edit questions and answers")
-     */
-    @StackExchange
+    @StackExchange(self = true, minReputation = 2000, privilegeWording = "edit questions and answers")
     @Test(groups = {"wso2.ei"})
     public void testEditQuestionByIdWithInvalid() throws IOException, JSONException {
         RestResponse<JSONObject> r = sendJsonPostReqToEi("editQuestionById", TestType.INVALID, "missingParameter");
