@@ -31,17 +31,21 @@ import org.wso2.connector.integration.test.base.RestResponse;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.*;
+import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.*;
 
 /**
  * StackExchange connector integration test
  */
 @Listeners(TestNgExecutionListener.class)
 public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationTestBase {
-    public static final String STACKEXCHANGE_REPUTATION = "stackexchange.reputation";
     private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
+
+    public static final String STACKEXCHANGE_PRIVILEGES = "stackexchange.privileges";
+    public static final String STACKEXCHANGE_PRIVILEGES_SEPARATOR = ";";
 
     private StackExchangeCommonWrapper stackExchangeCommonWrapper;
     private Map<String, String> eiRequestHeadersMap = new HashMap<>();
@@ -61,20 +65,44 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         String filterName = connectorProperties.getProperty("filterName");
         int placeHolderId = Integer.parseInt(connectorProperties.getProperty("placeHolderId"));
 
-        stackExchangeCommonWrapper = new StackExchangeCommonWrapper(
-                StackExchangeTestUtil.getFilterKeyIterator(apiVersion, filterName));
+        StackExchangeUrl filterUrl = new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
+        List<FilterIncludedFields> filterIncludedFieldsList = getStackExchangeObjectList(filterUrl, new FilterResponseExtractor());
 
-        int stackExchangeQuestionId = StackExchangeTestUtil.getQuestionIdIterator(
-                apiVersion, site, placeHolderId).next();
-        connectorProperties.setProperty("questionId", String.valueOf(stackExchangeQuestionId));
+        stackExchangeCommonWrapper = new StackExchangeCommonWrapper(filterIncludedFieldsList.get(0));
 
-        int reputation = StackExchangeTestUtil.getUserReputation(apiVersion, site, accessToken, key);
-        System.setProperty(STACKEXCHANGE_REPUTATION, String.valueOf(reputation));
+        StackExchangeUrl questionUrl =
+                new StackExchangeUrl.Builder(apiVersion, "/questions")
+                        .queryParam("site", site)
+                        .build();
+        List<QuestionId> questionIdList = getStackExchangeObjectList(questionUrl, new QuestionResponseExtractor());
+        for (QuestionId id : questionIdList) {
+            if (id.isValid(placeHolderId)) {
+                connectorProperties.setProperty("questionId", String.valueOf(id.getId()));
+                break;
+            }
+        }
+
+        StackExchangeUrl privilegeUrl =
+                new StackExchangeUrl.Builder(apiVersion, "/me/privileges/")
+                        .queryParam("site", site)
+                        .queryParam("key", key)
+                        .queryParam("access_token", accessToken).build();
+        List<PrivilegeShortDescription> privilegeShortDescriptionList = getStackExchangeObjectList(privilegeUrl,
+                new PrivilegeResponseExtractor());
+
+        StringBuilder privilegeBuilder = new StringBuilder();
+        for (PrivilegeShortDescription description : privilegeShortDescriptionList) {
+            privilegeBuilder.append(description.getShortDescription()).append(STACKEXCHANGE_PRIVILEGES_SEPARATOR);
+        }
+        if (privilegeBuilder.length() > 0) {
+            privilegeBuilder.setLength(privilegeBuilder.length() - 1);
+        }
+        System.setProperty(STACKEXCHANGE_PRIVILEGES, privilegeBuilder.toString());
     }
 
     /* ======================================= getMe ======================================= */
 
-    @StackExchange
+    @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
     public void testGetMeWithMandatory() throws IOException, JSONException {
         RestResponse<JSONObject> r = sendJsonPostReqToEi("getMe", TestType.MANDATORY);
@@ -83,7 +111,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
 
-    @StackExchange
+    @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
     public void testGetMeWithInvalid() throws IOException, JSONException {
         RestResponse<JSONObject> r = sendJsonPostReqToEi("getMe", TestType.INVALID, "missingParameter");
@@ -134,7 +162,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= downvoteQuestionById ======================================= */
 
-    @StackExchange(minReputation = 125, privilegeWording = "vote down")
+    @StackExchange(privilege = "vote down")
     @Test(groups = {"wso2.ei"})
     public void testDownvoteQuestionByIdWithMandatory() throws IOException, JSONException {
         RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteQuestionById", TestType.MANDATORY);
@@ -143,7 +171,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
 
-    @StackExchange(minReputation = 125, privilegeWording = "vote down")
+    @StackExchange(privilege = "vote down")
     @Test(groups = {"wso2.ei"})
     public void testDownvoteQuestionByIdWithInvalid() throws IOException, JSONException {
         RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteQuestionById", TestType.INVALID, "missingParameter");
@@ -154,7 +182,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= editQuestionById ======================================= */
 
-    @StackExchange(self = true, minReputation = 2000, privilegeWording = "edit questions and answers")
+    @StackExchange(skipPrivilegeCheck = true, privilege = "edit questions and answers")
     @Test(groups = {"wso2.ei"})
     public void testEditQuestionByIdWithMandatory() throws IOException, JSONException {
         RestResponse<JSONObject> r = sendJsonPostReqToEi("editQuestionById", TestType.MANDATORY);
@@ -163,7 +191,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
 
-    @StackExchange(self = true, minReputation = 2000, privilegeWording = "edit questions and answers")
+    @StackExchange(skipPrivilegeCheck = true, privilege = "edit questions and answers")
     @Test(groups = {"wso2.ei"})
     public void testEditQuestionByIdWithInvalid() throws IOException, JSONException {
         RestResponse<JSONObject> r = sendJsonPostReqToEi("editQuestionById", TestType.INVALID, "missingParameter");
@@ -174,7 +202,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= upvoteQuestionById ======================================= */
 
-    @StackExchange(minReputation = 15, privilegeWording = "vote up")
+    @StackExchange(privilege = "vote up")
     @Test(groups = {"wso2.ei"})
     public void testUpvoteQuestionByIdWithMandatory() throws IOException, JSONException {
         RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteQuestionById", TestType.MANDATORY);
@@ -183,7 +211,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
 
-    @StackExchange(minReputation = 15, privilegeWording = "vote up")
+    @StackExchange(privilege = "vote up")
     @Test(groups = {"wso2.ei"})
     public void testUpvoteQuestionByIdWithInvalid() throws IOException, JSONException {
         RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteQuestionById", TestType.INVALID, "missingParameter");

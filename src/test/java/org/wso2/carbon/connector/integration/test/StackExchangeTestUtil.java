@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.connector.integration.test;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
@@ -24,160 +25,132 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import javax.net.ssl.HttpsURLConnection;
-
-import static org.wso2.carbon.connector.integration.test.StackExchangeCommonWrapper.getCommonKeyAsKey;
-import static org.wso2.carbon.connector.integration.test.StackExchangeCommonWrapper.isCommonKey;
-
 public class StackExchangeTestUtil {
-    private static final String API_DOMAIN = "api.stackexchange.com";
-    private static final String FILTER_PATH = "/filters";
-    private static final String QUESTION_PATH = "/questions";
-    private static final String ME_PATH = "/me";
     private static final String OUTER_KEY = "items";
 
     private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
-    public static URL getApiUrl(String version, String path) throws MalformedURLException {
-        return getApiUrl(version, path, null);
-    }
-
-    public static URL getApiUrl(String version, String path, Map<String, String> queryParams) throws MalformedURLException {
-        if (queryParams == null || queryParams.isEmpty()) {
-             return new URL(String.format("https://%s/%s%s", API_DOMAIN, version, path));
-        }
-        StringBuilder queryParamBuilder = new StringBuilder();
-        for (Map.Entry<String, String> entry: queryParams.entrySet()) {
-            queryParamBuilder.append(entry.getKey()).append("=").append(entry.getValue());
-            queryParamBuilder.append("&");
-        }
-        queryParamBuilder.setLength(queryParamBuilder.length() - 1);
-        return new URL(String.format("https://%s/%s%s?%s", API_DOMAIN, version, path, queryParamBuilder.toString()));
-    }
-
-    public static int getUserReputation(String apiVersion, String site, String accessToken, String key) 
+    public static <T> List<T> getStackExchangeObjectList(StackExchangeUrl url, ResponseExtractor<T> extractor)
             throws IOException, JSONException {
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("key", key);
-        queryParams.put("site", site);
-        queryParams.put("access_token", accessToken);
-        StackExchangeApiConnection connection = new StackExchangeApiConnection(
-                (HttpsURLConnection) getApiUrl(apiVersion, ME_PATH, queryParams).openConnection());
-        JSONObject body = connection.body();
-        return body.getJSONArray(OUTER_KEY).getJSONObject(0).getInt("reputation");
+        StackExchangeUrlConnection connection = new StackExchangeUrlConnection(url.openConnection());
+        int code = connection.getResponseCode();
+        if (code != 200) {
+            throw new IOException(
+                    String.format("Object extraction failed due to invalid statusCode: (code = %s)", code));
+        }
+        InputStream stream = connection.getInputStream();
+        return extractor.extract(
+                new JSONObject(IOUtils.toString(stream, "UTF-8")).getJSONArray(OUTER_KEY));
     }
 
-    public static FilterKeyIterator getFilterKeyIterator(String apiVersion, String filterName)
-            throws Exception {
-        StackExchangeApiConnection connection = new StackExchangeApiConnection(
-                (HttpsURLConnection) getApiUrl(apiVersion, FILTER_PATH + "/" + filterName).openConnection());
-        return new FilterKeyIterator(connection.body(), connection.responseCode());
-    }
-
-    public static QuestionIdIterator getQuestionIdIterator(String apiVersion, String site, int placeHolderId)
-            throws Exception {
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("site", site);
-        StackExchangeApiConnection connection = new StackExchangeApiConnection(
-                (HttpsURLConnection) getApiUrl(apiVersion, QUESTION_PATH, queryParams).openConnection());
-        return new QuestionIdIterator(connection.body(), connection.responseCode(), placeHolderId);
-    }
-
-    public static class FilterKeyIterator implements Iterator<String> {
+    public static class FilterResponseExtractor implements ResponseExtractor<FilterIncludedFields> {
         private static final String INNER_KEY = "included_fields";
 
-        private final Iterator<String> keyIterator;
+        @Override
+        public List<FilterIncludedFields> extract(JSONArray itemArray) throws JSONException{
+            List<FilterIncludedFields> filterIncludedFields = new ArrayList<>();
+            for (int i = 0; i < itemArray.length(); i++) {
+                JSONObject item = itemArray.getJSONObject(i);
 
-        private FilterKeyIterator(JSONObject body, int code) throws Exception {
-            if (code != 200) {
-                throw new Exception(
-                        String.format("Cannot create a %s from filter route response. status code: %s",
-                                FilterKeyIterator.class.getName(), code));
-            }
-            JSONObject outer = body.getJSONArray(OUTER_KEY).getJSONObject(0);
-            try {
-                JSONArray data = outer.getJSONArray(INNER_KEY);
-                List<String> keyList = new ArrayList<>();
-                for (int i = 0; i < data.length(); i++) {
-                    keyList.add(data.getString(i));
-                }
-                this.keyIterator = keyList.iterator();
-            } catch (JSONException e) {
-                throw new JSONException(
-                        String.format("Cannot create a %s from filter route response. " +
-                                "If you override filter name make sure it exists in backend.",
-                                FilterKeyIterator.class.getName()));
-            }
-        }
-
-        public Set<String> getCommonKeySet() {
-            Set<String> commonKeys = new HashSet<>();
-            while (hasNext()) {
-                String key = next();
-                if (isCommonKey(key)) {
-                    commonKeys.add(getCommonKeyAsKey(key));
+                try {
+                    JSONArray includedFields = item.getJSONArray(INNER_KEY);
+                    List<String> filterKeys = new ArrayList<>();
+                    for (int j = 0; j < includedFields.length(); j++) {
+                        filterKeys.add(includedFields.getString(j));
+                    }
+                    filterIncludedFields.add(new FilterIncludedFields(filterKeys));
+                } catch (JSONException e) {
+                    throw new JSONException(
+                            String.format("Cannot find inner field %s. Check whether filter exists in backend", INNER_KEY));
                 }
             }
-            return commonKeys;
+            return filterIncludedFields;
         }
 
-        @Override
-        public boolean hasNext() {
-            return keyIterator.hasNext();
-        }
+    }
+
+    public static class QuestionResponseExtractor implements ResponseExtractor<QuestionId> {
+        private static final String INNER_KEY = "question_id";
 
         @Override
-        public String next() {
-            return keyIterator.next();
+        public List<QuestionId> extract(JSONArray itemArray) throws JSONException {
+            List<QuestionId> questionIds = new ArrayList<>();
+            for (int i = 0; i < itemArray.length(); i++) {
+                JSONObject item = itemArray.getJSONObject(i);
+
+                int id = item.getInt(INNER_KEY);
+                questionIds.add(new QuestionId(id));
+            }
+            return questionIds;
         }
     }
 
-    public static class QuestionIdIterator implements Iterator<Integer> {
-        private static final String INNER_KEY = "question_id";
+    public static class PrivilegeResponseExtractor implements ResponseExtractor<PrivilegeShortDescription> {
+        private static final String INNER_KEY = "short_description";
 
-        private final int placeHolder;
-        private final Iterator<Integer> idIterator;
+        @Override
+        public List<PrivilegeShortDescription> extract(JSONArray itemArray) throws JSONException {
+            List<PrivilegeShortDescription> privilegeShortDescriptions = new ArrayList<>();
+            for (int i = 0; i < itemArray.length(); i++) {
+                JSONObject item = itemArray.getJSONObject(i);
 
-        private QuestionIdIterator(JSONObject body, int code, int placeHolder) throws Exception {
-            if (code != 200) {
-                throw new Exception(
-                        String.format("Cannot create a %s from question route response. status code: %s",
-                                QuestionIdIterator.class.getName(), code));
+                String shortDescription = item.getString(INNER_KEY);
+                privilegeShortDescriptions.add(new PrivilegeShortDescription(shortDescription));
             }
-            JSONArray outer = body.getJSONArray(OUTER_KEY);
-            List<Integer> idList = new ArrayList<>();
-            for (int i = 0; i < outer.length(); i++) {
-                int id = outer.getJSONObject(i).getInt(INNER_KEY);
-                if (isUsable(id)) {
-                    idList.add(id);
-                }
-            }
-            this.idIterator = idList.iterator();
-            this.placeHolder = placeHolder;
+            return privilegeShortDescriptions;
+        }
+    }
+
+    public static class QuestionId {
+        private final int id;
+
+        private QuestionId(int id) {
+            this.id = id;
         }
 
-        public boolean isUsable(int id) {
+        public boolean isValid(int placeHolder) {
             return id != placeHolder;
         }
 
-        @Override
-        public boolean hasNext() {
-            return idIterator.hasNext();
+        public int getId() {
+            return id;
+        }
+    }
+
+    public static class PrivilegeShortDescription {
+        private final String shortDescription;
+
+        private PrivilegeShortDescription(String shortDescription) {
+            this.shortDescription = shortDescription;
         }
 
-        @Override
-        public Integer next() {
-            return idIterator.next();
+        public String getShortDescription() {
+            return shortDescription;
+        }
+    }
+
+    public static class FilterIncludedFields {
+
+        private final List<String> keys;
+
+        private FilterIncludedFields(List<String> keys) {
+            this.keys = keys;
+        }
+
+        public Set<String> getCommonKeySet() {
+            Set<String> commonKeySet = new HashSet<>();
+            for (String k : keys) {
+                if (StackExchangeCommonWrapper.isCommonKey(k)) {
+                    commonKeySet.add(StackExchangeCommonWrapper.getCommonKeyAsKey(k));
+                }
+            }
+            return commonKeySet;
         }
     }
 }

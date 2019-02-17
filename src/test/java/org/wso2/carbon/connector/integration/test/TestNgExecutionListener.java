@@ -17,40 +17,43 @@
  */
 package org.wso2.carbon.connector.integration.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.testng.IInvokedMethod;
 import org.testng.IInvokedMethodListener;
 import org.testng.ITestResult;
 import org.testng.SkipException;
 import org.testng.internal.TestResult;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class TestNgExecutionListener implements IInvokedMethodListener {
-    private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
+
+    private static final int LOWEST_POSSIBLE_REPUTATION = 1;
 
     @Override
     public void beforeInvocation(IInvokedMethod iInvokedMethod, ITestResult iTestResult) {
+
         if (!iInvokedMethod.isTestMethod()) {
             return;
         }
-        String property = System.getProperty(StackExchangeConnectorIntegrationTest.STACKEXCHANGE_REPUTATION);
+        String property = System.getProperty(StackExchangeConnectorIntegrationTest.STACKEXCHANGE_PRIVILEGES);
         if (property == null) {
             return;
         }
+        Set<String> privilegeSet = new HashSet<>(Arrays.asList(property.split(
+                StackExchangeConnectorIntegrationTest.STACKEXCHANGE_PRIVILEGES_SEPARATOR)));
         try {
             StackExchange stackExchange = StackExchangeConnectorIntegrationTest.class.getMethod(
                     iInvokedMethod.getTestMethod().getMethodName()).getAnnotation(StackExchange.class);
-            if (stackExchange == null) {
+            if (stackExchange == null || stackExchange.skipPrivilegeCheck()) {
                 return;
             }
-            int curReputation = Integer.parseInt(property);
-            int minReputation = (stackExchange.self()) ? 1 : stackExchange.minReputation();
-
-            if (curReputation < minReputation) {
+            if (!privilegeSet.contains(stackExchange.privilege())) {
                 iTestResult.setStatus(TestResult.SKIP);
-                throw new SkipException(
-                        String.format("Skipping test due to low StackExchange reputation: " +
-                                "(current reputation = %s, minimum reputation = %s)", curReputation, minReputation));
+                throw new SkipException(String.format(
+                        "Skip test due to low reputation: missing privilege: '%s'", stackExchange.privilege()));
             }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
@@ -59,5 +62,6 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
 
     @Override
     public void afterInvocation(IInvokedMethod iInvokedMethod, ITestResult iTestResult) {
+
     }
 }
