@@ -37,9 +37,12 @@
             <property expression="json-eval($.sort)" name="sort"/>
             <!-- Developer parameters -->
             <property expression="json-eval($.preview)" name="preview"/>
+            <!-- Response Filter -->
+            <property expression="json-eval($.filter)" name="filter"/>
             <stackexchange.init>
                 <key>{$ctx:key}</key>
                 <site>{$ctx:site}</site>
+                <filter>{$ctx:filter}</filter>
                 <accessToken>{$ctx:accessToken}</accessToken>
             </stackexchange.init>
             <switch source="get-property('transport', 'Action')">

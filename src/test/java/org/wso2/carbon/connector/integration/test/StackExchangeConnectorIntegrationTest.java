@@ -26,6 +26,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.connector.integration.test.StackExchangeCommonWrapper.WrapperType;
+import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.FilterShortDescriptionKey;
+import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.QuestionIdKey;
 import org.wso2.connector.integration.test.base.ConnectorIntegrationTestBase;
 import org.wso2.connector.integration.test.base.RestResponse;
 
@@ -37,13 +39,8 @@ import java.util.Map;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.TestType;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getConnectorName;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getFilenameOfPayload;
-import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.FilterIncludedFields;
-import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.FilterResponseExtractor;
-import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.PrivilegeResponseExtractor;
-import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.PrivilegeShortDescription;
-import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.QuestionId;
-import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.QuestionResponseExtractor;
-import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeObjectList;
+import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.*;
+import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeObjectKeyList;
 
 /**
  * StackExchange connector integration test
@@ -73,36 +70,46 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         String apiVersion = connectorProperties.getProperty("apiVersion");
         String accessToken = connectorProperties.getProperty("accessToken");
         String filterName = connectorProperties.getProperty("filterName");
-        int placeHolderId = Integer.parseInt(connectorProperties.getProperty("placeHolderId"));
 
-        StackExchangeUrl filterUrl = new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
-        List<FilterIncludedFields> filterIncludedFieldsList = getStackExchangeObjectList(filterUrl, new FilterResponseExtractor());
-
-        stackExchangeCommonWrapper = new StackExchangeCommonWrapper(filterIncludedFieldsList.get(0));
+        StackExchangeUrl filterUrl =
+                new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
+        List<FilterShortDescriptionKey> filterShortDescriptionKeys =
+                getStackExchangeObjectKeyList(filterUrl, FilterShortDescriptionKey.class);
+        stackExchangeCommonWrapper = new StackExchangeCommonWrapper(filterShortDescriptionKeys.get(0));
 
         StackExchangeUrl questionUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/questions")
                         .queryParam("site", site)
                         .build();
-        List<QuestionId> questionIdList = getStackExchangeObjectList(questionUrl, new QuestionResponseExtractor());
-        for (QuestionId id : questionIdList) {
-            if (id.isValid(placeHolderId)) {
-                connectorProperties.setProperty("questionId", String.valueOf(id.getId()));
-                break;
-            }
-        }
+        List<QuestionIdKey> questionIdKeys =
+                getStackExchangeObjectKeyList(questionUrl, QuestionIdKey.class);
+        setQuestionId(questionIdKeys);
 
         StackExchangeUrl privilegeUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/me/privileges/")
                         .queryParam("site", site)
                         .queryParam("key", key)
                         .queryParam("access_token", accessToken).build();
-        List<PrivilegeShortDescription> privilegeShortDescriptionList = getStackExchangeObjectList(privilegeUrl,
-                new PrivilegeResponseExtractor());
+        List<PrivilegeShortDescriptionKey> privilegeShortDescriptionList = getStackExchangeObjectKeyList(privilegeUrl,
+                PrivilegeShortDescriptionKey.class);
+        setPrivileges(privilegeShortDescriptionList);
 
+    }
+
+    private void setQuestionId(List<QuestionIdKey> questionIdKeys) {
+        int placeHolderId = Integer.parseInt(connectorProperties.getProperty("placeHolderId"));
+        for (QuestionIdKey key : questionIdKeys) {
+            if (!key.getKey().equals(placeHolderId)) {
+                connectorProperties.setProperty("questionId", String.valueOf(key.getKey()));
+                break;
+            }
+        }
+    }
+
+    private void setPrivileges(List<PrivilegeShortDescriptionKey> privileges) {
         StringBuilder privilegeBuilder = new StringBuilder();
-        for (PrivilegeShortDescription description : privilegeShortDescriptionList) {
-            privilegeBuilder.append(description.shortDescription).append(STACKEXCHANGE_PRIVILEGES_SEPARATOR);
+        for (PrivilegeShortDescriptionKey key : privileges) {
+            privilegeBuilder.append(key.getKey()).append(STACKEXCHANGE_PRIVILEGES_SEPARATOR);
         }
         if (privilegeBuilder.length() > 0) {
             privilegeBuilder.setLength(privilegeBuilder.length() - 1);

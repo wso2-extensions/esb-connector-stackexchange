@@ -19,6 +19,7 @@
     <sequence>
         <script language="js">
             <![CDATA[
+                var log = mc.getServiceLog();
                 function isOptionalEmpty(optional) {
                     if (typeof optional === 'undefined') {
                         return true;

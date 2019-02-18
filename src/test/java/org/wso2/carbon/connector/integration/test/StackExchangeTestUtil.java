@@ -26,6 +26,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,137 +34,95 @@ import java.util.Set;
 
 public class StackExchangeTestUtil {
 
-    private static final String OUTER_KEY = "items";
-
     private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
-    public static <T> List<T> getStackExchangeObjectList(StackExchangeUrl url, ResponseExtractor<T> extractor)
-            throws IOException, JSONException {
-
-        StackExchangeUrlConnection connection = new StackExchangeUrlConnection(url.openConnection());
+    public static <T> List<T> getStackExchangeObjectKeyList(StackExchangeUrl url, Class<T> type) throws Exception {
+        StackExchangeUrlConnection connection =
+                new StackExchangeUrlConnection(url.openConnection());
         int code = connection.getResponseCode();
         if (code != 200) {
             throw new IOException(
                     String.format("Object extraction failed due to invalid statusCode: (code = %s)", code));
         }
         InputStream stream = connection.getInputStream();
-        return extractor.extract(
-                new JSONObject(IOUtils.toString(stream, "UTF-8")).getJSONArray(OUTER_KEY));
+        JSONArray itemArray = new JSONObject(IOUtils.toString(stream, "UTF-8")).getJSONArray("items");
+        List<T> keys = new ArrayList<>();
+
+        for (int i = 0; i < itemArray.length(); i++) {
+            JSONObject item = itemArray.getJSONObject(i);
+            // T t = type.getConstructor(JSONObject.class).newInstance(item);
+            Constructor<T> constructor = type.getDeclaredConstructor(JSONObject.class);
+            constructor.setAccessible(true);
+            T t = constructor.newInstance(item);
+            keys.add(t);
+        }
+        return keys;
     }
 
-    public static class FilterResponseExtractor implements ResponseExtractor<FilterIncludedFields> {
+    public static abstract class StackExchangeObjectKey<T> {
 
-        private static final String INNER_KEY = "included_fields";
+        private final T key;
+
+        protected StackExchangeObjectKey(JSONObject item) throws JSONException {
+            key = extract(item);
+        }
+
+        protected abstract T extract(JSONObject item) throws JSONException;
+
+        public T getKey() {
+            return key;
+        }
+    }
+
+    public static class FilterShortDescriptionKey extends StackExchangeObjectKey<List<String>> {
+
+        protected FilterShortDescriptionKey(JSONObject item) throws JSONException {
+            super(item);
+        }
 
         @Override
-        public List<FilterIncludedFields> extract(JSONArray itemArray) throws JSONException {
-
-            List<FilterIncludedFields> filterIncludedFields = new ArrayList<>();
-            for (int i = 0; i < itemArray.length(); i++) {
-                JSONObject item = itemArray.getJSONObject(i);
-
-                try {
-                    JSONArray includedFields = item.getJSONArray(INNER_KEY);
-                    List<String> filterKeys = new ArrayList<>();
-                    for (int j = 0; j < includedFields.length(); j++) {
-                        filterKeys.add(includedFields.getString(j));
-                    }
-                    filterIncludedFields.add(new FilterIncludedFields(filterKeys));
-                } catch (JSONException e) {
-                    throw new JSONException(
-                            String.format("Cannot find inner field %s. Check whether filter exists in backend", INNER_KEY));
-                }
+        protected List<String> extract(JSONObject item) throws JSONException {
+            JSONArray includedFields = item.getJSONArray("included_fields");
+            List<String> keys = new ArrayList<>();
+            for (int i = 0; i < includedFields.length(); i++) {
+                keys.add(includedFields.getString(i));
             }
-            return filterIncludedFields;
-        }
-
-    }
-
-    public static class QuestionResponseExtractor implements ResponseExtractor<QuestionId> {
-
-        private static final String INNER_KEY = "question_id";
-
-        @Override
-        public List<QuestionId> extract(JSONArray itemArray) throws JSONException {
-
-            List<QuestionId> questionIds = new ArrayList<>();
-            for (int i = 0; i < itemArray.length(); i++) {
-                JSONObject item = itemArray.getJSONObject(i);
-
-                int id = item.getInt(INNER_KEY);
-                questionIds.add(new QuestionId(id));
-            }
-            return questionIds;
-        }
-    }
-
-    public static class PrivilegeResponseExtractor implements ResponseExtractor<PrivilegeShortDescription> {
-
-        private static final String INNER_KEY = "short_description";
-
-        @Override
-        public List<PrivilegeShortDescription> extract(JSONArray itemArray) throws JSONException {
-
-            List<PrivilegeShortDescription> privilegeShortDescriptions = new ArrayList<>();
-            for (int i = 0; i < itemArray.length(); i++) {
-                JSONObject item = itemArray.getJSONObject(i);
-
-                String shortDescription = item.getString(INNER_KEY);
-                privilegeShortDescriptions.add(new PrivilegeShortDescription(shortDescription));
-            }
-            return privilegeShortDescriptions;
-        }
-    }
-
-    public static class QuestionId {
-
-        private final int id;
-
-        private QuestionId(int id) {
-
-            this.id = id;
-        }
-
-        public boolean isValid(int placeHolder) {
-
-            return id != placeHolder;
-        }
-
-        public int getId() {
-
-            return id;
-        }
-    }
-
-    public static class PrivilegeShortDescription {
-
-        public final String shortDescription;
-
-        private PrivilegeShortDescription(String shortDescription) {
-
-            this.shortDescription = shortDescription;
-        }
-
-    }
-
-    public static class FilterIncludedFields {
-
-        private final List<String> keys;
-
-        private FilterIncludedFields(List<String> keys) {
-
-            this.keys = keys;
+            return keys;
         }
 
         public Set<String> getCommonKeySet() {
 
             Set<String> commonKeySet = new HashSet<>();
-            for (String k : keys) {
-                if (StackExchangeCommonWrapper.isCommonKey(k)) {
-                    commonKeySet.add(StackExchangeCommonWrapper.getCommonKeyAsKey(k));
+            for (String keyInKey : super.key) {
+                if (StackExchangeCommonWrapper.isCommonKey(keyInKey)) {
+                    commonKeySet.add(StackExchangeCommonWrapper.getCommonKeyAsKey(keyInKey));
                 }
             }
             return commonKeySet;
+        }
+    }
+
+    public static class QuestionIdKey extends StackExchangeObjectKey<Integer> {
+
+        protected QuestionIdKey(JSONObject item) throws JSONException {
+            super(item);
+        }
+
+        @Override
+        protected Integer extract(JSONObject item) throws JSONException {
+            return item.getInt("question_id");
+        }
+    }
+
+    public static class PrivilegeShortDescriptionKey extends StackExchangeObjectKey<String> {
+
+        protected PrivilegeShortDescriptionKey(JSONObject item) throws JSONException {
+            super(item);
+        }
+
+        @Override
+        protected String extract(JSONObject item) throws JSONException {
+            return item.getString("short_description");
         }
     }
 }

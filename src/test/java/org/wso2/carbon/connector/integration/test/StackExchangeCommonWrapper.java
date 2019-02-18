@@ -19,10 +19,11 @@ package org.wso2.carbon.connector.integration.test;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
-import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.FilterIncludedFields;
 
 import java.util.Iterator;
 import java.util.Set;
+
+import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.*;
 
 public class StackExchangeCommonWrapper {
 
@@ -31,7 +32,7 @@ public class StackExchangeCommonWrapper {
     private final Set<String> commonKeySet;
     private boolean errorKeysExist = false;
 
-    public StackExchangeCommonWrapper(FilterIncludedFields includedFields) {
+    public StackExchangeCommonWrapper(FilterShortDescriptionKey includedFields) {
 
         commonKeySet = includedFields.getCommonKeySet();
         for (String key : commonKeySet) {

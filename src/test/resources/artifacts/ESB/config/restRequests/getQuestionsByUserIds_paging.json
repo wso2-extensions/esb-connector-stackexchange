@@ -1,0 +1,14 @@
+{
+  "site":"%s(site)",
+  "ids":"%s(siteUserIds)",
+  "key":"%s(key)",
+  "filter": "%s(filterName)",
+  "pagesize": "%s(pagesize)",
+  "page": "%s(page)",
+  "fromdate": "%s(fromdate)",
+  "todate": "%s(todate)",
+  "min": "%s(min)",
+  "max": "%s(max)",
+  "sort": "%s(sort)",
+  "order": "%s(order)"
+}

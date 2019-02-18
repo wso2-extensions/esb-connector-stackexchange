@@ -1,5 +1,5 @@
 {
-  "site": "%s(site)",
+  "site": "%s(placeHolderSite)",
   "filter": "%s(filterName)",
   "accessToken": "%s(accessToken)",
   "key": "%s(key)",
