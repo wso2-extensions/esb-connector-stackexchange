@@ -32,19 +32,21 @@ public class CommonTestUtil {
     }
 
     public static String prettyJson(JSONObject json) throws JSONException {
+
         return json.toString(2);
     }
 
     public static String clearLogMessage(String middle) {
         /* Note: for string concatenation compile-time optimization is possible */
         return String.format("\n" +
-                "====================================================\n" +
-                "%s\n" +
-                "====================================================\n",
-        middle);
+                        "====================================================\n" +
+                        "%s\n" +
+                        "====================================================\n",
+                middle);
     }
 
     public static String getFilenameOfPayload(String method, TestType type, String suffix) {
+
         if (StringUtils.isEmpty(suffix)) {
             return String.format("%s_%s.json", method, type.value);
         }
@@ -57,6 +59,7 @@ public class CommonTestUtil {
         private final String value;
 
         TestType(String value) {
+
             this.value = value;
         }
     }

@@ -23,18 +23,22 @@ import java.util.zip.GZIPInputStream;
 import javax.net.ssl.HttpsURLConnection;
 
 public class StackExchangeUrlConnection {
+
     private final HttpsURLConnection connection;
 
     public StackExchangeUrlConnection(HttpsURLConnection connection) {
+
         this.connection = connection;
         this.connection.setRequestProperty("Accept-Encoding", "gzip");
     }
 
     public int getResponseCode() throws IOException {
+
         return connection.getResponseCode();
     }
 
     public InputStream getInputStream() throws IOException {
+
         return new GZIPInputStream(connection.getInputStream());
     }
 }

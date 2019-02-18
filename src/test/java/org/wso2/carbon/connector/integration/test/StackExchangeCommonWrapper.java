@@ -25,12 +25,14 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class StackExchangeCommonWrapper {
+
     private static final String ERROR_STRING = "error";
 
     private final Set<String> commonKeySet;
     private boolean errorKeysExist = false;
 
     public StackExchangeCommonWrapper(FilterIncludedFields includedFields) {
+
         commonKeySet = includedFields.getCommonKeySet();
         for (String key : commonKeySet) {
             if (key.contains(ERROR_STRING)) {
@@ -41,15 +43,18 @@ public class StackExchangeCommonWrapper {
     }
 
     public static boolean isCommonKey(String key) {
+
         return StringUtils.isNotEmpty(key) && key.charAt(0) == '.';
     }
 
     public static String getCommonKeyAsKey(String commonKey) {
+
         return commonKey.substring(1);
     }
 
     public WrapperType fetchWrapperType(JSONObject json) {
-        for (Iterator<String> i = json.keys(); i.hasNext();) {
+
+        for (Iterator<String> i = json.keys(); i.hasNext(); ) {
             String key = i.next();
             if (!commonKeySet.contains(key)) {
                 return WrapperType.UNKNOWN;

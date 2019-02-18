@@ -1,9 +1,9 @@
 {
-  "site":"stackoverflow",
+  "site": "stackoverflow",
   "filter": "%s(filterName)",
   "accessToken": "%s(accessToken)",
   "key": "%s(key)",
-  "title":"URLConnection does not decompress Gzip",
-  "tags":"java",
+  "title": "URLConnection does not decompress Gzip",
+  "tags": "java",
   "preview": true
 }

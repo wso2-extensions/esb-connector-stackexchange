@@ -19,14 +19,14 @@
 <template name="init" xmlns="http://ws.apache.org/ns/synapse">
     <parameter name="site" description="Site to get data. e.g. stackoverflow, askubuntu"/>
     <parameter name="apiVersion" description="The URL of the Stack Exchange REST API"/>
-    <parameter name="filter" description="Response filter" />
+    <parameter name="filter" description="Response filter"/>
     <parameter name="accessToken" description="OAuth2 Access Token"/>
     <parameter name="key"
                description="Should Pass this as key when making requests against to receive a higher request quota."/>
     <sequence>
         <property name="uri.var.site" expression="$func:site"/>
         <property name="uri.var.apiVersion" expression="$func:apiVersion"/>
-        <property name="uri.var.apiDomain" value="https://api.stackexchange.com" />
+        <property name="uri.var.apiDomain" value="https://api.stackexchange.com"/>
         <!-- If API Version is not specified, set the defaults -->
         <filter source="boolean(get-property('uri.var.apiVersion'))" regex="false">
             <then>

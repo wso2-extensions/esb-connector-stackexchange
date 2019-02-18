@@ -1,10 +1,10 @@
 {
-  "site":"stackoverflow",
+  "site": "stackoverflow",
   "filter": "%s(filterName)",
   "accessToken": "%s(accessToken)",
   "key": "%s(key)",
-  "title":"URLConnection does not decompress Gzip",
-  "body":"A simple compressed response from URLConnection instance should be decompressed if Accept-Encoding headers are set correctly. But it doesn't seems to be working. Have you ever experienced this type of problem?",
-  "tags":"java",
+  "title": "URLConnection does not decompress Gzip",
+  "body": "A simple compressed response from URLConnection instance should be decompressed if Accept-Encoding headers are set correctly. But it doesn't seems to be working. Have you ever experienced this type of problem?",
+  "tags": "java",
   "preview": true
 }

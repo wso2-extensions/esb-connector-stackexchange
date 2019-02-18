@@ -1,12 +1,12 @@
 {
-  "site":"stackapps",
+  "site": "stackapps",
   "filter": "%s(filterName)",
   "accessToken": "%s(accessToken)",
   "key": "%s(key)",
   "id": "%s(placeHolderId)",
-  "title":"URLConnection does not decompress Gzip",
-  "body":"A simple compressed response from URLConnection instance should be decompressed if Accept-Encoding headers are set correctly. But it doesn't seems to be working. Have you ever experienced this type of problem?",
+  "title": "URLConnection does not decompress Gzip",
+  "body": "A simple compressed response from URLConnection instance should be decompressed if Accept-Encoding headers are set correctly. But it doesn't seems to be working. Have you ever experienced this type of problem?",
   "comment": "Sample comment",
-  "tags":"library;bug",
+  "tags": "library;bug",
   "preview": true
 }

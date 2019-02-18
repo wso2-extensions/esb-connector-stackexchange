@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface StackExchange {
+
     boolean skipPrivilegeCheck() default false;
+
     String privilege() default "create posts";
 }

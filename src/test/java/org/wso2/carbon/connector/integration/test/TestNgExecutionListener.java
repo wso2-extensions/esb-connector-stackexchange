@@ -25,7 +25,6 @@ import org.testng.internal.TestResult;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class TestNgExecutionListener implements IInvokedMethodListener {
@@ -50,7 +49,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
             if (stackExchange == null || stackExchange.skipPrivilegeCheck()) {
                 return;
             }
-            if (!privilegeSet.contains(stackExchange.privilege())) {
+            if (!privilegeSet.contains(stackExchange.privilege().trim())) {
                 iTestResult.setStatus(TestResult.SKIP);
                 throw new SkipException(String.format(
                         "Skip test due to low reputation: missing privilege: '%s'", stackExchange.privilege()));

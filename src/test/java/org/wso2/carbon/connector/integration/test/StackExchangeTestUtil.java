@@ -32,12 +32,14 @@ import java.util.List;
 import java.util.Set;
 
 public class StackExchangeTestUtil {
+
     private static final String OUTER_KEY = "items";
 
     private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
     public static <T> List<T> getStackExchangeObjectList(StackExchangeUrl url, ResponseExtractor<T> extractor)
             throws IOException, JSONException {
+
         StackExchangeUrlConnection connection = new StackExchangeUrlConnection(url.openConnection());
         int code = connection.getResponseCode();
         if (code != 200) {
@@ -50,10 +52,12 @@ public class StackExchangeTestUtil {
     }
 
     public static class FilterResponseExtractor implements ResponseExtractor<FilterIncludedFields> {
+
         private static final String INNER_KEY = "included_fields";
 
         @Override
-        public List<FilterIncludedFields> extract(JSONArray itemArray) throws JSONException{
+        public List<FilterIncludedFields> extract(JSONArray itemArray) throws JSONException {
+
             List<FilterIncludedFields> filterIncludedFields = new ArrayList<>();
             for (int i = 0; i < itemArray.length(); i++) {
                 JSONObject item = itemArray.getJSONObject(i);
@@ -76,10 +80,12 @@ public class StackExchangeTestUtil {
     }
 
     public static class QuestionResponseExtractor implements ResponseExtractor<QuestionId> {
+
         private static final String INNER_KEY = "question_id";
 
         @Override
         public List<QuestionId> extract(JSONArray itemArray) throws JSONException {
+
             List<QuestionId> questionIds = new ArrayList<>();
             for (int i = 0; i < itemArray.length(); i++) {
                 JSONObject item = itemArray.getJSONObject(i);
@@ -92,10 +98,12 @@ public class StackExchangeTestUtil {
     }
 
     public static class PrivilegeResponseExtractor implements ResponseExtractor<PrivilegeShortDescription> {
+
         private static final String INNER_KEY = "short_description";
 
         @Override
         public List<PrivilegeShortDescription> extract(JSONArray itemArray) throws JSONException {
+
             List<PrivilegeShortDescription> privilegeShortDescriptions = new ArrayList<>();
             for (int i = 0; i < itemArray.length(); i++) {
                 JSONObject item = itemArray.getJSONObject(i);
@@ -108,31 +116,34 @@ public class StackExchangeTestUtil {
     }
 
     public static class QuestionId {
+
         private final int id;
 
         private QuestionId(int id) {
+
             this.id = id;
         }
 
         public boolean isValid(int placeHolder) {
+
             return id != placeHolder;
         }
 
         public int getId() {
+
             return id;
         }
     }
 
     public static class PrivilegeShortDescription {
-        private final String shortDescription;
+
+        public final String shortDescription;
 
         private PrivilegeShortDescription(String shortDescription) {
+
             this.shortDescription = shortDescription;
         }
 
-        public String getShortDescription() {
-            return shortDescription;
-        }
     }
 
     public static class FilterIncludedFields {
@@ -140,10 +151,12 @@ public class StackExchangeTestUtil {
         private final List<String> keys;
 
         private FilterIncludedFields(List<String> keys) {
+
             this.keys = keys;
         }
 
         public Set<String> getCommonKeySet() {
+
             Set<String> commonKeySet = new HashSet<>();
             for (String k : keys) {
                 if (StackExchangeCommonWrapper.isCommonKey(k)) {

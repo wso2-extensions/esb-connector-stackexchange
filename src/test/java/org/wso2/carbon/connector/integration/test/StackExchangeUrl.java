@@ -24,19 +24,23 @@ import java.net.URLConnection;
 import javax.net.ssl.HttpsURLConnection;
 
 public class StackExchangeUrl {
+
     private static final String API_DOMAIN = "api.stackexchange.com";
     private final URL url;
 
     public static class Builder {
+
         private final String path;
         private final StringBuilder queryParamBuilder;
 
         public Builder(String version, String path) {
+
             this.path = path;
             queryParamBuilder = new StringBuilder();
         }
 
         public Builder queryParam(String key, String val) {
+
             queryParamBuilder
                     .append("&")
                     .append(key)
@@ -46,11 +50,13 @@ public class StackExchangeUrl {
         }
 
         public StackExchangeUrl build() throws MalformedURLException {
+
             return new StackExchangeUrl(this);
         }
     }
 
     private StackExchangeUrl(Builder builder) throws MalformedURLException {
+
         String queryParams = builder.queryParamBuilder.toString();
         StringBuilder urlBuilder = new StringBuilder()
                 .append("https://")
@@ -61,8 +67,9 @@ public class StackExchangeUrl {
         }
         url = new URL(urlBuilder.toString());
     }
-    
+
     public HttpsURLConnection openConnection() throws IOException {
+
         URLConnection connection = url.openConnection();
         return (HttpsURLConnection) connection;
     }
