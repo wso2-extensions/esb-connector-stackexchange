@@ -13,5 +13,7 @@ public @interface StackExchange {
 
     boolean needMyAnswer() default false;
 
+    boolean needMyQuestion() default false;
+
     String privilege() default "create posts";
 }

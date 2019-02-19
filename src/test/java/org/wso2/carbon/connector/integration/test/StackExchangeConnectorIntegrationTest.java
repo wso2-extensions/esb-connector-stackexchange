@@ -53,9 +53,9 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
 
+    public static final String STACKEXCHANGE_HAS_QUESTION = "stackexchange.hasquestion";
     public static final String STACKEXCHANGE_HAS_ANSWER = "stackexchange.hasanswer";
     public static final String STACKEXCHANGE_PRIVILEGES = "stackexchange.privileges";
-    public static final String STACKEXCHANGE_PRIVILEGES_SEPARATOR = ";";
 
     private StackExchangeCommonWrapper stackExchangeCommonWrapper;
     private Map<String, String> eiRequestHeadersMap = new HashMap<>();
@@ -89,8 +89,13 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
                         .queryParam("accepted", "False")
                         .queryParam("answers", "1").build();
         QuestionIdKey questionIdKey = getStackExchangeObjectKey(questionUrl, QuestionIdKey.class);
-        while (Integer.parseInt(placeHolderQId) == questionIdKey.getKey()) {
-            questionIdKey = getStackExchangeObjectKey(questionUrl, QuestionIdKey.class);
+        if (StringUtils.isEmpty(placeHolderQId)) {
+            System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(false));
+        } else {
+            System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(true));
+            while (Integer.parseInt(placeHolderQId) == questionIdKey.getKey()) {
+                questionIdKey = getStackExchangeObjectKey(questionUrl, QuestionIdKey.class);
+            }
         }
         connectorProperties.setProperty("questionId", String.valueOf(questionIdKey.getKey()));
 
@@ -118,7 +123,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     private void setPrivilegesInSystemProperty(List<PrivilegeShortDescriptionKey> privileges) {
         StringBuilder privilegeBuilder = new StringBuilder();
         for (PrivilegeShortDescriptionKey key : privileges) {
-            privilegeBuilder.append(key.getKey()).append(STACKEXCHANGE_PRIVILEGES_SEPARATOR);
+            privilegeBuilder.append(key.getKey()).append(";");
         }
         if (privilegeBuilder.length() > 0) {
             privilegeBuilder.setLength(privilegeBuilder.length() - 1);
@@ -172,7 +177,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= deleteQuestionById ======================================= */
 
-    @StackExchange
+    @StackExchange(needMyQuestion = true)
     @Test(groups = {"wso2.ei"})
     public void testDeleteQuestionByIdWithInvalid() throws IOException, JSONException {
 
@@ -182,7 +187,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
     }
 
-    @StackExchange
+    @StackExchange(needMyQuestion = true)
     @Test(groups = {"wso2.ei"})
     public void testDeleteQuestionByIdWithMandatory() throws IOException, JSONException {
 
@@ -216,7 +221,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= editQuestionById ======================================= */
 
-    @StackExchange(skipPrivilegeCheck = true, privilege = "edit questions and answers")
+    @StackExchange(needMyQuestion = true, privilege = "edit questions and answers")
     @Test(groups = {"wso2.ei"})
     public void testEditQuestionByIdWithInvalid() throws IOException, JSONException {
 
@@ -226,7 +231,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
     }
 
-    @StackExchange(skipPrivilegeCheck = true, privilege = "edit questions and answers")
+    @StackExchange(needMyQuestion = true, privilege = "edit questions and answers")
     @Test(groups = {"wso2.ei"})
     public void testEditQuestionByIdWithMandatory() throws IOException, JSONException {
 
