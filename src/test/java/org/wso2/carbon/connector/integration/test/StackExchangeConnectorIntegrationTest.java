@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.connector.integration.test;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
@@ -70,44 +71,47 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         String filterName = connectorProperties.getProperty("filterName");
         String apiVersion = connectorProperties.getProperty("apiVersion");
         String accessToken = connectorProperties.getProperty("accessToken");
+        String placeHolderQId = connectorProperties.getProperty("placeHolderQId");
+        String placeHolderAId = connectorProperties.getProperty("placeHolderAId");
 
         StackExchangeUrl filterUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
+        FilterIncludedFieldsKey filterIncludedFieldsKey =
+                getStackExchangeObjectKey(filterUrl, FilterIncludedFieldsKey.class);
+        stackExchangeCommonWrapper = new StackExchangeCommonWrapper(filterIncludedFieldsKey);
+
         StackExchangeUrl questionUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/search/advanced")
                         .queryParam("site", site)
-                        .queryParam("accepted", String.valueOf(false))
-                        .build();
+                        .queryParam("accepted", "False")
+                        .queryParam("answers", "1").build();
+        QuestionIdKey questionIdKey = getStackExchangeObjectKey(questionUrl, QuestionIdKey.class);
+        while (Integer.parseInt(placeHolderQId) == questionIdKey.getKey()) {
+            questionIdKey = getStackExchangeObjectKey(questionUrl, QuestionIdKey.class);
+        }
+        connectorProperties.setProperty("questionId", String.valueOf(questionIdKey.getKey()));
+
+        if (StringUtils.isEmpty(placeHolderAId)) {
+            StackExchangeUrl answerUrl =
+                    new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionIdKey.getKey() +"/answers")
+                            .queryParam("site", site).build();
+            AnswerIdKey answerIdKey = getStackExchangeObjectKey(answerUrl, AnswerIdKey.class);
+            connectorProperties.setProperty("placeHolderAId", String.valueOf(answerIdKey.getKey()));
+        }
+
         StackExchangeUrl privilegeUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/me/privileges/")
                         .queryParam("site", site)
                         .queryParam("key", key)
                         .queryParam("access_token", accessToken).build();
-
-        setStackExchangeCommonWrapper(filterUrl);
-        setQuestionId(questionUrl);
-        setPrivileges(privilegeUrl);
+        List<PrivilegeShortDescriptionKey> privilegeShortDescriptionKeyList =
+                getStackExchangeObjectKeyList(privilegeUrl, PrivilegeShortDescriptionKey.class);
+        setPrivilegesInSystemProperty(privilegeShortDescriptionKeyList);
     }
 
-    private void setStackExchangeCommonWrapper(StackExchangeUrl url) throws Exception {
-        FilterIncludedFieldsKey filterIncludedFieldsKey =
-                getStackExchangeObjectKey(url, FilterIncludedFieldsKey.class);
-        stackExchangeCommonWrapper = new StackExchangeCommonWrapper(filterIncludedFieldsKey);
-    }
-
-    private void setQuestionId(StackExchangeUrl url) throws Exception {
-        int placeHolderId = Integer.parseInt(connectorProperties.getProperty("placeHolderId"));
-        int id = getStackExchangeObjectKey(url, QuestionIdKey.class).getKey();
-        while (placeHolderId == id) {
-            id = getStackExchangeObjectKey(url, QuestionIdKey.class).getKey();
-        }
-        connectorProperties.setProperty("questionId", String.valueOf(id));
-    }
-
-    private void setPrivileges(StackExchangeUrl url) throws Exception {
-        List<PrivilegeShortDescriptionKey> keys = getStackExchangeObjectKeyList(url, PrivilegeShortDescriptionKey.class);
+    private void setPrivilegesInSystemProperty(List<PrivilegeShortDescriptionKey> privileges) {
         StringBuilder privilegeBuilder = new StringBuilder();
-        for (PrivilegeShortDescriptionKey key : keys) {
+        for (PrivilegeShortDescriptionKey key : privileges) {
             privilegeBuilder.append(key.getKey()).append(STACKEXCHANGE_PRIVILEGES_SEPARATOR);
         }
         if (privilegeBuilder.length() > 0) {

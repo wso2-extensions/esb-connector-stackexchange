@@ -26,7 +26,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -145,20 +144,13 @@ public class StackExchangeTestUtil {
 
     public static class QuestionIdKey extends StackExchangeObjectKey<Integer> {
 
-        private boolean acceptedAnswer = false;
-
         protected QuestionIdKey(JSONObject item) throws JSONException {
             super(item);
         }
 
         @Override
         protected Integer extract(JSONObject item) throws JSONException {
-            acceptedAnswer = item.has("accepted_answer_id");
             return item.getInt("question_id");
-        }
-
-        public boolean hasAcceptedAnswer() {
-            return acceptedAnswer;
         }
     }
 
