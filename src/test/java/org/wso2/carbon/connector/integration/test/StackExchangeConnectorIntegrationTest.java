@@ -26,7 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.connector.integration.test.StackExchangeCommonWrapper.WrapperType;
-import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.FilterShortDescriptionKey;
+import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.FilterIncludedFieldsKey;
 import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.QuestionIdKey;
 import org.wso2.connector.integration.test.base.ConnectorIntegrationTestBase;
 import org.wso2.connector.integration.test.base.RestResponse;
@@ -67,33 +67,32 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         String key = connectorProperties.getProperty("key");
         String site = connectorProperties.getProperty("site");
+        String filterName = connectorProperties.getProperty("filterName");
         String apiVersion = connectorProperties.getProperty("apiVersion");
         String accessToken = connectorProperties.getProperty("accessToken");
-        String filterName = connectorProperties.getProperty("filterName");
 
         StackExchangeUrl filterUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
-        List<FilterShortDescriptionKey> filterShortDescriptionKeys =
-                getStackExchangeObjectKeyList(filterUrl, FilterShortDescriptionKey.class);
-        stackExchangeCommonWrapper = new StackExchangeCommonWrapper(filterShortDescriptionKeys.get(0));
-
         StackExchangeUrl questionUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/questions")
                         .queryParam("site", site)
                         .build();
-        List<QuestionIdKey> questionIdKeys =
-                getStackExchangeObjectKeyList(questionUrl, QuestionIdKey.class);
-        setQuestionId(questionIdKeys);
-
         StackExchangeUrl privilegeUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/me/privileges/")
                         .queryParam("site", site)
                         .queryParam("key", key)
                         .queryParam("access_token", accessToken).build();
-        List<PrivilegeShortDescriptionKey> privilegeShortDescriptionList = getStackExchangeObjectKeyList(privilegeUrl,
-                PrivilegeShortDescriptionKey.class);
-        setPrivileges(privilegeShortDescriptionList);
 
+        List<FilterIncludedFieldsKey> filterIncludedFieldsKeys =
+                getStackExchangeObjectKeyList(filterUrl, FilterIncludedFieldsKey.class);
+        List<QuestionIdKey> questionIdKeys =
+                getStackExchangeObjectKeyList(questionUrl, QuestionIdKey.class);
+        List<PrivilegeShortDescriptionKey> privilegeShortDescriptions =
+                getStackExchangeObjectKeyList(privilegeUrl, PrivilegeShortDescriptionKey.class);
+
+        stackExchangeCommonWrapper = new StackExchangeCommonWrapper(filterIncludedFieldsKeys.get(0));
+        setQuestionId(questionIdKeys);
+        setPrivileges(privilegeShortDescriptions);
     }
 
     private void setQuestionId(List<QuestionIdKey> questionIdKeys) {

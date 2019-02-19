@@ -32,7 +32,7 @@ public class StackExchangeCommonWrapper {
     private final Set<String> commonKeySet;
     private boolean errorKeysExist = false;
 
-    public StackExchangeCommonWrapper(FilterShortDescriptionKey includedFields) {
+    public StackExchangeCommonWrapper(FilterIncludedFieldsKey includedFields) {
 
         commonKeySet = includedFields.getCommonKeySet();
         for (String key : commonKeySet) {

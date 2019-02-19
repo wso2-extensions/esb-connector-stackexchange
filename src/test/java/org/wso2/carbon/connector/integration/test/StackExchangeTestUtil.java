@@ -25,7 +25,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,27 +35,17 @@ public class StackExchangeTestUtil {
 
     private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
-    public static <T> List<T> getStackExchangeObjectKeyList(StackExchangeUrl url, Class<T> type) throws Exception {
-        StackExchangeUrlConnection connection =
-                new StackExchangeUrlConnection(url.openConnection());
-        int code = connection.getResponseCode();
-        if (code != 200) {
-            throw new IOException(
-                    String.format("Object extraction failed due to invalid statusCode: (code = %s)", code));
-        }
-        InputStream stream = connection.getInputStream();
-        JSONArray itemArray = new JSONObject(IOUtils.toString(stream, "UTF-8")).getJSONArray("items");
-        List<T> keys = new ArrayList<>();
+    public static <T extends StackExchangeObjectKey> List<T> getStackExchangeObjectKeyList(
+            StackExchangeUrl url, Class<T> tClass) throws Exception {
 
-        for (int i = 0; i < itemArray.length(); i++) {
-            JSONObject item = itemArray.getJSONObject(i);
-            // T t = type.getConstructor(JSONObject.class).newInstance(item);
-            Constructor<T> constructor = type.getDeclaredConstructor(JSONObject.class);
-            constructor.setAccessible(true);
-            T t = constructor.newInstance(item);
-            keys.add(t);
+        StackExchangeUrlConnection connection = new StackExchangeUrlConnection(url.openConnection());
+        if (connection.getResponseCode() != 200) {
+            String error = String.format("Object extraction failed due to invalid statusCode: (code = %s)",
+                    connection.getResponseCode());
+            throw new IOException(error);
         }
-        return keys;
+        JSONObject body = new JSONObject(IOUtils.toString(connection.getInputStream(), "UTF-8"));
+        return new ObjectItemKey(body).asList(tClass);
     }
 
     public static abstract class StackExchangeObjectKey<T> {
@@ -74,9 +63,35 @@ public class StackExchangeTestUtil {
         }
     }
 
-    public static class FilterShortDescriptionKey extends StackExchangeObjectKey<List<String>> {
+    public static class ObjectItemKey extends StackExchangeObjectKey<JSONArray> {
 
-        protected FilterShortDescriptionKey(JSONObject item) throws JSONException {
+        protected ObjectItemKey(JSONObject item) throws JSONException {
+            super(item);
+        }
+
+        @Override
+        protected JSONArray extract(JSONObject item) throws JSONException {
+            return item.getJSONArray("items");
+        }
+
+        private <T extends StackExchangeObjectKey> List<T> asList(Class<T> tClass)
+                throws ReflectiveOperationException, JSONException {
+
+            List<T> itemList = new ArrayList<>();
+
+            for (int i = 0; i < super.key.length(); i++) {
+                JSONObject item = super.key.getJSONObject(i);
+                Constructor<T> constructor = tClass.getDeclaredConstructor(JSONObject.class);
+                constructor.setAccessible(true);
+                itemList.add(constructor.newInstance(item));
+            }
+            return itemList;
+        }
+    }
+
+    public static class FilterIncludedFieldsKey extends StackExchangeObjectKey<List<String>> {
+
+        protected FilterIncludedFieldsKey(JSONObject item) throws JSONException {
             super(item);
         }
 
