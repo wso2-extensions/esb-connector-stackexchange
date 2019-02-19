@@ -1,0 +1,5 @@
+{
+  "site": "%s(site)",
+  "access_token": "%s(accessToken)",
+  "key": "%s(key)"
+}

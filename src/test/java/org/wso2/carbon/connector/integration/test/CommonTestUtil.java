@@ -54,7 +54,7 @@ public class CommonTestUtil {
     }
 
     public enum TestType {
-        MANDATORY("mandatory"), OPTIONAL("optional"), INVALID("invalid");
+        MANDATORY("mandatory"), OPTIONAL("optional"), INVALID("invalid"), PAGING("paging");
 
         private final String value;
 

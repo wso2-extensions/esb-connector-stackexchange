@@ -124,16 +124,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
-    public void testGetMeWithMandatory() throws IOException, JSONException {
-
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getMe", TestType.MANDATORY);
-
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
-    }
-
-    @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
     public void testGetMeWithInvalid() throws IOException, JSONException {
 
         RestResponse<JSONObject> r = sendJsonPostReqToEi("getMe", TestType.INVALID, "missingParameter");
@@ -142,17 +132,17 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
     }
 
-    /* ======================================= addQuestion ======================================= */
-
-    @StackExchange
+    @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
-    public void testAddQuestionWithMandatory() throws IOException, JSONException {
+    public void testGetMeWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("addQuestion", TestType.MANDATORY);
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getMe", TestType.MANDATORY);
 
         Assert.assertEquals(r.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
+
+    /* ======================================= addQuestion ======================================= */
 
     @StackExchange
     @Test(groups = {"wso2.ei"})
@@ -164,17 +154,17 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
     }
 
-    /* ======================================= deleteQuestionById ======================================= */
-
     @StackExchange
     @Test(groups = {"wso2.ei"})
-    public void testDeleteQuestionByIdWithMandatory() throws IOException, JSONException {
+    public void testAddQuestionWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("deleteQuestionById", TestType.MANDATORY);
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("addQuestion", TestType.MANDATORY);
 
         Assert.assertEquals(r.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
+
+    /* ======================================= deleteQuestionById ======================================= */
 
     @StackExchange
     @Test(groups = {"wso2.ei"})
@@ -186,17 +176,17 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
     }
 
-    /* ======================================= downvoteQuestionById ======================================= */
-
-    @StackExchange(privilege = "vote down")
+    @StackExchange
     @Test(groups = {"wso2.ei"})
-    public void testDownvoteQuestionByIdWithMandatory() throws IOException, JSONException {
+    public void testDeleteQuestionByIdWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteQuestionById", TestType.MANDATORY);
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("deleteQuestionById", TestType.MANDATORY);
 
         Assert.assertEquals(r.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
+
+    /* ======================================= downvoteQuestionById ======================================= */
 
     @StackExchange(privilege = "vote down")
     @Test(groups = {"wso2.ei"})
@@ -208,17 +198,17 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
     }
 
-    /* ======================================= editQuestionById ======================================= */
-
-    @StackExchange(skipPrivilegeCheck = true, privilege = "edit questions and answers")
+    @StackExchange(privilege = "vote down")
     @Test(groups = {"wso2.ei"})
-    public void testEditQuestionByIdWithMandatory() throws IOException, JSONException {
+    public void testDownvoteQuestionByIdWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("editQuestionById", TestType.MANDATORY);
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteQuestionById", TestType.MANDATORY);
 
         Assert.assertEquals(r.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
+
+    /* ======================================= editQuestionById ======================================= */
 
     @StackExchange(skipPrivilegeCheck = true, privilege = "edit questions and answers")
     @Test(groups = {"wso2.ei"})
@@ -230,7 +220,27 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
     }
 
+    @StackExchange(skipPrivilegeCheck = true, privilege = "edit questions and answers")
+    @Test(groups = {"wso2.ei"})
+    public void testEditQuestionByIdWithMandatory() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("editQuestionById", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
     /* ======================================= upvoteQuestionById ======================================= */
+
+    @StackExchange(privilege = "vote up")
+    @Test(groups = {"wso2.ei"})
+    public void testUpvoteQuestionByIdWithInvalid() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteQuestionById", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
 
     @StackExchange(privilege = "vote up")
     @Test(groups = {"wso2.ei"})
@@ -242,14 +252,100 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
 
-    @StackExchange(privilege = "vote up")
-    @Test(groups = {"wso2.ei"})
-    public void testUpvoteQuestionByIdWithInvalid() throws IOException, JSONException {
+    /* ======================================= getQuestionsByUserIds ======================================= */
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteQuestionById", TestType.INVALID, "missingParameter");
+    @StackExchange(skipPrivilegeCheck = true)
+    @Test(groups = {"wso2.ei"})
+    public void testGetQuestionsByUserIdsWithInvalid() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(r.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    @StackExchange(skipPrivilegeCheck = true)
+    @Test(groups = {"wso2.ei"})
+    public void testGetQuestionsByUserIdsWithMandatory() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    @StackExchange(skipPrivilegeCheck = true)
+    @Test(groups = {"wso2.ei"})
+    public void testGetQuestionsByUserIdsWithPaging() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.PAGING);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    /* ======================================= getQuestionsWithNoAnswers ======================================= */
+
+    @StackExchange(skipPrivilegeCheck = true)
+    @Test(groups = {"wso2.ei"})
+    public void testGetQuestionsWithNoAnswersWithInvalid() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    @StackExchange(skipPrivilegeCheck = true)
+    @Test(groups = {"wso2.ei"})
+    public void testGetQuestionsWithNoAnswersWithMandatory() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    @StackExchange(skipPrivilegeCheck = true)
+    @Test(groups = {"wso2.ei"})
+    public void testGetQuestionsWithNoAnswersWithOptional() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.OPTIONAL);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    @StackExchange(skipPrivilegeCheck = true)
+    @Test(groups = {"wso2.ei"})
+    public void testGetQuestionsWithNoAnswersWithPaging() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.PAGING);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    /* ======================================= acceptAnswerById ======================================= */
+
+    @StackExchange
+    @Test(groups = {"wso2.ei"})
+    public void testAcceptAnswerByIdWithInvalid() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("acceptAnswerById", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    @StackExchange
+    @Test(groups = {"wso2.ei"})
+    public void testAcceptAnswerByIdWithMandatory() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("acceptAnswerById", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= Helpers  ======================================= */
