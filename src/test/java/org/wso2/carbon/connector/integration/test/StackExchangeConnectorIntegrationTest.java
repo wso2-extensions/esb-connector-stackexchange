@@ -38,8 +38,10 @@ import java.util.List;
 import java.util.Map;
 
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.TestType;
+import static org.wso2.carbon.connector.integration.test.CommonTestUtil.clearLogMessage;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getConnectorName;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getFilenameOfPayload;
+import static org.wso2.carbon.connector.integration.test.CommonTestUtil.prettyJson;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.*;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeObjectKey;
 
@@ -51,6 +53,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
 
+    public static final String STACKEXCHANGE_HAS_ANSWER = "stackexchange.hasanswer";
     public static final String STACKEXCHANGE_PRIVILEGES = "stackexchange.privileges";
     public static final String STACKEXCHANGE_PRIVILEGES_SEPARATOR = ";";
 
@@ -91,12 +94,15 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         }
         connectorProperties.setProperty("questionId", String.valueOf(questionIdKey.getKey()));
 
+        StackExchangeUrl answerUrl =
+                new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionIdKey.getKey() +"/answers")
+                        .queryParam("site", site).build();
+        AnswerIdKey answerIdKey = getStackExchangeObjectKey(answerUrl, AnswerIdKey.class);
+        connectorProperties.setProperty("answerId", String.valueOf(answerIdKey.getKey()));
         if (StringUtils.isEmpty(placeHolderAId)) {
-            StackExchangeUrl answerUrl =
-                    new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionIdKey.getKey() +"/answers")
-                            .queryParam("site", site).build();
-            AnswerIdKey answerIdKey = getStackExchangeObjectKey(answerUrl, AnswerIdKey.class);
-            connectorProperties.setProperty("placeHolderAId", String.valueOf(answerIdKey.getKey()));
+            System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
+        } else {
+            System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(true));
         }
 
         StackExchangeUrl privilegeUrl =
@@ -328,7 +334,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= acceptAnswerById ======================================= */
 
-    @StackExchange
+    @StackExchange(needMyAnswer = true)
     @Test(groups = {"wso2.ei"})
     public void testAcceptAnswerByIdWithInvalid() throws IOException, JSONException {
 
@@ -338,7 +344,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
     }
 
-    @StackExchange
+    @StackExchange(needMyAnswer = true)
     @Test(groups = {"wso2.ei"})
     public void testAcceptAnswerByIdWithMandatory() throws IOException, JSONException {
 
@@ -347,6 +353,53 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(r.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
+
+    /* ======================================= addAnswer ======================================= */
+
+    @StackExchange
+    @Test(groups = {"wso2.ei"})
+    public void testAddAnswerWithInvalid() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("addAnswer", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    @StackExchange
+    @Test(groups = {"wso2.ei"})
+    public void testAddAnswerWithMandatory() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("addAnswer", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    /* ======================================= deleteAnswerById ======================================= */
+
+    @StackExchange(needMyAnswer = true)
+    @Test(groups = {"wso2.ei"})
+    public void testDeleteAnswerByIdWithInvalid() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("deleteAnswerById", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    @StackExchange(needMyAnswer = true)
+    @Test(groups = {"wso2.ei"})
+    public void testDeleteAnswerByIdWithMandatory() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("deleteAnswerById", TestType.MANDATORY);
+
+        LOG.info(clearLogMessage(prettyJson(r.getBody())));
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
 
     /* ======================================= Helpers  ======================================= */
 

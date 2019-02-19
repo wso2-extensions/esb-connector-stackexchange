@@ -11,5 +11,7 @@ public @interface StackExchange {
 
     boolean skipPrivilegeCheck() default false;
 
+    boolean needMyAnswer() default false;
+
     String privilege() default "create posts";
 }

@@ -29,24 +29,32 @@ import java.util.Set;
 
 public class TestNgExecutionListener implements IInvokedMethodListener {
 
-    private static final int LOWEST_POSSIBLE_REPUTATION = 1;
-
     @Override
     public void beforeInvocation(IInvokedMethod iInvokedMethod, ITestResult iTestResult) {
 
         if (!iInvokedMethod.isTestMethod()) {
             return;
         }
-        String property = System.getProperty(StackExchangeConnectorIntegrationTest.STACKEXCHANGE_PRIVILEGES);
-        if (property == null) {
+        String hasAnswerProp = System.getProperty(StackExchangeConnectorIntegrationTest.STACKEXCHANGE_HAS_ANSWER);
+        String privilegeProp = System.getProperty(StackExchangeConnectorIntegrationTest.STACKEXCHANGE_PRIVILEGES);
+        if (privilegeProp == null || hasAnswerProp == null) {
             return;
         }
-        Set<String> privilegeSet = new HashSet<>(Arrays.asList(property.split(
+
+        Set<String> privilegeSet = new HashSet<>(Arrays.asList(privilegeProp.split(
                 StackExchangeConnectorIntegrationTest.STACKEXCHANGE_PRIVILEGES_SEPARATOR)));
         try {
             StackExchange stackExchange = StackExchangeConnectorIntegrationTest.class.getMethod(
                     iInvokedMethod.getTestMethod().getMethodName()).getAnnotation(StackExchange.class);
-            if (stackExchange == null || stackExchange.skipPrivilegeCheck()) {
+
+            if (stackExchange == null) {
+                return;
+            }
+            if (!Boolean.parseBoolean(hasAnswerProp) && stackExchange.needMyAnswer()) {
+                iTestResult.setStatus(TestResult.SKIP);
+                throw new SkipException("Cannot process this test due to lack of data hence skipping.");
+            }
+            if (stackExchange.skipPrivilegeCheck()) {
                 return;
             }
             if (!privilegeSet.contains(stackExchange.privilege().trim())) {
