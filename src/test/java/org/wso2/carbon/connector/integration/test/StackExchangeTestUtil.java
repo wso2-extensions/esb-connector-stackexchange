@@ -26,26 +26,38 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class StackExchangeTestUtil {
 
     private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
+    public static <T extends StackExchangeObjectKey> T getStackExchangeObjectKey(
+            StackExchangeUrl url, Class<T> tClass) throws Exception {
+
+        return new ObjectItemsKey(getResponse(url)).getRandomItem(tClass);
+    }
+
     public static <T extends StackExchangeObjectKey> List<T> getStackExchangeObjectKeyList(
             StackExchangeUrl url, Class<T> tClass) throws Exception {
 
+        return new ObjectItemsKey(getResponse(url)).asList(tClass);
+    }
+
+    private static JSONObject getResponse(StackExchangeUrl url) throws IOException, JSONException {
         StackExchangeUrlConnection connection = new StackExchangeUrlConnection(url.openConnection());
+
         if (connection.getResponseCode() != 200) {
             String error = String.format("Object extraction failed due to invalid statusCode: (code = %s)",
                     connection.getResponseCode());
             throw new IOException(error);
         }
-        JSONObject body = new JSONObject(IOUtils.toString(connection.getInputStream(), "UTF-8"));
-        return new ObjectItemKey(body).asList(tClass);
+        return new JSONObject(IOUtils.toString(connection.getInputStream(), "UTF-8"));
     }
 
     public static abstract class StackExchangeObjectKey<T> {
@@ -63,9 +75,9 @@ public class StackExchangeTestUtil {
         }
     }
 
-    public static class ObjectItemKey extends StackExchangeObjectKey<JSONArray> {
+    public static class ObjectItemsKey extends StackExchangeObjectKey<JSONArray> {
 
-        protected ObjectItemKey(JSONObject item) throws JSONException {
+        protected ObjectItemsKey(JSONObject item) throws JSONException {
             super(item);
         }
 
@@ -74,18 +86,32 @@ public class StackExchangeTestUtil {
             return item.getJSONArray("items");
         }
 
+        private <T extends StackExchangeObjectKey> T newInstance(JSONObject item, Class<T> tClass)
+                throws ReflectiveOperationException {
+            Constructor<T> constructor = tClass.getDeclaredConstructor(JSONObject.class);
+
+            constructor.setAccessible(true);
+            return constructor.newInstance(item);
+        }
+
+        private <T extends StackExchangeObjectKey> T getRandomItem(Class<T> tClass)
+                throws ReflectiveOperationException, JSONException {
+
+            int i = new Random().nextInt(super.key.length());
+            JSONObject item = super.key.getJSONObject(i);
+            return newInstance(item, tClass);
+        }
+
         private <T extends StackExchangeObjectKey> List<T> asList(Class<T> tClass)
                 throws ReflectiveOperationException, JSONException {
 
-            List<T> itemList = new ArrayList<>();
+            List<T> tList = new ArrayList<>();
 
             for (int i = 0; i < super.key.length(); i++) {
                 JSONObject item = super.key.getJSONObject(i);
-                Constructor<T> constructor = tClass.getDeclaredConstructor(JSONObject.class);
-                constructor.setAccessible(true);
-                itemList.add(constructor.newInstance(item));
+                tList.add(newInstance(item, tClass));
             }
-            return itemList;
+            return tList;
         }
     }
 
@@ -119,13 +145,32 @@ public class StackExchangeTestUtil {
 
     public static class QuestionIdKey extends StackExchangeObjectKey<Integer> {
 
+        private boolean acceptedAnswer = false;
+
         protected QuestionIdKey(JSONObject item) throws JSONException {
             super(item);
         }
 
         @Override
         protected Integer extract(JSONObject item) throws JSONException {
+            acceptedAnswer = item.has("accepted_answer_id");
             return item.getInt("question_id");
+        }
+
+        public boolean hasAcceptedAnswer() {
+            return acceptedAnswer;
+        }
+    }
+
+    public static class AnswerIdKey extends StackExchangeObjectKey<Integer> {
+
+        protected AnswerIdKey(JSONObject item) throws JSONException {
+            super(item);
+        }
+
+        @Override
+        protected Integer extract(JSONObject item) throws JSONException {
+            return item.getInt("answer_id");
         }
     }
 
