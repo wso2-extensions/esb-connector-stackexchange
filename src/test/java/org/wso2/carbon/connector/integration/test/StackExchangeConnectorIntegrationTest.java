@@ -27,8 +27,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.connector.integration.test.StackExchangeCommonWrapper.WrapperType;
-import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.FilterIncludedFieldsKey;
-import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.QuestionIdKey;
+import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.FilterIncludedFieldsField;
+import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.QuestionIdField;
 import org.wso2.connector.integration.test.base.ConnectorIntegrationTestBase;
 import org.wso2.connector.integration.test.base.RestResponse;
 
@@ -43,7 +43,7 @@ import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getConne
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getFilenameOfPayload;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.prettyJson;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.*;
-import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeObjectKey;
+import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeObjectField;
 
 /**
  * StackExchange connector integration test
@@ -81,37 +81,37 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
                 new StackExchangeUrl.Builder(apiVersion, "/tags")
                         .queryParam("site", site)
                         .queryParam("pagesize", "3").build();
-        List<TagNameKey> tagNameKeyList = getStackExchangeObjectKeyList(tagUrl, TagNameKey.class);
-        setListLikePropertyInConnector("siteTags", tagNameKeyList);
+        List<TagNameField> tagNameFieldList = getStackExchangeObjectFieldList(tagUrl, TagNameField.class);
+        setListLikePropertyInConnector("siteTags", tagNameFieldList);
 
         StackExchangeUrl filterUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
-        FilterIncludedFieldsKey filterIncludedFieldsKey =
-                getStackExchangeObjectKey(filterUrl, FilterIncludedFieldsKey.class);
-        stackExchangeCommonWrapper = new StackExchangeCommonWrapper(filterIncludedFieldsKey);
+        FilterIncludedFieldsField includedFieldsField =
+                getStackExchangeObjectField(filterUrl, FilterIncludedFieldsField.class);
+        stackExchangeCommonWrapper = new StackExchangeCommonWrapper(includedFieldsField);
 
         StackExchangeUrl questionUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/search/advanced")
                         .queryParam("site", site)
                         .queryParam("accepted", "False")
                         .queryParam("answers", "1").build();
-        QuestionIdKey questionIdKey = getStackExchangeObjectKey(questionUrl, QuestionIdKey.class);
+        QuestionIdField questionIdField = getStackExchangeObjectField(questionUrl, QuestionIdField.class);
         if (StringUtils.isEmpty(placeHolderQId)) {
             System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(false));
         } else {
             System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(true));
-            while (Integer.parseInt(placeHolderQId) == questionIdKey.getKey()) {
-                questionIdKey = getStackExchangeObjectKey(questionUrl, QuestionIdKey.class);
+            while (Integer.parseInt(placeHolderQId) == questionIdField.getValue()) {
+                questionIdField = getStackExchangeObjectField(questionUrl, QuestionIdField.class);
             }
         }
-        connectorProperties.setProperty("questionId", String.valueOf(questionIdKey.getKey()));
+        connectorProperties.setProperty("questionId", String.valueOf(questionIdField.getValue()));
 
         StackExchangeUrl answerUrl =
-                new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionIdKey.getKey() +"/answers")
+                new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionIdField.getValue() +"/answers")
                         .queryParam("site", site).build();
-        List<AnswerIdKey> answerIdKeyList = getStackExchangeObjectKeyList(answerUrl, AnswerIdKey.class);
-        connectorProperties.setProperty("answerId", String.valueOf(answerIdKeyList.get(0)));
-        setListLikePropertyInConnector("answerIdList", answerIdKeyList);
+        List<AnswerIdField> answerIdFieldList = getStackExchangeObjectFieldList(answerUrl, AnswerIdField.class);
+        connectorProperties.setProperty("answerId", String.valueOf(answerIdFieldList.get(0)));
+        setListLikePropertyInConnector("answerIdList", answerIdFieldList);
 
         if (StringUtils.isEmpty(placeHolderAId)) {
             System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
@@ -124,23 +124,23 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
                         .queryParam("site", site)
                         .queryParam("key", key)
                         .queryParam("access_token", accessToken).build();
-        List<PrivilegeShortDescriptionKey> privilegeShortDescriptionKeyList =
-                getStackExchangeObjectKeyList(privilegeUrl, PrivilegeShortDescriptionKey.class);
-        setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionKeyList);
+        List<PrivilegeShortDescriptionField> privilegeShortDescriptionFieldList =
+                getStackExchangeObjectFieldList(privilegeUrl, PrivilegeShortDescriptionField.class);
+        setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionFieldList);
     }
 
-    private void setListLikePropertyInSystem(String propertyName, List<? extends StackExchangeObjectKey> list) {
+    private void setListLikePropertyInSystem(String propertyName, List<? extends StackExchangeObjectField> list) {
         System.setProperty(propertyName, getListAsSemicolonDelimitedString(list));
     }
 
-    private void setListLikePropertyInConnector(String propertyName, List<? extends StackExchangeObjectKey> list) {
+    private void setListLikePropertyInConnector(String propertyName, List<? extends StackExchangeObjectField> list) {
         connectorProperties.setProperty(propertyName, getListAsSemicolonDelimitedString(list));
     }
 
-    private String getListAsSemicolonDelimitedString(List<? extends StackExchangeObjectKey> list) {
+    private String getListAsSemicolonDelimitedString(List<? extends StackExchangeObjectField> list) {
         StringBuilder builder = new StringBuilder();
-        for (StackExchangeObjectKey key : list) {
-            builder.append(key.getKey()).append(";");
+        for (StackExchangeObjectField key : list) {
+            builder.append(key.getValue()).append(";");
         }
         if (builder.length() > 0) {
             builder.setLength(builder.length() - 1);

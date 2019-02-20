@@ -36,16 +36,16 @@ public class StackExchangeTestUtil {
 
     private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
-    public static <T extends StackExchangeObjectKey> T getStackExchangeObjectKey(
+    public static <T extends StackExchangeObjectField> T getStackExchangeObjectField(
             StackExchangeUrl url, Class<T> tClass) throws Exception {
 
-        return new ObjectItemsKey(getResponse(url)).getRandomItem(tClass);
+        return new ObjectItemsField(getResponse(url)).getRandomItem(tClass);
     }
 
-    public static <T extends StackExchangeObjectKey> List<T> getStackExchangeObjectKeyList(
+    public static <T extends StackExchangeObjectField> List<T> getStackExchangeObjectFieldList(
             StackExchangeUrl url, Class<T> tClass) throws Exception {
 
-        return new ObjectItemsKey(getResponse(url)).asList(tClass);
+        return new ObjectItemsField(getResponse(url)).asList(tClass);
     }
 
     private static JSONObject getResponse(StackExchangeUrl url) throws IOException, JSONException {
@@ -59,24 +59,24 @@ public class StackExchangeTestUtil {
         return new JSONObject(IOUtils.toString(connection.getInputStream(), "UTF-8"));
     }
 
-    public static abstract class StackExchangeObjectKey<T> {
+    public static abstract class StackExchangeObjectField<T> {
 
-        private final T key;
+        private final T value;
 
-        protected StackExchangeObjectKey(JSONObject item) throws JSONException {
-            key = extract(item);
+        protected StackExchangeObjectField(JSONObject item) throws JSONException {
+            value = extract(item);
         }
 
         protected abstract T extract(JSONObject item) throws JSONException;
 
-        public T getKey() {
-            return key;
+        public T getValue() {
+            return value;
         }
     }
 
-    public static class ObjectItemsKey extends StackExchangeObjectKey<JSONArray> {
+    public static class ObjectItemsField extends StackExchangeObjectField<JSONArray> {
 
-        protected ObjectItemsKey(JSONObject item) throws JSONException {
+        protected ObjectItemsField(JSONObject item) throws JSONException {
             super(item);
         }
 
@@ -85,7 +85,7 @@ public class StackExchangeTestUtil {
             return item.getJSONArray("items");
         }
 
-        private <T extends StackExchangeObjectKey> T newInstance(JSONObject item, Class<T> tClass)
+        private <T extends StackExchangeObjectField> T newInstance(JSONObject item, Class<T> tClass)
                 throws ReflectiveOperationException {
             Constructor<T> constructor = tClass.getDeclaredConstructor(JSONObject.class);
 
@@ -93,30 +93,30 @@ public class StackExchangeTestUtil {
             return constructor.newInstance(item);
         }
 
-        private <T extends StackExchangeObjectKey> T getRandomItem(Class<T> tClass)
+        private <T extends StackExchangeObjectField> T getRandomItem(Class<T> tClass)
                 throws ReflectiveOperationException, JSONException {
 
-            int i = new Random().nextInt(super.key.length());
-            JSONObject item = super.key.getJSONObject(i);
+            int i = new Random().nextInt(super.value.length());
+            JSONObject item = super.value.getJSONObject(i);
             return newInstance(item, tClass);
         }
 
-        private <T extends StackExchangeObjectKey> List<T> asList(Class<T> tClass)
+        private <T extends StackExchangeObjectField> List<T> asList(Class<T> tClass)
                 throws ReflectiveOperationException, JSONException {
 
             List<T> tList = new ArrayList<>();
 
-            for (int i = 0; i < super.key.length(); i++) {
-                JSONObject item = super.key.getJSONObject(i);
+            for (int i = 0; i < super.value.length(); i++) {
+                JSONObject item = super.value.getJSONObject(i);
                 tList.add(newInstance(item, tClass));
             }
             return tList;
         }
     }
 
-    public static class FilterIncludedFieldsKey extends StackExchangeObjectKey<List<String>> {
+    public static class FilterIncludedFieldsField extends StackExchangeObjectField<List<String>> {
 
-        protected FilterIncludedFieldsKey(JSONObject item) throws JSONException {
+        protected FilterIncludedFieldsField(JSONObject item) throws JSONException {
             super(item);
         }
 
@@ -133,7 +133,7 @@ public class StackExchangeTestUtil {
         public Set<String> getCommonKeySet() {
 
             Set<String> commonKeySet = new HashSet<>();
-            for (String keyInKey : super.key) {
+            for (String keyInKey : super.value) {
                 if (StackExchangeCommonWrapper.isCommonKey(keyInKey)) {
                     commonKeySet.add(StackExchangeCommonWrapper.getCommonKeyAsKey(keyInKey));
                 }
@@ -142,9 +142,9 @@ public class StackExchangeTestUtil {
         }
     }
 
-    public static class QuestionIdKey extends StackExchangeObjectKey<Integer> {
+    public static class QuestionIdField extends StackExchangeObjectField<Integer> {
 
-        protected QuestionIdKey(JSONObject item) throws JSONException {
+        protected QuestionIdField(JSONObject item) throws JSONException {
             super(item);
         }
 
@@ -154,9 +154,9 @@ public class StackExchangeTestUtil {
         }
     }
 
-    public static class AnswerIdKey extends StackExchangeObjectKey<Integer> {
+    public static class AnswerIdField extends StackExchangeObjectField<Integer> {
 
-        protected AnswerIdKey(JSONObject item) throws JSONException {
+        protected AnswerIdField(JSONObject item) throws JSONException {
             super(item);
         }
 
@@ -166,9 +166,9 @@ public class StackExchangeTestUtil {
         }
     }
 
-    public static class PrivilegeShortDescriptionKey extends StackExchangeObjectKey<String> {
+    public static class PrivilegeShortDescriptionField extends StackExchangeObjectField<String> {
 
-        protected PrivilegeShortDescriptionKey(JSONObject item) throws JSONException {
+        protected PrivilegeShortDescriptionField(JSONObject item) throws JSONException {
             super(item);
         }
 
@@ -178,9 +178,9 @@ public class StackExchangeTestUtil {
         }
     }
 
-    public static class TagNameKey extends StackExchangeObjectKey<String> {
+    public static class TagNameField extends StackExchangeObjectField<String> {
 
-        protected TagNameKey(JSONObject item) throws JSONException {
+        protected TagNameField(JSONObject item) throws JSONException {
             super(item);
         }
 
