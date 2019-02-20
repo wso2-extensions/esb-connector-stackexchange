@@ -177,4 +177,16 @@ public class StackExchangeTestUtil {
             return item.getString("short_description");
         }
     }
+
+    public static class TagNameKey extends StackExchangeObjectKey<String> {
+
+        protected TagNameKey(JSONObject item) throws JSONException {
+            super(item);
+        }
+
+        @Override
+        protected String extract(JSONObject item) throws JSONException {
+            return item.getString("name");
+        }
+    }
 }

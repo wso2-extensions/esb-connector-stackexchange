@@ -35,3 +35,4 @@ target/
 
 wso2ei-*.zip
 wso2ei-*
+repository/esb-connector-stackexchange.properties

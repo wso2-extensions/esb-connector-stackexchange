@@ -77,6 +77,13 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         String placeHolderQId = connectorProperties.getProperty("placeHolderQId");
         String placeHolderAId = connectorProperties.getProperty("placeHolderAId");
 
+        StackExchangeUrl tagUrl =
+                new StackExchangeUrl.Builder(apiVersion, "/tags")
+                        .queryParam("site", site)
+                        .queryParam("pagesize", "3").build();
+        List<TagNameKey> tagNameKeyList = getStackExchangeObjectKeyList(tagUrl, TagNameKey.class);
+        setListLikePropertyInConnector("siteTags", tagNameKeyList);
+
         StackExchangeUrl filterUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
         FilterIncludedFieldsKey filterIncludedFieldsKey =
@@ -104,7 +111,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
                         .queryParam("site", site).build();
         List<AnswerIdKey> answerIdKeyList = getStackExchangeObjectKeyList(answerUrl, AnswerIdKey.class);
         connectorProperties.setProperty("answerId", String.valueOf(answerIdKeyList.get(0)));
-        setAnswerIdsInConnectorProperty(answerIdKeyList);
+        setListLikePropertyInConnector("answerIdList", answerIdKeyList);
 
         if (StringUtils.isEmpty(placeHolderAId)) {
             System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
@@ -119,29 +126,26 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
                         .queryParam("access_token", accessToken).build();
         List<PrivilegeShortDescriptionKey> privilegeShortDescriptionKeyList =
                 getStackExchangeObjectKeyList(privilegeUrl, PrivilegeShortDescriptionKey.class);
-        setPrivilegesInSystemProperty(privilegeShortDescriptionKeyList);
+        setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionKeyList);
     }
 
-    private void setAnswerIdsInConnectorProperty(List<AnswerIdKey> answerIds) {
-        StringBuilder answerIdBuilder = new StringBuilder();
-        for (AnswerIdKey key : answerIds) {
-            answerIdBuilder.append(key.getKey()).append(";");
-        }
-        if (answerIdBuilder.length() > 0) {
-            answerIdBuilder.setLength(answerIdBuilder.length() - 1);
-        }
-        connectorProperties.setProperty("answerIdList", answerIdBuilder.toString());
+    private void setListLikePropertyInSystem(String propertyName, List<? extends StackExchangeObjectKey> list) {
+        System.setProperty(propertyName, getListAsSemicolonDelimitedString(list));
     }
 
-    private void setPrivilegesInSystemProperty(List<PrivilegeShortDescriptionKey> privileges) {
-        StringBuilder privilegeBuilder = new StringBuilder();
-        for (PrivilegeShortDescriptionKey key : privileges) {
-            privilegeBuilder.append(key.getKey()).append(";");
+    private void setListLikePropertyInConnector(String propertyName, List<? extends StackExchangeObjectKey> list) {
+        connectorProperties.setProperty(propertyName, getListAsSemicolonDelimitedString(list));
+    }
+
+    private String getListAsSemicolonDelimitedString(List<? extends StackExchangeObjectKey> list) {
+        StringBuilder builder = new StringBuilder();
+        for (StackExchangeObjectKey key : list) {
+            builder.append(key.getKey()).append(";");
         }
-        if (privilegeBuilder.length() > 0) {
-            privilegeBuilder.setLength(privilegeBuilder.length() - 1);
+        if (builder.length() > 0) {
+            builder.setLength(builder.length() - 1);
         }
-        System.setProperty(STACKEXCHANGE_PRIVILEGES, privilegeBuilder.toString());
+        return builder.toString();
     }
 
     /* ======================================= getMe ======================================= */
