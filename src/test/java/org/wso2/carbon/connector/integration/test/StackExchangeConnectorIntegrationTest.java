@@ -102,8 +102,10 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         StackExchangeUrl answerUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionIdKey.getKey() +"/answers")
                         .queryParam("site", site).build();
-        AnswerIdKey answerIdKey = getStackExchangeObjectKey(answerUrl, AnswerIdKey.class);
-        connectorProperties.setProperty("answerId", String.valueOf(answerIdKey.getKey()));
+        List<AnswerIdKey> answerIdKeyList = getStackExchangeObjectKeyList(answerUrl, AnswerIdKey.class);
+        connectorProperties.setProperty("answerId", String.valueOf(answerIdKeyList.get(0)));
+        setAnswerIdsInConnectorProperty(answerIdKeyList);
+
         if (StringUtils.isEmpty(placeHolderAId)) {
             System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
         } else {
@@ -118,6 +120,17 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         List<PrivilegeShortDescriptionKey> privilegeShortDescriptionKeyList =
                 getStackExchangeObjectKeyList(privilegeUrl, PrivilegeShortDescriptionKey.class);
         setPrivilegesInSystemProperty(privilegeShortDescriptionKeyList);
+    }
+
+    private void setAnswerIdsInConnectorProperty(List<AnswerIdKey> answerIds) {
+        StringBuilder answerIdBuilder = new StringBuilder();
+        for (AnswerIdKey key : answerIds) {
+            answerIdBuilder.append(key.getKey()).append(";");
+        }
+        if (answerIdBuilder.length() > 0) {
+            answerIdBuilder.setLength(answerIdBuilder.length() - 1);
+        }
+        connectorProperties.setProperty("answerIdList", answerIdBuilder.toString());
     }
 
     private void setPrivilegesInSystemProperty(List<PrivilegeShortDescriptionKey> privileges) {
@@ -405,6 +418,91 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
     }
 
+    /* ======================================= downvoteAnswerById ======================================= */
+
+    @StackExchange(privilege = "vote down")
+    @Test(groups = {"wso2.ei"})
+    public void testDownvoteAnswerByIdWithInvalid() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteAnswerById", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    @StackExchange(privilege = "vote down")
+    @Test(groups = {"wso2.ei"})
+    public void testDownvoteAnswerByIdWithMandatory() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteAnswerById", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    /* ======================================= upvoteAnswerById ======================================= */
+
+    @StackExchange(privilege = "vote up")
+    @Test(groups = {"wso2.ei"})
+    public void testUpvoteAnswerByIdWithInvalid() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteAnswerById", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    @StackExchange(privilege = "vote up")
+    @Test(groups = {"wso2.ei"})
+    public void testUpvoteAnswerByIdWithMandatory() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteAnswerById", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    /* ======================================= getAnswersByIds ======================================= */
+
+    @StackExchange(skipPrivilegeCheck = true)
+    @Test(groups = {"wso2.ei"})
+    public void testGetAnswersByIdsWithInvalid() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getAnswersByIds", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(r.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+    }
+
+    @StackExchange(skipPrivilegeCheck = true)
+    @Test(groups = {"wso2.ei"})
+    public void testGetAnswersByIdsWithMandatory() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getAnswersByIds", TestType.MANDATORY);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    @StackExchange(skipPrivilegeCheck = true)
+    @Test(groups = {"wso2.ei"})
+    public void testGetAnswersByIdsWithOptional() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getAnswersByIds", TestType.OPTIONAL);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
+
+    @StackExchange(skipPrivilegeCheck = true)
+    @Test(groups = {"wso2.ei"})
+    public void testGetAnswersByIdsWithPaging() throws IOException, JSONException {
+
+        RestResponse<JSONObject> r = sendJsonPostReqToEi("getAnswersByIds", TestType.PAGING);
+
+        Assert.assertEquals(r.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+    }
 
     /* ======================================= Helpers  ======================================= */
 

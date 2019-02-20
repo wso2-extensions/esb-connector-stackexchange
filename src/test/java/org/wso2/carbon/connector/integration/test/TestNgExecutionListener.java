@@ -47,7 +47,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                     return;
                 }
                 iTestResult.setStatus(TestResult.SKIP);
-                throw new SkipException("Cannot process this test due to lack of data hence skipping.");
+                throw new SkipException("Cannot execute this test due to lack of data hence skipping.");
             }
             if (stackExchange.needMyQuestion()) {
                 String hasQ = System.getProperty(STACKEXCHANGE_HAS_QUESTION);
@@ -55,7 +55,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                     return;
                 }
                 iTestResult.setStatus(TestResult.SKIP);
-                throw new SkipException("Cannot process this test due to lack of data hence skipping.");
+                throw new SkipException("Cannot execute this test due to lack of data hence skipping.");
             }
             if (!stackExchange.skipPrivilegeCheck()) {
                 String privileges = System.getProperty(STACKEXCHANGE_PRIVILEGES);
@@ -63,7 +63,9 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                     return;
                 }
                 iTestResult.setStatus(TestResult.SKIP);
-                throw new SkipException(String.format("Skipping test due to lack of privileges. (missing: %s)", stackExchange.privilege()));
+                throw new SkipException(String.format(
+                        "Cannot execute this test due to lack of privileges hence skipping. (missing: %s)",
+                                stackExchange.privilege()));
             }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();

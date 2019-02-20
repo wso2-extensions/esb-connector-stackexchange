@@ -1,0 +1,6 @@
+{
+  "ids": "%s(answerIdList)",
+  "site":"%s(site)",
+  "key":"%s(key)",
+  "filter": "%s(filterName)"
+}

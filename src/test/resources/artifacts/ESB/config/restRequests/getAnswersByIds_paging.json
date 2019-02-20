@@ -1,0 +1,15 @@
+{
+  "ids": "%s(answerIdList)",
+  "site":"%s(site)",
+  "key":"%s(key)",
+  "filter": "%s(filterName)",
+  "tagged": "%s(siteTags)",
+  "pagesize": "%s(pagesize)",
+  "page": "%s(page)",
+  "fromdate": "%s(fromdate)",
+  "todate": "%s(todate)",
+  "min": "%s(min)",
+  "max": "%s(max)",
+  "sort": "%s(sort)",
+  "order": "%s(order)"
+}
