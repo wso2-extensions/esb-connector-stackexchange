@@ -36,7 +36,7 @@ public class StackExchangeTestUtil {
 
     private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
-    public static StackExchangeItems getStackExchangeObject(StackExchangeUrl url) throws IOException, JSONException {
+    public static StackExchangeItems getStackExchangeItems(StackExchangeUrl url) throws IOException, JSONException {
         StackExchangeUrlConnection connection = new StackExchangeUrlConnection(url.openConnection());
 
         if (connection.getResponseCode() != 200) {
