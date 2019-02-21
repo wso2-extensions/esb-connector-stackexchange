@@ -33,6 +33,7 @@ import org.wso2.connector.integration.test.base.ConnectorIntegrationTestBase;
 import org.wso2.connector.integration.test.base.RestResponse;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,12 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         String accessToken = connectorProperties.getProperty("accessToken");
         String placeHolderQId = connectorProperties.getProperty("placeHolderQId");
         String placeHolderAId = connectorProperties.getProperty("placeHolderAId");
+
+        StackExchangeUrl u =
+                new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
+        StackExchangeItems filter = getStackExchangeObject(u);
+        String[] inFields = filter.getRandom("included_fields", String[].class);
+        LOG.info(clearLogMessage(Arrays.toString(inFields)));
 
         StackExchangeUrl tagUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/tags")
@@ -483,16 +490,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testGetAnswersByIdsWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> r = sendJsonPostReqToEi("getAnswersByIds", TestType.MANDATORY);
-
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
-    }
-
-    @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
-    public void testGetAnswersByIdsWithOptional() throws IOException, JSONException {
-
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getAnswersByIds", TestType.OPTIONAL);
 
         Assert.assertEquals(r.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);

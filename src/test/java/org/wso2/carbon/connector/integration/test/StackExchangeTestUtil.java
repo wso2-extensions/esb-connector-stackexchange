@@ -25,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,6 +36,63 @@ import java.util.Set;
 public class StackExchangeTestUtil {
 
     private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
+
+    public static StackExchangeItems getStackExchangeObject(StackExchangeUrl url) throws IOException, JSONException {
+        StackExchangeUrlConnection connection = new StackExchangeUrlConnection(url.openConnection());
+
+        if (connection.getResponseCode() != 200) {
+            String error = String.format("Object extraction failed due to invalid statusCode: (code = %s)",
+                    connection.getResponseCode());
+            throw new IOException(error);
+        }
+        return new StackExchangeItems(new JSONObject(
+                IOUtils.toString(connection.getInputStream(), "UTF-8")));
+    }
+
+    public static class StackExchangeItems {
+        private final JSONArray items;
+
+        private StackExchangeItems(JSONObject data) throws JSONException {
+            this.items = data.getJSONArray("items");
+        }
+
+        public <T> T getRandom(String key, Class<T> type) throws JSONException {
+            int i = new Random().nextInt(items.length());
+            return getValue(items.getJSONObject(i), key, type);
+        }
+
+        public <T> T[] getAll(String key, Class<T> type) throws JSONException {
+            T[] all = (T[]) Array.newInstance(type, items.length());
+            for (int i = 0; i < items.length(); i++) {
+                all[i] = getValue(items.getJSONObject(i), key, type);
+            }
+            return all;
+        }
+
+        private <T> T getValue(JSONObject json, String key, Class<T> type) throws JSONException {
+            Object value = json.get(key);
+            if (type.isArray()) {
+                Class<?> componentType = type.getComponentType();
+                if (!componentType.isInstance(json.getJSONArray(key).get(0))) {
+                    throw new JSONException("Given type is not supported.");
+                }
+                return (T) getValueArray(json.getJSONArray(key), componentType);
+            }
+            if (!type.isInstance(value)) {
+                throw new JSONException("Given type is not supported.");
+            }
+            return type.cast(value);
+        }
+
+        private <T> T[] getValueArray(JSONArray array, Class<T> type) throws JSONException {
+            T[] valueArray = (T[]) Array.newInstance(type, array.length());
+            for (int i = 0; i < array.length(); i++) {
+                valueArray[i] = type.cast(array.get(i));
+            }
+            return valueArray;
+        }
+    }
+
 
     public static <T extends StackExchangeObjectField> T getStackExchangeObjectField(
             StackExchangeUrl url, Class<T> tClass) throws Exception {
