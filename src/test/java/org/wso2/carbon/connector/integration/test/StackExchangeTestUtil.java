@@ -27,11 +27,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -58,12 +55,30 @@ public class StackExchangeTestUtil {
             this.items = data.getJSONArray("items");
         }
 
+        public boolean isEmpty() {
+            return items.length() == 0;
+        }
+
+        private void failForGood(String key) throws JSONException {
+            throw new JSONException(String.format("Could not extract '%s' requested from an empty item list.", key));
+        }
+
         public <T> T getRandom(String key, Class<T> type) throws JSONException {
+            if (isEmpty()) {
+                failForGood(key);
+            }
             int i = new Random().nextInt(items.length());
+            return getItemAt(key, type, i);
+        }
+
+        private <T> T getItemAt(String key, Class<T> type, int i) throws JSONException {
             return getValue(items.getJSONObject(i), key, type);
         }
 
         public <T> T[] getAll(String key, Class<T> type) throws JSONException {
+            if (isEmpty()) {
+                failForGood(key);
+            }
             T[] all = (T[]) Array.newInstance(type, items.length());
             for (int i = 0; i < items.length(); i++) {
                 all[i] = getValue(items.getJSONObject(i), key, type);
@@ -149,134 +164,6 @@ public class StackExchangeTestUtil {
 
         public enum WrapperType {
             UNKNOWN, ERROR, NO_ERROR
-        }
-    }
-
-
-    public static <T extends StackExchangeObjectField> T getStackExchangeObjectField(
-            StackExchangeUrl url, Class<T> tClass) throws Exception {
-
-        return new ObjectItemsField(getResponse(url)).getRandomItem(tClass);
-    }
-
-    public static <T extends StackExchangeObjectField> List<T> getStackExchangeObjectFieldList(
-            StackExchangeUrl url, Class<T> tClass) throws Exception {
-
-        return new ObjectItemsField(getResponse(url)).asList(tClass);
-    }
-
-    private static JSONObject getResponse(StackExchangeUrl url) throws IOException, JSONException {
-        StackExchangeUrlConnection connection = new StackExchangeUrlConnection(url.openConnection());
-
-        if (connection.getResponseCode() != 200) {
-            String error = String.format("Object extraction failed due to invalid statusCode: (code = %s)",
-                    connection.getResponseCode());
-            throw new IOException(error);
-        }
-        return new JSONObject(IOUtils.toString(connection.getInputStream(), "UTF-8"));
-    }
-
-    public static abstract class StackExchangeObjectField<T> {
-
-        private final T value;
-
-        protected StackExchangeObjectField(JSONObject item) throws JSONException {
-            value = extract(item);
-        }
-
-        protected abstract T extract(JSONObject item) throws JSONException;
-
-        public T getValue() {
-            return value;
-        }
-    }
-
-    public static class ObjectItemsField extends StackExchangeObjectField<JSONArray> {
-
-        protected ObjectItemsField(JSONObject item) throws JSONException {
-            super(item);
-        }
-
-        @Override
-        protected JSONArray extract(JSONObject item) throws JSONException {
-            return item.getJSONArray("items");
-        }
-
-        private <T extends StackExchangeObjectField> T newInstance(JSONObject item, Class<T> tClass)
-                throws ReflectiveOperationException {
-            Constructor<T> constructor = tClass.getDeclaredConstructor(JSONObject.class);
-
-            constructor.setAccessible(true);
-            return constructor.newInstance(item);
-        }
-
-        private <T extends StackExchangeObjectField> T getRandomItem(Class<T> tClass)
-                throws ReflectiveOperationException, JSONException {
-
-            int i = new Random().nextInt(super.value.length());
-            JSONObject item = super.value.getJSONObject(i);
-            return newInstance(item, tClass);
-        }
-
-        private <T extends StackExchangeObjectField> List<T> asList(Class<T> tClass)
-                throws ReflectiveOperationException, JSONException {
-
-            List<T> tList = new ArrayList<>();
-
-            for (int i = 0; i < super.value.length(); i++) {
-                JSONObject item = super.value.getJSONObject(i);
-                tList.add(newInstance(item, tClass));
-            }
-            return tList;
-        }
-    }
-
-
-    public static class QuestionIdField extends StackExchangeObjectField<Integer> {
-
-        protected QuestionIdField(JSONObject item) throws JSONException {
-            super(item);
-        }
-
-        @Override
-        protected Integer extract(JSONObject item) throws JSONException {
-            return item.getInt("question_id");
-        }
-    }
-
-    public static class AnswerIdField extends StackExchangeObjectField<Integer> {
-
-        protected AnswerIdField(JSONObject item) throws JSONException {
-            super(item);
-        }
-
-        @Override
-        protected Integer extract(JSONObject item) throws JSONException {
-            return item.getInt("answer_id");
-        }
-    }
-
-    public static class PrivilegeShortDescriptionField extends StackExchangeObjectField<String> {
-
-        protected PrivilegeShortDescriptionField(JSONObject item) throws JSONException {
-            super(item);
-        }
-
-        @Override
-        protected String extract(JSONObject item) throws JSONException {
-            return item.getString("short_description");
-        }
-    }
-
-    public static class TagNameField extends StackExchangeObjectField<String> {
-
-        protected TagNameField(JSONObject item) throws JSONException {
-            super(item);
-        }
-
-        @Override
-        protected String extract(JSONObject item) throws JSONException {
-            return item.getString("name");
         }
     }
 }

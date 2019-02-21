@@ -133,14 +133,14 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     }
 
     private <T> void setListLikePropertyInSystem(String propertyName, T[] array) {
-        System.setProperty(propertyName, getListAsSemicolonDelimitedString(array));
+        System.setProperty(propertyName, getTArrayAsSemicolonDelimitedString(array));
     }
 
     private <T> void setListLikePropertyInConnector(String propertyName, T[] array) {
-        connectorProperties.setProperty(propertyName, getListAsSemicolonDelimitedString(array));
+        connectorProperties.setProperty(propertyName, getTArrayAsSemicolonDelimitedString(array));
     }
 
-    private <T> String getListAsSemicolonDelimitedString(T[] array) {
+    private <T> String getTArrayAsSemicolonDelimitedString(T[] array) {
         StringBuilder builder = new StringBuilder();
         for (T a : array) {
             builder.append(a).append(";");
