@@ -26,16 +26,12 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.connector.integration.test.StackExchangeCommonWrapper.WrapperType;
-import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.FilterIncludedFieldsField;
-import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.QuestionIdField;
+import org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.StackExchangeCommonWrapper.WrapperType;
 import org.wso2.connector.integration.test.base.ConnectorIntegrationTestBase;
 import org.wso2.connector.integration.test.base.RestResponse;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.TestType;
@@ -43,8 +39,10 @@ import static org.wso2.carbon.connector.integration.test.CommonTestUtil.clearLog
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getConnectorName;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getFilenameOfPayload;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.prettyJson;
-import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.*;
-import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeObjectField;
+import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.StackExchangeCommonWrapper;
+import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.StackExchangeItems;
+import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeCommonWrapper;
+import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeObject;
 
 /**
  * StackExchange connector integration test
@@ -78,47 +76,45 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         String placeHolderQId = connectorProperties.getProperty("placeHolderQId");
         String placeHolderAId = connectorProperties.getProperty("placeHolderAId");
 
-        StackExchangeUrl u =
-                new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
-        StackExchangeItems filter = getStackExchangeObject(u);
-        String[] inFields = filter.getRandom("included_fields", String[].class);
-        LOG.info(clearLogMessage(Arrays.toString(inFields)));
-
         StackExchangeUrl tagUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/tags")
                         .queryParam("site", site)
                         .queryParam("pagesize", "3").build();
-        List<TagNameField> tagNameFieldList = getStackExchangeObjectFieldList(tagUrl, TagNameField.class);
-        setListLikePropertyInConnector("siteTags", tagNameFieldList);
+        StackExchangeItems tagItems = getStackExchangeObject(tagUrl);
+        String[] tagNameArray = tagItems.getAll("name", String.class);
+        setListLikePropertyInConnector("siteTags", tagNameArray);
 
         StackExchangeUrl filterUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
-        FilterIncludedFieldsField includedFieldsField =
-                getStackExchangeObjectField(filterUrl, FilterIncludedFieldsField.class);
-        stackExchangeCommonWrapper = new StackExchangeCommonWrapper(includedFieldsField);
+        StackExchangeItems filterItems = getStackExchangeObject(filterUrl);
+        String[] includedFields = filterItems.getRandom("included_fields", String[].class);
+        stackExchangeCommonWrapper = getStackExchangeCommonWrapper(includedFields);
 
         StackExchangeUrl questionUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/search/advanced")
                         .queryParam("site", site)
                         .queryParam("accepted", "False")
                         .queryParam("answers", "1").build();
-        QuestionIdField questionIdField = getStackExchangeObjectField(questionUrl, QuestionIdField.class);
+        StackExchangeItems questionItems = getStackExchangeObject(questionUrl);
+        Integer questionId = questionItems.getRandom("question_id", Integer.class);
         if (StringUtils.isEmpty(placeHolderQId)) {
             System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(false));
         } else {
             System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(true));
-            while (Integer.parseInt(placeHolderQId) == questionIdField.getValue()) {
-                questionIdField = getStackExchangeObjectField(questionUrl, QuestionIdField.class);
+            while (questionId.equals(Integer.parseInt(placeHolderQId))) {
+                questionId = questionItems.getRandom("question_id", Integer.class);
             }
         }
-        connectorProperties.setProperty("questionId", String.valueOf(questionIdField.getValue()));
+        connectorProperties.setProperty("questionId", String.valueOf(questionId));
 
         StackExchangeUrl answerUrl =
-                new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionIdField.getValue() +"/answers")
+                new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionId +"/answers")
                         .queryParam("site", site).build();
-        List<AnswerIdField> answerIdFieldList = getStackExchangeObjectFieldList(answerUrl, AnswerIdField.class);
-        connectorProperties.setProperty("answerId", String.valueOf(answerIdFieldList.get(0)));
-        setListLikePropertyInConnector("answerIdList", answerIdFieldList);
+        StackExchangeItems answerItems = getStackExchangeObject(answerUrl);
+        Integer answerId = answerItems.getRandom("answer_id", Integer.class);
+        Integer[] answerIdArray = answerItems.getAll("answer_id", Integer.class);
+        connectorProperties.setProperty("answerId", String.valueOf(answerId));
+        setListLikePropertyInConnector("answerIdList", answerIdArray);
 
         if (StringUtils.isEmpty(placeHolderAId)) {
             System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
@@ -131,23 +127,23 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
                         .queryParam("site", site)
                         .queryParam("key", key)
                         .queryParam("access_token", accessToken).build();
-        List<PrivilegeShortDescriptionField> privilegeShortDescriptionFieldList =
-                getStackExchangeObjectFieldList(privilegeUrl, PrivilegeShortDescriptionField.class);
-        setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionFieldList);
+        StackExchangeItems privilegeItems = getStackExchangeObject(privilegeUrl);
+        String[] privilegeShortDescriptionArray = privilegeItems.getAll("short_description", String.class);
+        setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
     }
 
-    private void setListLikePropertyInSystem(String propertyName, List<? extends StackExchangeObjectField> list) {
-        System.setProperty(propertyName, getListAsSemicolonDelimitedString(list));
+    private <T> void setListLikePropertyInSystem(String propertyName, T[] array) {
+        System.setProperty(propertyName, getListAsSemicolonDelimitedString(array));
     }
 
-    private void setListLikePropertyInConnector(String propertyName, List<? extends StackExchangeObjectField> list) {
-        connectorProperties.setProperty(propertyName, getListAsSemicolonDelimitedString(list));
+    private <T> void setListLikePropertyInConnector(String propertyName, T[] array) {
+        connectorProperties.setProperty(propertyName, getListAsSemicolonDelimitedString(array));
     }
 
-    private String getListAsSemicolonDelimitedString(List<? extends StackExchangeObjectField> list) {
+    private <T> String getListAsSemicolonDelimitedString(T[] array) {
         StringBuilder builder = new StringBuilder();
-        for (StackExchangeObjectField key : list) {
-            builder.append(key.getValue()).append(";");
+        for (T a : array) {
+            builder.append(a).append(";");
         }
         if (builder.length() > 0) {
             builder.setLength(builder.length() - 1);

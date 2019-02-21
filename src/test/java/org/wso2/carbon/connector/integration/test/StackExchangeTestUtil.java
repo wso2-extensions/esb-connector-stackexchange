@@ -18,6 +18,7 @@
 package org.wso2.carbon.connector.integration.test;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
@@ -29,6 +30,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -90,6 +92,63 @@ public class StackExchangeTestUtil {
                 valueArray[i] = type.cast(array.get(i));
             }
             return valueArray;
+        }
+    }
+
+    public static StackExchangeCommonWrapper getStackExchangeCommonWrapper(String[] includedFields) {
+        Set<String> commonKeySet = new HashSet<>();
+        for (String field : includedFields) {
+            if (StackExchangeCommonWrapper.isCommonKey(field)) {
+                commonKeySet.add(StackExchangeCommonWrapper.getCommonKeyAsKey(field));
+            }
+        }
+        return new StackExchangeCommonWrapper(commonKeySet);
+    }
+
+    public static class StackExchangeCommonWrapper {
+
+        private static final String ERROR_STRING = "error";
+
+        private final Set<String> commonKeySet;
+        private boolean errorKeysExist = false;
+
+        private StackExchangeCommonWrapper(Set<String> commonKeySet) {
+
+            this.commonKeySet = commonKeySet;
+            for (String key : commonKeySet) {
+                if (key.contains(ERROR_STRING)) {
+                    errorKeysExist = true;
+                    break;
+                }
+            }
+        }
+
+        public static boolean isCommonKey(String key) {
+
+            return StringUtils.isNotEmpty(key) && key.charAt(0) == '.';
+        }
+
+        public static String getCommonKeyAsKey(String commonKey) {
+
+            return commonKey.substring(1);
+        }
+
+        public WrapperType fetchWrapperType(JSONObject json) {
+
+            for (Iterator<String> i = json.keys(); i.hasNext(); ) {
+                String key = i.next();
+                if (!commonKeySet.contains(key)) {
+                    return WrapperType.UNKNOWN;
+                }
+                if (errorKeysExist && key.contains(ERROR_STRING)) {
+                    return WrapperType.ERROR;
+                }
+            }
+            return WrapperType.NO_ERROR;
+        }
+
+        public enum WrapperType {
+            UNKNOWN, ERROR, NO_ERROR
         }
     }
 
@@ -172,33 +231,6 @@ public class StackExchangeTestUtil {
         }
     }
 
-    public static class FilterIncludedFieldsField extends StackExchangeObjectField<List<String>> {
-
-        protected FilterIncludedFieldsField(JSONObject item) throws JSONException {
-            super(item);
-        }
-
-        @Override
-        protected List<String> extract(JSONObject item) throws JSONException {
-            JSONArray includedFields = item.getJSONArray("included_fields");
-            List<String> keys = new ArrayList<>();
-            for (int i = 0; i < includedFields.length(); i++) {
-                keys.add(includedFields.getString(i));
-            }
-            return keys;
-        }
-
-        public Set<String> getCommonKeySet() {
-
-            Set<String> commonKeySet = new HashSet<>();
-            for (String keyInKey : super.value) {
-                if (StackExchangeCommonWrapper.isCommonKey(keyInKey)) {
-                    commonKeySet.add(StackExchangeCommonWrapper.getCommonKeyAsKey(keyInKey));
-                }
-            }
-            return commonKeySet;
-        }
-    }
 
     public static class QuestionIdField extends StackExchangeObjectField<Integer> {
 
