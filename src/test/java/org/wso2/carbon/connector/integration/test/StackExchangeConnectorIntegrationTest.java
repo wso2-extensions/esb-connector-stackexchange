@@ -54,6 +54,20 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public static final String STACKEXCHANGE_HAS_ANSWER = "stackexchange.hasanswer";
     public static final String STACKEXCHANGE_PRIVILEGES = "stackexchange.privileges";
 
+    private static final String API_NAME = "name";
+    private static final String API_INCLUDED_FIELDS = "included_fields";
+    private static final String API_QUESTION_ID = "question_id";
+    private static final String API_ANSWER_ID = "answer_id";
+    private static final String API_SHORT_DESCRIPTION = "short_description";
+
+    private static final String EI_QUESTION_ID = "questionId";
+    private static final String EI_ANSWER_ID = "answerId";
+    private static final String EI_ANSWER_ID_LIST = "answerIdList";
+    private static final String EI_SITE_TAGS = "siteTags";
+
+    private String key;
+    private String site;
+    private String apiVersion;
 
     private StackExchangeCommonWrapper stackExchangeCommonWrapper;
     private Map<String, String> eiRequestHeadersMap = new HashMap<>();
@@ -75,45 +89,35 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         String placeHolderQId = connectorProperties.getProperty("placeHolderQId");
         String placeHolderAId = connectorProperties.getProperty("placeHolderAId");
 
-        StackExchangeUrl tagUrl =
-                new StackExchangeUrl.Builder(apiVersion, "/tags")
-                        .queryParam("site", site)
-                        .queryParam("pagesize", "3").build();
-        StackExchangeItems tagItems = getStackExchangeItems(tagUrl);
-        String[] tagNameArray = tagItems.getAll("name", String.class);
-        setListLikePropertyInConnector("siteTags", tagNameArray);
+        this.key = key;
+        this.site = site;
+        this.apiVersion = apiVersion;
 
-        StackExchangeUrl filterUrl =
-                new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
-        StackExchangeItems filterItems = getStackExchangeItems(filterUrl);
-        String[] includedFields = filterItems.getRandom("included_fields", String[].class);
+        StackExchangeItems tagItems = getStackExchangeTagItems();
+        String[] tagNameArray = tagItems.getAll(API_NAME, String.class);
+        setListLikePropertyInConnector(EI_SITE_TAGS, tagNameArray);
+
+        StackExchangeItems filterItems = getStackExchangeFilterItems(filterName);
+        String[] includedFields = filterItems.getRandom(API_INCLUDED_FIELDS, String[].class);
         stackExchangeCommonWrapper = getStackExchangeCommonWrapper(includedFields);
 
-        StackExchangeUrl questionUrl =
-                new StackExchangeUrl.Builder(apiVersion, "/search/advanced")
-                        .queryParam("site", site)
-                        .queryParam("accepted", "False")
-                        .queryParam("answers", "1").build();
-        StackExchangeItems questionItems = getStackExchangeItems(questionUrl);
-        Integer questionId = questionItems.getRandom("question_id", Integer.class);
+        StackExchangeItems questionItems = getStackExchangeQuestionItems();
+        Integer questionId = questionItems.getRandom(API_QUESTION_ID, Integer.class);
         if (StringUtils.isEmpty(placeHolderQId)) {
             System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(false));
         } else {
             System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(true));
             while (questionId.equals(Integer.parseInt(placeHolderQId))) {
-                questionId = questionItems.getRandom("question_id", Integer.class);
+                questionId = questionItems.getRandom(API_QUESTION_ID, Integer.class);
             }
         }
-        connectorProperties.setProperty("questionId", String.valueOf(questionId));
+        connectorProperties.setProperty(EI_QUESTION_ID, String.valueOf(questionId));
 
-        StackExchangeUrl answerUrl =
-                new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionId +"/answers")
-                        .queryParam("site", site).build();
-        StackExchangeItems answerItems = getStackExchangeItems(answerUrl);
-        Integer answerId = answerItems.getRandom("answer_id", Integer.class);
-        Integer[] answerIdArray = answerItems.getAll("answer_id", Integer.class);
-        connectorProperties.setProperty("answerId", String.valueOf(answerId));
-        setListLikePropertyInConnector("answerIdList", answerIdArray);
+        StackExchangeItems answerItems = getStackExchangeAnswerItems(questionId);
+        Integer answerId = answerItems.getRandom(API_ANSWER_ID, Integer.class);
+        Integer[] answerIdArray = answerItems.getAll(API_ANSWER_ID, Integer.class);
+        connectorProperties.setProperty(EI_ANSWER_ID, String.valueOf(answerId));
+        setListLikePropertyInConnector(EI_ANSWER_ID_LIST, answerIdArray);
 
         if (StringUtils.isEmpty(placeHolderAId)) {
             System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
@@ -121,14 +125,48 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
             System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(true));
         }
 
+        StackExchangeItems privilegeItems = getStackExchangePrivilegeItems(accessToken);
+        String[] privilegeShortDescriptionArray = privilegeItems.getAll(API_SHORT_DESCRIPTION, String.class);
+        setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
+    }
+
+    private StackExchangeItems getStackExchangeTagItems() throws Exception {
+        StackExchangeUrl tagUrl =
+                new StackExchangeUrl.Builder(apiVersion, "/tags")
+                        .queryParam("site", site)
+                        .queryParam("pagesize", "3").build();
+        return getStackExchangeItems(tagUrl);
+    }
+
+    private StackExchangeItems getStackExchangeFilterItems(String filterName) throws Exception {
+        StackExchangeUrl filterUrl =
+                new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
+        return getStackExchangeItems(filterUrl);
+    }
+
+    private StackExchangeItems getStackExchangeQuestionItems() throws Exception {
+        StackExchangeUrl questionUrl =
+                new StackExchangeUrl.Builder(apiVersion, "/search/advanced")
+                        .queryParam("site", site)
+                        .queryParam("accepted", "False")
+                        .queryParam("answers", "1").build();
+        return getStackExchangeItems(questionUrl);
+    }
+
+    private StackExchangeItems getStackExchangeAnswerItems(int questionId) throws Exception {
+        StackExchangeUrl answerUrl =
+                new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionId +"/answers")
+                        .queryParam("site", site).build();
+        return getStackExchangeItems(answerUrl);
+    }
+
+    private StackExchangeItems getStackExchangePrivilegeItems(String accessToken) throws Exception {
         StackExchangeUrl privilegeUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/me/privileges/")
                         .queryParam("site", site)
                         .queryParam("key", key)
                         .queryParam("access_token", accessToken).build();
-        StackExchangeItems privilegeItems = getStackExchangeItems(privilegeUrl);
-        String[] privilegeShortDescriptionArray = privilegeItems.getAll("short_description", String.class);
-        setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
+        return getStackExchangeItems(privilegeUrl);
     }
 
     private <T> void setListLikePropertyInSystem(String propertyName, T[] array) {
