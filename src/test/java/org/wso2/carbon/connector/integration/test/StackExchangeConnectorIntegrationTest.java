@@ -32,6 +32,7 @@ import org.wso2.connector.integration.test.base.RestResponse;
 
 import java.io.IOException;
 import java.util.HashMap;
+
 import java.util.Map;
 
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.TestType;
@@ -50,26 +51,45 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
 
+    /*
+     * System property keys defined to save StackExchange specific data.
+     */
     public static final String STACKEXCHANGE_HAS_QUESTION = "stackexchange.hasquestion";
     public static final String STACKEXCHANGE_HAS_ANSWER = "stackexchange.hasanswer";
     public static final String STACKEXCHANGE_PRIVILEGES = "stackexchange.privileges";
 
+    /*
+     * StackExchange essential key names which helps to extract data from API responses.
+     */
     private static final String API_NAME = "name";
     private static final String API_INCLUDED_FIELDS = "included_fields";
     private static final String API_QUESTION_ID = "question_id";
     private static final String API_ANSWER_ID = "answer_id";
     private static final String API_SHORT_DESCRIPTION = "short_description";
 
+    /*
+     * Connector property keys defined to save StackExchange specific runtime acquiring data.
+     */
     private static final String EI_QUESTION_ID = "questionId";
     private static final String EI_ANSWER_ID = "answerId";
     private static final String EI_ANSWER_ID_LIST = "answerIdList";
     private static final String EI_SITE_TAGS = "siteTags";
 
+    /*
+     * Common property values.
+     */
     private String key;
     private String site;
     private String apiVersion;
 
+    /*
+     * StackExchange response wrapper details to check against EI responses.
+     */
     private StackExchangeCommonWrapper stackExchangeCommonWrapper;
+
+    /*
+     * EI header map.
+     */
     private Map<String, String> eiRequestHeadersMap = new HashMap<>();
 
     @BeforeClass(alwaysRun = true)
@@ -107,7 +127,15 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
             System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(false));
         } else {
             System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(true));
-            while (questionId.equals(Integer.parseInt(placeHolderQId))) {
+            /* For API routes like 'voting up a question' does not allow
+               user to up vote his/her own post. In those cases we should
+               avoid using placeHolderQId as a questionId. Here we are
+               trying to guarantee that never happens. NOTE: As we can never
+               guarantee that result of the getRandom will always be
+               different, looping would be the safest solution. But in rare
+               cases if calling route provides only one item this may loop
+               infinitely and to avoid that hard limit is declared. */
+            for (int i = 0; questionId.equals(Integer.parseInt(placeHolderQId)) && i < 1024; i++) {
                 questionId = questionItems.getRandom(API_QUESTION_ID, Integer.class);
             }
         }
