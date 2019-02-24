@@ -70,7 +70,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                         stackExchange.privilege()));
             }
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error while extracting the test method", e);
         }
     }
 

@@ -37,8 +37,6 @@ import java.util.Set;
  */
 public class StackExchangeTestUtil {
 
-    private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
-
     public static StackExchangeItems getStackExchangeItems(StackExchangeUrl url) throws IOException, JSONException {
 
         StackExchangeUrlConnection connection = new StackExchangeUrlConnection(url.openConnection());
@@ -75,7 +73,8 @@ public class StackExchangeTestUtil {
 
         private void fail(String key) throws JSONException {
 
-            throw new JSONException(String.format("Could not extract '%s' requested from an empty item list.", key));
+            throw new JSONException(String.format(
+                    "Could not extract requested inner value '%s' from an empty item list.", key));
         }
 
         public <T> T getRandom(String key, Class<T> type) throws JSONException {

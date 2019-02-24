@@ -51,14 +51,14 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
 
     /*
-     * System property keys defined to save StackExchange specific data.
+     * System property keys for saving StackExchange specific data.
      */
     public static final String STACKEXCHANGE_HAS_QUESTION = "stackexchange.hasquestion";
     public static final String STACKEXCHANGE_HAS_ANSWER = "stackexchange.hasanswer";
     public static final String STACKEXCHANGE_PRIVILEGES = "stackexchange.privileges";
 
     /*
-     * Some keys exist in StackExchange payload.
+     * Keys needed to extract data from StackExchange an response.
      */
     private static final String SE_RES_KEY_NAME = "name";
     private static final String SE_RES_KEY_INCLUDED_FIELDS = "included_fields";
@@ -67,7 +67,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     private static final String SE_RES_KEY_SHORT_DESCRIPTION = "short_description";
 
     /*
-     * Connector property keys defined to save StackExchange specific data.
+     * Connector property keys for saving StackExchange specific data.
      */
     private static final String PROP_KEY_QUESTION_ID = "questionId";
     private static final String PROP_KEY_ANSWER_ID = "answerId";
@@ -82,12 +82,12 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     private String apiVersion;
 
     /*
-     * StackExchange response wrapper details to check against EI responses.
+     * StackExchange Common response wrapper values stored in a one place to compare against EI responses.
      */
     private StackExchangeCommonWrapper stackExchangeCommonWrapper;
 
     /*
-     * EI header map.
+     * EI headers map.
      */
     private Map<String, String> eiRequestHeadersMap = new HashMap<>();
 
