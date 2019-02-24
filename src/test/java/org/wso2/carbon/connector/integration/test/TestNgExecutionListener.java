@@ -45,19 +45,17 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
 
             if (stackExchange.needMyAnswer()) {
                 String hasA = System.getProperty(STACKEXCHANGE_HAS_ANSWER);
-                if (Boolean.parseBoolean(hasA)) {
-                    return;
+                if (!Boolean.parseBoolean(hasA)) {
+                    iTestResult.setStatus(TestResult.SKIP);
+                    throw new SkipException("Cannot execute this test due to lack of data hence skipping.");
                 }
-                iTestResult.setStatus(TestResult.SKIP);
-                throw new SkipException("Cannot execute this test due to lack of data hence skipping.");
             }
             if (stackExchange.needMyQuestion()) {
                 String hasQ = System.getProperty(STACKEXCHANGE_HAS_QUESTION);
-                if (Boolean.parseBoolean(hasQ)) {
-                    return;
+                if (!Boolean.parseBoolean(hasQ)) {
+                    iTestResult.setStatus(TestResult.SKIP);
+                    throw new SkipException("Cannot execute this test due to lack of data hence skipping.");
                 }
-                iTestResult.setStatus(TestResult.SKIP);
-                throw new SkipException("Cannot execute this test due to lack of data hence skipping.");
             }
             if (!stackExchange.skipPrivilegeCheck()) {
                 String privileges = System.getProperty(STACKEXCHANGE_PRIVILEGES);

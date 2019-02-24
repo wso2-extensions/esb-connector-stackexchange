@@ -42,7 +42,7 @@ import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.S
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeCommonWrapper;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeItems;
 
-/**
+/*
  * StackExchange connector integration test
  */
 @Listeners(TestNgExecutionListener.class)
@@ -313,7 +313,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= editQuestionById ======================================= */
 
-    @StackExchange(needMyQuestion = true, privilege = "edit questions and answers")
+    @StackExchange(needMyQuestion = true, skipPrivilegeCheck = true, privilege = "edit questions and answers")
     @Test(groups = {"wso2.ei"})
     public void testEditQuestionByIdWithInvalid() throws IOException, JSONException {
 
@@ -323,7 +323,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
     }
 
-    @StackExchange(needMyQuestion = true, privilege = "edit questions and answers")
+    @StackExchange(needMyQuestion = true, skipPrivilegeCheck = true, privilege = "edit questions and answers")
     @Test(groups = {"wso2.ei"})
     public void testEditQuestionByIdWithMandatory() throws IOException, JSONException {
 

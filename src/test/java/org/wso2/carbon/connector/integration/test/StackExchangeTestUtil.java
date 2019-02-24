@@ -33,9 +33,11 @@ import java.util.Random;
 import java.util.Set;
 
 /*
- * API specific helper structures and common methods to be used in tests.
+ * API specific helper structures and methods to be used in tests.
  */
 public class StackExchangeTestUtil {
+
+    private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
     public static StackExchangeItems getStackExchangeItems(StackExchangeUrl url) throws IOException, JSONException {
 
