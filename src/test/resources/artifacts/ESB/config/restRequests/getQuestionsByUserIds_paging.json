@@ -1,7 +1,7 @@
 {
-  "site":"%s(site)",
-  "ids":"%s(siteUserIds)",
-  "key":"%s(key)",
+  "site": "%s(site)",
+  "ids": "%s(siteUserIds)",
+  "key": "%s(key)",
   "filter": "%s(filterName)",
   "pagesize": "%s(pagesize)",
   "page": "%s(page)",

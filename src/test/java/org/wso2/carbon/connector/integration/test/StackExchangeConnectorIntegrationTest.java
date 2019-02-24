@@ -32,7 +32,6 @@ import org.wso2.connector.integration.test.base.RestResponse;
 
 import java.io.IOException;
 import java.util.HashMap;
-
 import java.util.Map;
 
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.TestType;
@@ -59,24 +58,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public static final String STACKEXCHANGE_PRIVILEGES = "stackexchange.privileges";
 
     /*
-     * StackExchange essential key names which helps to extract data from API responses.
+     * Some keys exist in StackExchange payload.
      */
-    private static final String API_NAME = "name";
-    private static final String API_INCLUDED_FIELDS = "included_fields";
-    private static final String API_QUESTION_ID = "question_id";
-    private static final String API_ANSWER_ID = "answer_id";
-    private static final String API_SHORT_DESCRIPTION = "short_description";
+    private static final String SE_RES_KEY_NAME = "name";
+    private static final String SE_RES_KEY_INCLUDED_FIELDS = "included_fields";
+    private static final String SE_RES_KEY_QUESTION_ID = "question_id";
+    private static final String SE_RES_KEY_ANSWER_ID = "answer_id";
+    private static final String SE_RES_KEY_SHORT_DESCRIPTION = "short_description";
 
     /*
-     * Connector property keys defined to save StackExchange specific runtime acquiring data.
+     * Connector property keys defined to save StackExchange specific data.
      */
-    private static final String EI_QUESTION_ID = "questionId";
-    private static final String EI_ANSWER_ID = "answerId";
-    private static final String EI_ANSWER_ID_LIST = "answerIdList";
-    private static final String EI_SITE_TAGS = "siteTags";
+    private static final String PROP_KEY_QUESTION_ID = "questionId";
+    private static final String PROP_KEY_ANSWER_ID = "answerId";
+    private static final String PROP_KEY_ANSWER_ID_LIST = "answerIdList";
+    private static final String PROP_KEY_SITE_TAGS = "siteTags";
 
     /*
-     * Common property values.
+     * Common API properties
      */
     private String key;
     private String site;
@@ -114,38 +113,38 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         this.apiVersion = apiVersion;
 
         StackExchangeItems tagItems = getStackExchangeTagItems();
-        String[] tagNameArray = tagItems.getAll(API_NAME, String.class);
-        setListLikePropertyInConnector(EI_SITE_TAGS, tagNameArray);
+        String[] tagNameArray = tagItems.getAll(SE_RES_KEY_NAME, String.class);
+        setListLikePropertyInConnector(PROP_KEY_SITE_TAGS, tagNameArray);
 
         StackExchangeItems filterItems = getStackExchangeFilterItems(filterName);
-        String[] includedFields = filterItems.getRandom(API_INCLUDED_FIELDS, String[].class);
+        String[] includedFields = filterItems.getRandom(SE_RES_KEY_INCLUDED_FIELDS, String[].class);
         stackExchangeCommonWrapper = getStackExchangeCommonWrapper(includedFields);
 
         StackExchangeItems questionItems = getStackExchangeQuestionItems();
-        Integer questionId = questionItems.getRandom(API_QUESTION_ID, Integer.class);
+        Integer questionId = questionItems.getRandom(SE_RES_KEY_QUESTION_ID, Integer.class);
         if (StringUtils.isEmpty(placeHolderQId)) {
             System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(false));
         } else {
             System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(true));
-            /* For API routes like 'voting up a question' does not allow
+            /* API routes like 'voting up a question' does not allow
                user to up vote his/her own post. In those cases we should
-               avoid using placeHolderQId as a questionId. Here we are
-               trying to guarantee that never happens. NOTE: As we can never
-               guarantee that result of the getRandom will always be
-               different, looping would be the safest solution. But in rare
-               cases if calling route provides only one item this may loop
-               infinitely and to avoid that hard limit is declared. */
-            for (int i = 0; questionId.equals(Integer.parseInt(placeHolderQId)) && i < 1024; i++) {
-                questionId = questionItems.getRandom(API_QUESTION_ID, Integer.class);
+               avoid using placeHolderQId as the questionId. Hence looping
+               to guarantee it never happens. Length check is necessary to
+               avoid infinite looping. */
+            if (questionItems.length() > 1) {
+                int qid = Integer.parseInt(placeHolderQId);
+                while (questionId.equals(qid)) {
+                    questionId = questionItems.getRandom(SE_RES_KEY_QUESTION_ID, Integer.class);
+                }
             }
         }
-        connectorProperties.setProperty(EI_QUESTION_ID, String.valueOf(questionId));
+        connectorProperties.setProperty(PROP_KEY_QUESTION_ID, String.valueOf(questionId));
 
         StackExchangeItems answerItems = getStackExchangeAnswerItems(questionId);
-        Integer answerId = answerItems.getRandom(API_ANSWER_ID, Integer.class);
-        Integer[] answerIdArray = answerItems.getAll(API_ANSWER_ID, Integer.class);
-        connectorProperties.setProperty(EI_ANSWER_ID, String.valueOf(answerId));
-        setListLikePropertyInConnector(EI_ANSWER_ID_LIST, answerIdArray);
+        Integer answerId = answerItems.getRandom(SE_RES_KEY_ANSWER_ID, Integer.class);
+        Integer[] answerIdArray = answerItems.getAll(SE_RES_KEY_ANSWER_ID, Integer.class);
+        connectorProperties.setProperty(PROP_KEY_ANSWER_ID, String.valueOf(answerId));
+        setListLikePropertyInConnector(PROP_KEY_ANSWER_ID_LIST, answerIdArray);
 
         if (StringUtils.isEmpty(placeHolderAId)) {
             System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
@@ -154,11 +153,12 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         }
 
         StackExchangeItems privilegeItems = getStackExchangePrivilegeItems(accessToken);
-        String[] privilegeShortDescriptionArray = privilegeItems.getAll(API_SHORT_DESCRIPTION, String.class);
+        String[] privilegeShortDescriptionArray = privilegeItems.getAll(SE_RES_KEY_SHORT_DESCRIPTION, String.class);
         setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
     }
 
     private StackExchangeItems getStackExchangeTagItems() throws Exception {
+
         StackExchangeUrl tagUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/tags")
                         .queryParam("site", site)
@@ -167,12 +167,14 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     }
 
     private StackExchangeItems getStackExchangeFilterItems(String filterName) throws Exception {
+
         StackExchangeUrl filterUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
         return getStackExchangeItems(filterUrl);
     }
 
     private StackExchangeItems getStackExchangeQuestionItems() throws Exception {
+
         StackExchangeUrl questionUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/search/advanced")
                         .queryParam("site", site)
@@ -182,13 +184,15 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     }
 
     private StackExchangeItems getStackExchangeAnswerItems(int questionId) throws Exception {
+
         StackExchangeUrl answerUrl =
-                new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionId +"/answers")
+                new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionId + "/answers")
                         .queryParam("site", site).build();
         return getStackExchangeItems(answerUrl);
     }
 
     private StackExchangeItems getStackExchangePrivilegeItems(String accessToken) throws Exception {
+
         StackExchangeUrl privilegeUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/me/privileges/")
                         .queryParam("site", site)
@@ -198,14 +202,17 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     }
 
     private <T> void setListLikePropertyInSystem(String propertyName, T[] array) {
+
         System.setProperty(propertyName, getTArrayAsSemicolonDelimitedString(array));
     }
 
     private <T> void setListLikePropertyInConnector(String propertyName, T[] array) {
+
         connectorProperties.setProperty(propertyName, getTArrayAsSemicolonDelimitedString(array));
     }
 
     private <T> String getTArrayAsSemicolonDelimitedString(T[] array) {
+
         StringBuilder builder = new StringBuilder();
         for (T a : array) {
             builder.append(a).append(";");

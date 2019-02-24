@@ -23,7 +23,9 @@ import org.testng.ITestResult;
 import org.testng.SkipException;
 import org.testng.internal.TestResult;
 
-import static org.wso2.carbon.connector.integration.test.StackExchangeConnectorIntegrationTest.*;
+import static org.wso2.carbon.connector.integration.test.StackExchangeConnectorIntegrationTest.STACKEXCHANGE_HAS_ANSWER;
+import static org.wso2.carbon.connector.integration.test.StackExchangeConnectorIntegrationTest.STACKEXCHANGE_HAS_QUESTION;
+import static org.wso2.carbon.connector.integration.test.StackExchangeConnectorIntegrationTest.STACKEXCHANGE_PRIVILEGES;
 
 public class TestNgExecutionListener implements IInvokedMethodListener {
 
@@ -65,7 +67,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                 iTestResult.setStatus(TestResult.SKIP);
                 throw new SkipException(String.format(
                         "Cannot execute this test due to lack of privileges hence skipping. (missing: %s)",
-                                stackExchange.privilege()));
+                        stackExchange.privilege()));
             }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
@@ -74,5 +76,6 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
 
     @Override
     public void afterInvocation(IInvokedMethod iInvokedMethod, ITestResult iTestResult) {
+
     }
 }

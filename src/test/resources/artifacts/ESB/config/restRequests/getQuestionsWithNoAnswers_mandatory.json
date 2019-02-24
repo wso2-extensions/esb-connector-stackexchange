@@ -1,5 +1,5 @@
 {
-  "site":"%s(site)",
-  "key":"%s(key)",
+  "site": "%s(site)",
+  "key": "%s(key)",
   "filter": "%s(filterName)"
 }

@@ -32,11 +32,15 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
+/*
+ * API specific helper structures and common methods to be used in tests.
+ */
 public class StackExchangeTestUtil {
 
     private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
     public static StackExchangeItems getStackExchangeItems(StackExchangeUrl url) throws IOException, JSONException {
+
         StackExchangeUrlConnection connection = new StackExchangeUrlConnection(url.openConnection());
 
         if (connection.getResponseCode() != 200) {
@@ -49,35 +53,49 @@ public class StackExchangeTestUtil {
     }
 
     public static class StackExchangeItems {
+
         private final JSONArray items;
+        private final Random random;
 
         private StackExchangeItems(JSONObject data) throws JSONException {
+
             this.items = data.getJSONArray("items");
+            random = new Random();
+        }
+
+        public int length() {
+
+            return items.length();
         }
 
         public boolean isEmpty() {
+
             return items.length() == 0;
         }
 
-        private void failForGood(String key) throws JSONException {
+        private void fail(String key) throws JSONException {
+
             throw new JSONException(String.format("Could not extract '%s' requested from an empty item list.", key));
         }
 
         public <T> T getRandom(String key, Class<T> type) throws JSONException {
+
             if (isEmpty()) {
-                failForGood(key);
+                fail(key);
             }
-            int i = new Random().nextInt(items.length());
+            int i = random.nextInt(items.length());
             return getItemAt(key, type, i);
         }
 
         private <T> T getItemAt(String key, Class<T> type, int i) throws JSONException {
+
             return getValue(items.getJSONObject(i), key, type);
         }
 
         public <T> T[] getAll(String key, Class<T> type) throws JSONException {
+
             if (isEmpty()) {
-                failForGood(key);
+                fail(key);
             }
             T[] all = (T[]) Array.newInstance(type, items.length());
             for (int i = 0; i < items.length(); i++) {
@@ -87,6 +105,7 @@ public class StackExchangeTestUtil {
         }
 
         private <T> T getValue(JSONObject json, String key, Class<T> type) throws JSONException {
+
             Object value = json.get(key);
             if (type.isArray()) {
                 Class<?> componentType = type.getComponentType();
@@ -102,6 +121,7 @@ public class StackExchangeTestUtil {
         }
 
         private <T> T[] getValueArray(JSONArray array, Class<T> type) throws JSONException {
+
             T[] valueArray = (T[]) Array.newInstance(type, array.length());
             for (int i = 0; i < array.length(); i++) {
                 valueArray[i] = type.cast(array.get(i));
@@ -111,6 +131,7 @@ public class StackExchangeTestUtil {
     }
 
     public static StackExchangeCommonWrapper getStackExchangeCommonWrapper(String[] includedFields) {
+
         Set<String> commonKeySet = new HashSet<>();
         for (String field : includedFields) {
             if (StackExchangeCommonWrapper.isCommonKey(field)) {
