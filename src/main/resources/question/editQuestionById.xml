@@ -23,7 +23,7 @@
     <!-- OPTIONAL -->
     <parameter name="comment" description="Comment for the edited question"/>
     <parameter name="preview"
-               description="Preview parameter is used for development and testing purposes. If this set it to true,
+               description="Preview parameter is used for development and testing purposes. When preview is set to true,
                             request will only simulate whether it is a valid request or not and will not change
                             anything on the site."/>
     <sequence>
