@@ -152,9 +152,13 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
             System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(true));
         }
 
-        StackExchangeItems privilegeItems = getStackExchangePrivilegeItems(accessToken);
-        String[] privilegeShortDescriptionArray = privilegeItems.getAll(SE_RES_KEY_SHORT_DESCRIPTION, String.class);
-        setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
+        if (StringUtils.isNotEmpty(accessToken) && StringUtils.isNotEmpty(key)) {
+            StackExchangeItems privilegeItems = getStackExchangePrivilegeItems(accessToken);
+            String[] privilegeShortDescriptionArray = privilegeItems.getAll(SE_RES_KEY_SHORT_DESCRIPTION, String.class);
+            setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
+        } else {
+            System.setProperty(STACKEXCHANGE_PRIVILEGES, StackExchange.PRIVILEGE_DEFAULT);
+        }
     }
 
     private StackExchangeItems getStackExchangeTagItems() throws Exception {

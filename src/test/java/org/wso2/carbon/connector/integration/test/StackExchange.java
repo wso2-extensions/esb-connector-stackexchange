@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface StackExchange {
+    String PRIVILEGE_DEFAULT = "create posts";
 
     boolean skipPrivilegeCheck() default false;
 
@@ -15,5 +16,5 @@ public @interface StackExchange {
 
     boolean needMyQuestion() default false;
 
-    String privilege() default "create posts";
+    String privilege() default PRIVILEGE_DEFAULT;
 }
