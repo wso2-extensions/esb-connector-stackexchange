@@ -1,10 +1,10 @@
-﻿### Product: Integration tests for WSO2 ESB StackExchange Connector
+﻿## Product: Integration tests for WSO2 ESB StackExchange Connector
 
-#### Pre-requisites:
+### Pre-requisites:
  * Maven 3.x
  * Java 1.8
 
-#### Steps to follow in setting integration test.
+### Steps to follow in setting integration test.
 
 1. Place the EI 6.4.0 zip file in <code><stackexchange_connector_home>/repository</code>.
 2. Prerequisites for StackExchange Connector Integration Testing.
@@ -24,12 +24,14 @@
         2. **placeHolderAId**: Fill this with a question id that you own in the StackExchange network. This question should belong to the same account that you have been using so far while following above steps. 
         3. **placeHolderSite**: Site which above ids belong to.
     
-#### Notes
-##### API Key
+### Notes
+#### API Key
 In order to prevent abuse, the API implements a number of throttles. For that reason in most cases an API key 
 should be passed when making requests against the Stack Exchange API to receive a [higher request quota](https://api.stackexchange.com/docs/throttle).
 Even though it could be unnecessary to pass the API key when sending requests to public API endpoints, 
 while doing tests we assume key is mandatory for all endpoints. This is done to prevent confusing test failures due to API throttles.
 
-##### Privileges 
-
+#### Privileges 
+StackExchange users will earn certain privileges when they reach required reputation. These reputation scores may differ from site to site.
+If you have provided an account which lacks these privileges that we expect in our connector methods, we are skipping those tests. So make sure
+to use an account with enough privileges to get all the tests without being skipped. 
