@@ -32,6 +32,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
     @Override
     public void beforeInvocation(IInvokedMethod iInvokedMethod, ITestResult iTestResult) {
 
+        /* All non test methods should be avoided */
         if (!iInvokedMethod.isTestMethod()) {
             return;
         }
@@ -68,7 +69,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                         stackExchange.privilege()));
             }
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Error while extracting the test method", e);
+            throw new RuntimeException("Could not find the test method", e);
         }
     }
 

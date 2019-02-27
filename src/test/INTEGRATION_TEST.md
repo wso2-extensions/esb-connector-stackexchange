@@ -18,7 +18,7 @@
         2. **accessToken**: Access Token you got from following step 2.2.
         3. **key**: You can find your App's <code>key</code> under your App configurations.
         #### Properties related to PlaceHolder Post
-        In case you don't have any of the following data remove the line for which you don't have so that those tests get skipped.
+        In case you don't have any of the following data disable the line (comment out) for which you don't have so that those tests get skipped.
         
         1. **placeHolderQId**: Fill this with a question id that you own in the StackExchange network. This question should belong to the same account that you have been using so far while following above steps. You can simply put your App placeholder post's question id if you don't have any.
         2. **placeHolderAId**: Fill this with an answer id that you own in the StackExchange network. This question should belong to the same account that you have been using so far while following above steps. 

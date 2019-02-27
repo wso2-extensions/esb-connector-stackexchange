@@ -14,7 +14,7 @@ target
 *.war
 *.ear
 
-# ignore Intellij-IDEA files
+# Ignore Intellij-IDEA files
 *.iml
 *.ipr
 *.iws
@@ -24,15 +24,18 @@ target
 *.idea
 .DS_Store
 
-# ignore logs
+# Ignore logs
 *.log
 
-# ignore target directories
+# Ignore target directories
 target/
 *.*~
 
 .attach_pid*
 
+# Ignore EI zips and unzips
 wso2ei-*.zip
 wso2ei-*
-repository/esb-connector-stackexchange.properties
+
+repository/*.bak
+

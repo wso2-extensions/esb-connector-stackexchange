@@ -24,7 +24,7 @@ import org.json.JSONObject;
 public class CommonTestUtil {
 
     public static String getConnectorName() {
-        /* Note: for string concatenation compile-time optimization is possible */
+
         return System.getProperty("connector_name") +
                 "-connector-" +
                 System.getProperty("connector_version") +
@@ -37,7 +37,7 @@ public class CommonTestUtil {
     }
 
     public static String clearLogMessage(String middle) {
-        /* Note: for string concatenation compile-time optimization is possible */
+
         return String.format("\n" +
                         "====================================================\n" +
                         "%s\n" +

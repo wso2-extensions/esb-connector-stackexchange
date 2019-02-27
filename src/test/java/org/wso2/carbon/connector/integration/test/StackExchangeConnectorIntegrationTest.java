@@ -69,9 +69,14 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /*
      * Connector property keys for saving StackExchange specific data.
      */
+
+    /* To store a valid question id */
     private static final String PROP_KEY_QUESTION_ID = "questionId";
+    /* To store a valid answer id */
     private static final String PROP_KEY_ANSWER_ID = "answerId";
+    /* To store a semicolon delimited set of answer ids */
     private static final String PROP_KEY_ANSWER_ID_LIST = "answerIdList";
+    /* To store a semicolon delimited set of site tags */
     private static final String PROP_KEY_SITE_TAGS = "siteTags";
 
     /*
@@ -81,9 +86,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     private String site;
     private String apiVersion;
 
-    /*
-     * StackExchange Common response wrapper values stored in a one place to compare against EI responses.
-     */
     private StackExchangeCommonWrapper stackExchangeCommonWrapper;
 
     /*
@@ -112,16 +114,20 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         this.site = site;
         this.apiVersion = apiVersion;
 
+        /* Save few tags specific to the site */
         StackExchangeItems tagItems = getStackExchangeTagItems();
         String[] tagNameArray = tagItems.getAll(SE_RES_KEY_NAME, String.class);
         setListLikePropertyInConnector(PROP_KEY_SITE_TAGS, tagNameArray);
 
+        /* Create a common wrapper using filter route */
         StackExchangeItems filterItems = getStackExchangeFilterItems(filterName);
         String[] includedFields = filterItems.getRandom(SE_RES_KEY_INCLUDED_FIELDS, String[].class);
         stackExchangeCommonWrapper = getStackExchangeCommonWrapper(includedFields);
 
+        /* Save a random id of a question */
         StackExchangeItems questionItems = getStackExchangeQuestionItems();
         Integer questionId = questionItems.getRandom(SE_RES_KEY_QUESTION_ID, Integer.class);
+        /* Save availability of Placeholder question id */
         if (StringUtils.isEmpty(placeHolderQId)) {
             System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(false));
         } else {
@@ -140,23 +146,28 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         }
         connectorProperties.setProperty(PROP_KEY_QUESTION_ID, String.valueOf(questionId));
 
+        /* Save a random id of an answer */
         StackExchangeItems answerItems = getStackExchangeAnswerItems(questionId);
         Integer answerId = answerItems.getRandom(SE_RES_KEY_ANSWER_ID, Integer.class);
         Integer[] answerIdArray = answerItems.getAll(SE_RES_KEY_ANSWER_ID, Integer.class);
         connectorProperties.setProperty(PROP_KEY_ANSWER_ID, String.valueOf(answerId));
         setListLikePropertyInConnector(PROP_KEY_ANSWER_ID_LIST, answerIdArray);
 
+        /* Save availability of Placeholder answer id */
         if (StringUtils.isEmpty(placeHolderAId)) {
             System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
         } else {
             System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(true));
         }
 
+        /* Check credential availability to avoid unnecessary failures */
         if (StringUtils.isNotEmpty(accessToken) && StringUtils.isNotEmpty(key)) {
+            /* Save privilege wordings belong to given credentials */
             StackExchangeItems privilegeItems = getStackExchangePrivilegeItems(accessToken);
             String[] privilegeShortDescriptionArray = privilegeItems.getAll(SE_RES_KEY_SHORT_DESCRIPTION, String.class);
             setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
         } else {
+            /* Set defaults */
             System.setProperty(STACKEXCHANGE_PRIVILEGES, StackExchange.PRIVILEGE_DEFAULT);
         }
     }
