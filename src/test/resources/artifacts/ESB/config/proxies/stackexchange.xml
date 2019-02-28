@@ -42,7 +42,6 @@
             <stackexchange.init>
                 <key>{$ctx:key}</key>
                 <site>{$ctx:site}</site>
-                <filter>{$ctx:filter}</filter>
                 <accessToken>{$ctx:accessToken}</accessToken>
             </stackexchange.init>
             <switch source="get-property('transport', 'Action')">
@@ -61,6 +60,7 @@
                         <body>{$ctx:body}</body>
                         <tags>{$ctx:tags}</tags>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.addQuestion>
                 </case>
@@ -70,6 +70,7 @@
                         <!-- Mandatory -->
                         <id>{$ctx:id}</id>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.deleteQuestionById>
                 </case>
@@ -85,6 +86,7 @@
                         <body>{$ctx:body}</body>
                         <tags>{$ctx:tags}</tags>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.editQuestionById>
                 </case>
@@ -94,6 +96,7 @@
                         <!-- Mandatory -->
                         <id>{$ctx:id}</id>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.downvoteQuestionById>
                 </case>
@@ -103,6 +106,7 @@
                         <!-- Mandatory -->
                         <id>{$ctx:id}</id>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.upvoteQuestionById>
                 </case>
@@ -111,6 +115,8 @@
                     <stackexchange.getQuestionsByUserIds>
                         <!-- Mandatory -->
                         <ids>{$ctx:ids}</ids>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <!-- Paging -->
                         <page>{$ctx:page}</page>
                         <pagesize>{$ctx:pagesize}</pagesize>
@@ -126,6 +132,7 @@
                     <stackexchange.getQuestionsWithNoAnswers>
                         <!-- Optional -->
                         <tagged>{$ctx:tagged}</tagged>
+                        <filter>{$ctx:filter}</filter>
                         <!-- Paging -->
                         <page>{$ctx:page}</page>
                         <pagesize>{$ctx:pagesize}</pagesize>
@@ -146,6 +153,7 @@
                         <id>{$ctx:id}</id>
                         <body>{$ctx:body}</body>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.addAnswer>
                 </case>
@@ -157,6 +165,7 @@
                         <id>{$ctx:id}</id>
                         <body>{$ctx:body}</body>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.editAnswerById>
                 </case>
@@ -166,6 +175,7 @@
                         <!-- Mandatory -->
                         <id>{$ctx:id}</id>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.deleteAnswerById>
                 </case>
@@ -175,6 +185,7 @@
                         <!-- Mandatory -->
                         <id>{$ctx:id}</id>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.downvoteAnswerById>
                 </case>
@@ -184,6 +195,7 @@
                         <!-- Mandatory -->
                         <id>{$ctx:id}</id>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.upvoteAnswerById>
                 </case>
@@ -193,6 +205,7 @@
                         <!-- Mandatory -->
                         <ids>{$ctx:ids}</ids>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                         <!-- Paging -->
                         <page>{$ctx:page}</page>
@@ -211,6 +224,7 @@
                         <!-- Mandatory -->
                         <id>{$ctx:id}</id>
                         <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.acceptAnswerById>
                 </case>

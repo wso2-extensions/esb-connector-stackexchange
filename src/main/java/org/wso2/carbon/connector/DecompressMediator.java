@@ -24,9 +24,9 @@ import org.apache.synapse.mediators.transform.HeaderMediator;
 import javax.xml.namespace.QName;
 
 /*
- * DumbDecompressMediator forces response decompression
+ * DecompressMediator forces response decompression
  */
-public class DumbDecompressMediator extends AbstractMediator {
+public class DecompressMediator extends AbstractMediator {
 
     /*
      * header mediator action

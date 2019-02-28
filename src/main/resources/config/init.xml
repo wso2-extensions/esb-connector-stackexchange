@@ -19,10 +19,9 @@
 <template name="init" xmlns="http://ws.apache.org/ns/synapse">
     <parameter name="site" description="Site to get data. e.g. stackoverflow, askubuntu"/>
     <parameter name="apiVersion" description="The URL of the Stack Exchange REST API"/>
-    <parameter name="filter" description="Response filter"/>
     <parameter name="accessToken" description="OAuth2 Access Token"/>
     <parameter name="key"
-               description="Should Pass this as key when making requests against to receive a higher request quota."/>
+               description="Should pass this as key when making requests against the API to receive a higher request quota."/>
     <sequence>
         <property name="uri.var.site" expression="$func:site"/>
         <property name="uri.var.apiVersion" expression="$func:apiVersion"/>
@@ -33,7 +32,6 @@
                 <property name="uri.var.apiVersion" value="2.2"/>
             </then>
         </filter>
-        <property name="uri.var.filter" expression="$func:filter"/>
         <property name="uri.var.accessToken" expression="$func:accessToken"/>
         <property name="uri.var.key" expression="$func:key"/>
     </sequence>

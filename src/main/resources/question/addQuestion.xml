@@ -20,11 +20,17 @@
     <parameter name="body" description="Body of the question"/>
     <parameter name="tags" description="Semicolon delimited tag names"/>
     <!-- OPTIONAL -->
+    <parameter name="filter" description="Response filter"/>
     <parameter name="preview"
                description="Preview parameter is used for development and testing purposes. When preview is set to true,
                             request will only simulate whether it is a valid request or not and will not change
                             anything on the site."/>
     <sequence>
+        <property name="uri.var.title" expression="$func:title"/>
+        <property name="uri.var.body" expression="$func:body"/>
+        <property name="uri.var.tags" expression="$func:tags"/>
+        <!-- OPTIONAL -->
+        <property name="uri.var.filter" expression="$func:filter"/>
         <property name="uri.var.preview" expression="$func:preview"/>
         <payloadFactory media-type="json">
             <format>
@@ -38,12 +44,12 @@
                 }
             </format>
             <args>
-                <arg evaluator="json" expression="$.site"/>
-                <arg evaluator="json" expression="$.accessToken"/>
-                <arg evaluator="json" expression="$.key"/>
-                <arg evaluator="json" expression="$.title"/>
-                <arg evaluator="json" expression="$.body"/>
-                <arg evaluator="json" expression="$.tags"/>
+                <arg evaluator="json" expression="$ctx:uri.var.site"/>
+                <arg evaluator="json" expression="$ctx:uri.var.accessToken"/>
+                <arg evaluator="json" expression="$ctx:uri.var.key"/>
+                <arg evaluator="json" expression="$ctx:uri.var.title"/>
+                <arg evaluator="json" expression="$ctx:uri.var.body"/>
+                <arg evaluator="json" expression="$ctx:uri.var.tags"/>
             </args>
         </payloadFactory>
         <script language="js">
@@ -84,6 +90,6 @@
             </endpoint>
         </call>
         <!-- Forces response decompression -->
-        <class name="org.wso2.carbon.connector.DumbDecompressMediator"/>
+        <class name="org.wso2.carbon.connector.DecompressMediator"/>
     </sequence>
 </template>

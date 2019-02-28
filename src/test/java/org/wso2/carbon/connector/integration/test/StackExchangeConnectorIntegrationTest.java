@@ -35,8 +35,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.TestType;
+import static org.wso2.carbon.connector.integration.test.CommonTestUtil.clearLogMessage;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getConnectorName;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getFilenameOfPayload;
+import static org.wso2.carbon.connector.integration.test.CommonTestUtil.prettyJson;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.StackExchangeCommonWrapper;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.StackExchangeItems;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeCommonWrapper;
@@ -255,6 +257,8 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testGetMeWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> r = sendJsonPostReqToEi("getMe", TestType.MANDATORY);
+
+        LOG.info(clearLogMessage(prettyJson(r.getBody())));
 
         Assert.assertEquals(r.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);

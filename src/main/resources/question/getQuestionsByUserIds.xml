@@ -18,6 +18,7 @@
 <template xmlns="http://ws.apache.org/ns/synapse" name="getQuestionsByUserIds">
     <parameter name="ids" description="Semicolon delimited user ids"/>
     <!-- OPTIONAL -->
+    <parameter name="filter" description="Response filter"/>
     <parameter name="pagesize" description="Number of items should be stored in a single page"/>
     <parameter name="page" description="Which page to send among many pages in the response"/>
     <parameter name="fromdate" description="Starting date in fromdate to todate window"/>
@@ -30,6 +31,7 @@
     <sequence>
         <property name="uri.var.ids" expression="$func:ids"/>
         <!-- OPTIONAL -->
+        <property name="uri.var.filter" expression="$func:filter"/>
         <property name="uri.var.pagesize" expression="$func:pagesize"/>
         <property name="uri.var.page" expression="$func:page"/>
         <property name="uri.var.fromdate" expression="$func:fromtdate"/>
@@ -86,6 +88,6 @@
             </endpoint>
         </call>
         <!-- Forces response decompression -->
-        <class name="org.wso2.carbon.connector.DumbDecompressMediator"/>
+        <class name="org.wso2.carbon.connector.DecompressMediator"/>
     </sequence>
 </template>
