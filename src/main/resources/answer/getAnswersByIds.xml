@@ -69,10 +69,6 @@
                 for (opt in optionals) {
                     if (optionals.hasOwnProperty(opt) && !isOptionalEmpty(optionals[opt])) {
                         uriVarOptionals = String(uriVarOptionals + opt + '=' + String(optionals[opt]) + '&');
-                        /*
-                         * Following possible equivalence does not work
-                         * uriVarOptionals = uriVarOptionals + opt + '=' + String(optionals[opt]) + '&';
-                         */
                     }
                 }
                 if (uriVarOptionals !== '') {
