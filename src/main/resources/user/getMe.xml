@@ -31,18 +31,11 @@
                     return true;
                 }
 
-                var optionals = {
-                    'filter': mc.getProperty('uri.var.filter')
-                };
+                filter = mc.getProperty('uri.var.filter');
                 var uriVarOptionals = '';
 
-                for (opt in optionals) {
-                    if (optionals.hasOwnProperty(opt) && !isOptionalEmpty(optionals[opt])) {
-                        uriVarOptionals = String(uriVarOptionals + opt + '=' + String(optionals[opt]) + '&');
-                    }
-                }
-                if (uriVarOptionals !== '') {
-                    uriVarOptionals = uriVarOptionals.substring(0, uriVarOptionals.length - 1);
+                if (!isOptionalEmpty(filter)) {
+                    uriVarOptionals = String('filter=' + String(filter));
                 }
                 mc.setProperty('uri.var.optionals', uriVarOptionals);
             ]]>
