@@ -21,6 +21,9 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/*
+ * Here we are defining set of helper utils for convenience.
+ */
 public class CommonTestUtil {
 
     public static String getConnectorName() {
