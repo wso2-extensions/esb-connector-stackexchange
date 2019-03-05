@@ -31,6 +31,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * API specific helper structures and methods to be used in tests.
@@ -40,15 +42,17 @@ public class StackExchangeTestUtil {
     private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
     /**
-     * Return an instance of {@code StackExchangeItem}.
+     * Return an instance of {@code StackExchangeItems} created using StackExchange API response.
+     *
      * @param url the StackExchange URL to make the request.
-     * @return an instance of {@code StackExchangeItem} created using StackExchange API response.
-     * @throws IOException if response is invalid.
+     * @return an instance of {@code StackExchangeItems}.
+     * @throws IOException   if response is invalid.
      * @throws JSONException if API response does not contain a valid JSON object.
      */
     public static StackExchangeItems getStackExchangeItems(StackExchangeUrl url) throws IOException, JSONException {
 
-        StackExchangeUrlConnection connection = new StackExchangeUrlConnection(url.openConnection());
+        HttpsURLConnection connection = url.openConnection();
+        connection.setRequestProperty("Accept-Encoding", "gzip");
 
         if (connection.getResponseCode() != 200) {
             String error = String.format("Object extraction failed due to invalid statusCode: (code = %s)",
@@ -56,7 +60,7 @@ public class StackExchangeTestUtil {
             throw new IOException(error);
         }
         return new StackExchangeItems(new JSONObject(
-                IOUtils.toString(connection.getInputStream(), "UTF-8")));
+                IOUtils.toString(new GZIPInputStream(connection.getInputStream()), "UTF-8")));
     }
 
     /**
@@ -79,7 +83,7 @@ public class StackExchangeTestUtil {
          */
         private final JSONArray items;
         /**
-         * For randomly picking values from Item array
+         * An Random to pick values from items array
          */
         private final Random random;
 
@@ -91,6 +95,7 @@ public class StackExchangeTestUtil {
 
         /**
          * Return the number of items in the items array.
+         *
          * @return the number of items in the items array.
          */
         public int length() {
@@ -99,8 +104,9 @@ public class StackExchangeTestUtil {
         }
 
         /**
-         * Return whether items array is empty.
-         * @return whether items array is empty.
+         * Return whether the items array is empty.
+         *
+         * @return whether the items array is empty.
          */
         public boolean isEmpty() {
 
@@ -115,10 +121,11 @@ public class StackExchangeTestUtil {
 
         /**
          * This method pick a random item from the items array and Return the value specific to key and type given.
-         * @param key the key which should contain in a item.
+         *
+         * @param key  the field name which should contain in an item.
          * @param type the Class instance of the field specified by key.
-         * @param <T> the type of the field specified by key.
-         * @return the value specific to key and type given
+         * @param <T>  the type of the field specified by key.
+         * @return the value specific to key and type given.
          * @throws JSONException if the items array is empty or
          *                       if the key is incorrect or
          *                       if the type is incorrect.
@@ -135,10 +142,11 @@ public class StackExchangeTestUtil {
         /**
          * This method pick an item for a given index from the items array and Return the value specific to
          * the key and type given.
-         * @param key the key which should contain in a item.
+         *
+         * @param key  the field name which should contain in an item.
          * @param type the Class instance of the field specified by key.
-         * @param <T> the type of the field specified by key.
-         * @param i the index to pick an item from items array.
+         * @param <T>  the type of the field specified by key.
+         * @param i    the index to pick an item from items array.
          * @return the value specific to key and type given
          * @throws JSONException if the items array is empty or
          *                       if the key is incorrect or
@@ -150,10 +158,11 @@ public class StackExchangeTestUtil {
         }
 
         /**
-         * Return all the values specific to the key and type given in items array.
-         * @param key the key which should contain in a item.
+         * Return all the values specific to the key and type given in the items array.
+         *
+         * @param key  the field name which should contain in a item.
          * @param type the the Class instance of the field specified by key.
-         * @param <T> the type of the field specified by key.
+         * @param <T>  the type of the field specified by key.
          * @return the value specific to key and type given
          * @throws JSONException if the items array is empty or
          *                       if the key is incorrect or
@@ -198,13 +207,14 @@ public class StackExchangeTestUtil {
     }
 
     /**
-     * The getStackExchangeCommonWrapper method creates an StackExchangeItems instance. You must always get parameter
-     * includedFields By calling to the /filter/default route. Among these fields there are set of fields common
-     * to every API response. In the filter route's response their names start with a dot. For instantiating
-     * StackExchangeCommonWrapper, we only care about these fields. This method will cause to undefined behaviours if
-     * you do not give the includedFields parameter by calling to the filter route.
+     * The {@code getStackExchangeCommonWrapper} method creates an instance of {@code StackExchangeCommonWrapper}.
+     * You must always get parameter {@code includedFields} By calling to the /filter/default route. Among these
+     * fields there are set of fields common to every API response. In the filter route response their names start
+     * with a dot. For instantiating the {@code StackExchangeCommonWrapper}, we only care about these fields. This
+     * method will cause to undefined behaviours if you do not give the {@code includedFields} is not from filter
+     * route response.
      *
-     * @param includedFields the field in filter route response 'included_fields'.
+     * @param includedFields the field 'included_fields' in the filter route response .
      * @return an instance of {@code StackExchangeCommonWrapper}.
      */
     public static StackExchangeCommonWrapper getStackExchangeCommonWrapper(String[] includedFields) {
@@ -224,12 +234,13 @@ public class StackExchangeTestUtil {
      * Any user can filter out these fields in the way they want by creating a new filter in the site. For checking
      * EI responses in tests we define following logic in the class based on above facts.
      *
-     * case1: If response contain non of the fields it is an UNKNOWN response. This could possibly happen due to
-     *        decompression issues.
+     * case1: If response contain non of the fields then it is an UNKNOWN response. This could possibly happen
+     *        due to decompression issues.
      * case2: If response contains any field like 'error_*' it is an ERROR response.
      * case3: If non of the above is true it is a NO_ERROR response.
      */
     public static class StackExchangeCommonWrapper {
+
         /**
          * Fields containing following text should indicates an error in response.
          */
@@ -246,6 +257,7 @@ public class StackExchangeTestUtil {
 
         /**
          * Return whether field belong to the common wrapper.
+         *
          * @param key the name of the field.
          * @return whether field belong to the common wrapper.
          */
@@ -256,6 +268,7 @@ public class StackExchangeTestUtil {
 
         /**
          * Convert common field from the filter response to match with a regular response.
+         *
          * @param commonKey the name of the common field.
          * @return the converted common field.
          */
@@ -265,10 +278,10 @@ public class StackExchangeTestUtil {
         }
 
         /**
-         * Return the {@code WrapperType} according to below logic.
+         * Return the {@code WrapperType} according to the below logic.
          *
-         * case1: If response contain non of the fields it is an UNKNOWN response. This could possibly happen due to
-         *        decompression issues.
+         * case1: If response contain non of the fields then it is an UNKNOWN response. This could possibly happen
+         *        due to decompression issues.
          * case2: If response contains any field like 'error_*' it is an ERROR response.
          * case3: If non of the above is true it is a NO_ERROR response.
          *

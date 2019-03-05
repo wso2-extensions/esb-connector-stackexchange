@@ -50,6 +50,7 @@ public class DecompressMediator extends AbstractMediator {
 
     /**
      * Remove the 'content-encoding' header.
+     *
      * @param context the MessageContext instance of the mediator.
      */
     private void removeContentEncodingHeader(MessageContext context) {
@@ -64,6 +65,7 @@ public class DecompressMediator extends AbstractMediator {
 
     /**
      * Return the namespace URI value.
+     *
      * @param context the MessageContext instance of the mediator.
      * @return the namespace URI value.
      */

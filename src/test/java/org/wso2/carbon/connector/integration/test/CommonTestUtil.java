@@ -28,6 +28,7 @@ public class CommonTestUtil {
 
     /**
      * Return the name of the connector.
+     *
      * @return the name of the connector.
      */
     public static String getConnectorName() {
@@ -39,7 +40,8 @@ public class CommonTestUtil {
     }
 
     /**
-     * return the indented JSON string.
+     * Return the indented JSON string.
+     *
      * @param json the unformatted JSON.
      * @return the indented JSON string.
      * @throws JSONException if JSON is broken.
@@ -60,8 +62,9 @@ public class CommonTestUtil {
 
     /**
      * Return the filename for a given method.
+     *
      * @param method the method name.
-     * @param type the type of the test.
+     * @param type   the type of the test.
      * @param suffix the extra latter part of the filename.
      * @return the filename.
      */

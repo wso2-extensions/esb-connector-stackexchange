@@ -35,10 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.TestType;
-import static org.wso2.carbon.connector.integration.test.CommonTestUtil.clearLogMessage;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getConnectorName;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getFilenameOfPayload;
-import static org.wso2.carbon.connector.integration.test.CommonTestUtil.prettyJson;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.StackExchangeCommonWrapper;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.StackExchangeItems;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeCommonWrapper;

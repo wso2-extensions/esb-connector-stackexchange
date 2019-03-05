@@ -68,7 +68,9 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                of user's privilege route (/me/privilege) we should let the test proceed or skip otherwise. */
             if (!stackExchange.skipPrivilegeCheck()) {
                 String privileges = System.getProperty(STACKEXCHANGE_PRIVILEGES);
-                if (privileges != null && privileges.toLowerCase().contains(stackExchange.privilege().trim().toLowerCase())) {
+                /* Lowercase and trim subroutines are called to guarantee the overall safety of the logic. */
+                if (privileges != null &&
+                        privileges.toLowerCase().contains(stackExchange.privilege().trim().toLowerCase())) {
                     return;
                 }
                 iTestResult.setStatus(TestResult.SKIP);
