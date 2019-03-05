@@ -17,7 +17,7 @@
   -->
 <template xmlns="http://ws.apache.org/ns/synapse" name="editAnswerById">
     <parameter name="id" description="Id of the question"/>
-    <parameter name="body" description="Body of the question"/>
+    <parameter name="body" description="Body of the answer"/>
     <!-- OPTIONAL -->
     <parameter name="filter" description="Response filter"/>
     <parameter name="preview"

@@ -16,7 +16,7 @@
   ~ under the License.
   -->
 <template xmlns="http://ws.apache.org/ns/synapse" name="downvoteAnswerById">
-    <parameter name="id" description="Id of the question"/>
+    <parameter name="id" description="Id of the answer"/>
     <!-- OPTIONAL -->
     <parameter name="filter" description="Response filter"/>
     <parameter name="preview"
