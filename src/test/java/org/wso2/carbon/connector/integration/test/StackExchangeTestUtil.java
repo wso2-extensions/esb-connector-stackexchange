@@ -32,19 +32,19 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
-/*
+/**
  * API specific helper structures and methods to be used in tests.
  */
 public class StackExchangeTestUtil {
 
     private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
-    /*
-     * getStackExchangeItems method's creates an StackExchangeItems instance based on the URL. The method fails on
-     * following two conditions.
-     * 1). Status code is not valid.
-     * 2). Response body does not contain a valid JSON response.
-     * Any of above failures will occur due to an invalid URL.
+    /**
+     * Return an instance of {@code StackExchangeItem}.
+     * @param url the StackExchange URL to make the request.
+     * @return an instance of {@code StackExchangeItem} created using StackExchange API response.
+     * @throws IOException if response is invalid.
+     * @throws JSONException if API response does not contain a valid JSON object.
      */
     public static StackExchangeItems getStackExchangeItems(StackExchangeUrl url) throws IOException, JSONException {
 
@@ -59,7 +59,7 @@ public class StackExchangeTestUtil {
                 IOUtils.toString(connection.getInputStream(), "UTF-8")));
     }
 
-    /*
+    /**
      * In all API responses data is wrapped in a field called 'items'. This class provides necessary methods to extract
      * response data which is inside the 'items' field. For the data extraction every method in the class expect name of
      * the key and type of the key as necessary arguments.
@@ -70,14 +70,17 @@ public class StackExchangeTestUtil {
      * a number: Integer.class, Double.class
      * a boolean: Boolean.class
      * an object: JSONObject.class
-     * an array: T[].class (T should be one of above types)
+     * an array: T[].class (T should be one of the above types)
      */
     public static class StackExchangeItems {
 
-        /* Items returned from API */
+        /**
+         * Items returned from API
+         */
         private final JSONArray items;
-
-        /* For randomly picking values from Item array */
+        /**
+         * For randomly picking values from Item array
+         */
         private final Random random;
 
         private StackExchangeItems(JSONObject data) throws JSONException {
@@ -86,11 +89,19 @@ public class StackExchangeTestUtil {
             random = new Random();
         }
 
+        /**
+         * Return the number of items in the items array.
+         * @return the number of items in the items array.
+         */
         public int length() {
 
             return items.length();
         }
 
+        /**
+         * Return whether items array is empty.
+         * @return whether items array is empty.
+         */
         public boolean isEmpty() {
 
             return items.length() == 0;
@@ -102,13 +113,15 @@ public class StackExchangeTestUtil {
                     "Could not extract requested inner value '%s' from an empty item list.", key));
         }
 
-        /*
-         * The getRandom method picks a random index from the item array and returns
-         * JSON value for the index based on the key and type.
-         * This method will fail due to following reasons.
-         * 1). If item array is empty.
-         * 2). If an item doesn't contain the key.
-         * 3). If type is incorrect.
+        /**
+         * This method pick a random item from the items array and Return the value specific to key and type given.
+         * @param key the key which should contain in a item.
+         * @param type the Class instance of the field specified by key.
+         * @param <T> the type of the field specified by key.
+         * @return the value specific to key and type given
+         * @throws JSONException if the items array is empty or
+         *                       if the key is incorrect or
+         *                       if the type is incorrect.
          */
         public <T> T getRandom(String key, Class<T> type) throws JSONException {
 
@@ -119,26 +132,32 @@ public class StackExchangeTestUtil {
             return getAt(key, type, i);
         }
 
-        /*
-         * The getAt method picks the given index from the item array and return
-         * JSON value for the index based on the key and type.
-         * This method will fail due to following reasons.
-         * 1). If item array is empty.
-         * 2). If an item doesn't contain the key.
-         * 3). If type is incorrect.
+        /**
+         * This method pick an item for a given index from the items array and Return the value specific to
+         * the key and type given.
+         * @param key the key which should contain in a item.
+         * @param type the Class instance of the field specified by key.
+         * @param <T> the type of the field specified by key.
+         * @param i the index to pick an item from items array.
+         * @return the value specific to key and type given
+         * @throws JSONException if the items array is empty or
+         *                       if the key is incorrect or
+         *                       if the type is incorrect.
          */
         public <T> T getAt(String key, Class<T> type, int i) throws JSONException {
 
             return getValue(items.getJSONObject(i), key, type);
         }
 
-        /*
-         * The getAll method returns JSON values for all the items in the item array
-         * based on the key and type.
-         * This method will fail due to following reasons.
-         * 1). If item array is empty.
-         * 2). If an item doesn't contain the key.
-         * 3). If type is incorrect.
+        /**
+         * Return all the values specific to the key and type given in items array.
+         * @param key the key which should contain in a item.
+         * @param type the the Class instance of the field specified by key.
+         * @param <T> the type of the field specified by key.
+         * @return the value specific to key and type given
+         * @throws JSONException if the items array is empty or
+         *                       if the key is incorrect or
+         *                       if the type is incorrect.
          */
         public <T> T[] getAll(String key, Class<T> type) throws JSONException {
 
@@ -178,25 +197,28 @@ public class StackExchangeTestUtil {
         }
     }
 
-    /*
+    /**
      * The getStackExchangeCommonWrapper method creates an StackExchangeItems instance. You must always get parameter
-     * includedFields By calling to the /filter/{filter_name} route. Among these fields there are set of fields common
+     * includedFields By calling to the /filter/default route. Among these fields there are set of fields common
      * to every API response. In the filter route's response their names start with a dot. For instantiating
      * StackExchangeCommonWrapper, we only care about these fields. This method will cause to undefined behaviours if
      * you do not give the includedFields parameter by calling to the filter route.
+     *
+     * @param includedFields the field in filter route response 'included_fields'.
+     * @return an instance of {@code StackExchangeCommonWrapper}.
      */
     public static StackExchangeCommonWrapper getStackExchangeCommonWrapper(String[] includedFields) {
 
         Set<String> commonKeySet = new HashSet<>();
         for (String field : includedFields) {
-            if (StackExchangeCommonWrapper.isCommonKey(field)) {
-                commonKeySet.add(StackExchangeCommonWrapper.getCommonKeyAsKey(field));
+            if (StackExchangeCommonWrapper.isCommonField(field)) {
+                commonKeySet.add(StackExchangeCommonWrapper.unHideCommonField(field));
             }
         }
         return new StackExchangeCommonWrapper(commonKeySet);
     }
 
-    /*
+    /**
      * All responses in the StackExchange API share a common format. So all API responses return one Common Wrapper
      * Object (some fields could be absent. e.g. error fields will be absent if response does not have an error).
      * Any user can filter out these fields in the way they want by creating a new filter in the site. For checking
@@ -208,33 +230,51 @@ public class StackExchangeTestUtil {
      * case3: If non of the above is true it is a NO_ERROR response.
      */
     public static class StackExchangeCommonWrapper {
-
+        /**
+         * Fields containing following text should indicates an error in response.
+         */
         private static final String ERROR_STRING = "error";
-
+        /**
+         * Fields should be stored in a Set Data Structure for performance.
+         */
         private final Set<String> commonKeySet;
-        private boolean errorKeysExist = false;
 
         private StackExchangeCommonWrapper(Set<String> commonKeySet) {
 
             this.commonKeySet = commonKeySet;
-            for (String key : commonKeySet) {
-                if (key.contains(ERROR_STRING)) {
-                    errorKeysExist = true;
-                    break;
-                }
-            }
         }
 
-        public static boolean isCommonKey(String key) {
+        /**
+         * Return whether field belong to the common wrapper.
+         * @param key the name of the field.
+         * @return whether field belong to the common wrapper.
+         */
+        public static boolean isCommonField(String key) {
 
             return StringUtils.isNotEmpty(key) && key.charAt(0) == '.';
         }
 
-        public static String getCommonKeyAsKey(String commonKey) {
+        /**
+         * Convert common field from the filter response to match with a regular response.
+         * @param commonKey the name of the common field.
+         * @return the converted common field.
+         */
+        public static String unHideCommonField(String commonKey) {
 
             return commonKey.substring(1);
         }
 
+        /**
+         * Return the {@code WrapperType} according to below logic.
+         *
+         * case1: If response contain non of the fields it is an UNKNOWN response. This could possibly happen due to
+         *        decompression issues.
+         * case2: If response contains any field like 'error_*' it is an ERROR response.
+         * case3: If non of the above is true it is a NO_ERROR response.
+         *
+         * @param json the response body from the API response.
+         * @return the {@code WrapperType}.
+         */
         public WrapperType fetchWrapperType(JSONObject json) {
 
             for (Iterator<String> i = json.keys(); i.hasNext(); ) {
@@ -242,13 +282,20 @@ public class StackExchangeTestUtil {
                 if (!commonKeySet.contains(key)) {
                     return WrapperType.UNKNOWN;
                 }
-                if (errorKeysExist && key.contains(ERROR_STRING)) {
+                if (key.contains(ERROR_STRING)) {
                     return WrapperType.ERROR;
                 }
             }
             return WrapperType.NO_ERROR;
         }
 
+        /**
+         * Type of the wrapper.
+         *
+         * {@code UNKNOWN}: the unknown response.
+         * {@code ERROR}: the error response.
+         * {@code NO_ERROR}: the correct response.
+         */
         public enum WrapperType {
             UNKNOWN, ERROR, NO_ERROR
         }

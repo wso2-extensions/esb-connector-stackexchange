@@ -22,8 +22,14 @@ import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
 import javax.net.ssl.HttpsURLConnection;
 
+/**
+ * Decorate the HttpsURLConnection instance to force the decompression.
+ */
 public class StackExchangeUrlConnection {
 
+    /**
+     * HttpsURLConnection instance.
+     */
     private final HttpsURLConnection connection;
 
     public StackExchangeUrlConnection(HttpsURLConnection connection) {
@@ -32,11 +38,23 @@ public class StackExchangeUrlConnection {
         this.connection.setRequestProperty("Accept-Encoding", "gzip");
     }
 
+    /**
+     * Return the response code.
+     *
+     * @return the response code.
+     * @throws IOException If response is invalid.
+     */
     public int getResponseCode() throws IOException {
 
         return connection.getResponseCode();
     }
 
+    /**
+     * Return the decompressed API response.
+     *
+     * @return the decompressed API response.
+     * @throws IOException If response is invalid.
+     */
     public InputStream getInputStream() throws IOException {
 
         return new GZIPInputStream(connection.getInputStream());

@@ -52,14 +52,14 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
 
-    /*
+    /**
      * System property keys for saving StackExchange specific data.
      */
     public static final String STACKEXCHANGE_HAS_QUESTION = "stackexchange.hasquestion";
     public static final String STACKEXCHANGE_HAS_ANSWER = "stackexchange.hasanswer";
     public static final String STACKEXCHANGE_PRIVILEGES = "stackexchange.privileges";
 
-    /*
+    /**
      * Keys needed to extract data from StackExchange an response.
      */
     private static final String SE_RES_KEY_NAME = "name";
@@ -68,7 +68,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     private static final String SE_RES_KEY_ANSWER_ID = "answer_id";
     private static final String SE_RES_KEY_SHORT_DESCRIPTION = "short_description";
 
-    /*
+    /**
      * Connector property keys for saving StackExchange specific data.
      */
 
@@ -81,7 +81,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* To store a semicolon delimited set of site tags */
     private static final String PROP_KEY_SITE_TAGS = "siteTags";
 
-    /*
+    /**
      * Common API properties
      */
     private String key;
@@ -90,7 +90,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     private StackExchangeCommonWrapper stackExchangeCommonWrapper;
 
-    /*
+    /**
      * EI headers map.
      */
     private Map<String, String> eiRequestHeadersMap = new HashMap<>();
@@ -257,8 +257,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testGetMeWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> r = sendJsonPostReqToEi("getMe", TestType.MANDATORY);
-
-        LOG.info(clearLogMessage(prettyJson(r.getBody())));
 
         Assert.assertEquals(r.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);

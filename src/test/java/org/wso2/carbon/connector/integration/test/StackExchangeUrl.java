@@ -23,22 +23,62 @@ import java.net.URL;
 import java.net.URLConnection;
 import javax.net.ssl.HttpsURLConnection;
 
+/**
+ * Build the StackExchange URL precisely.
+ */
 public class StackExchangeUrl {
 
+    /**
+     * StackExchange API domain.
+     */
     private static final String API_DOMAIN = "api.stackexchange.com";
+    /**
+     * StackExchange URL.
+     */
     private final URL url;
 
+    /**
+     * StackExchange URL builder.
+     */
     public static class Builder {
 
+        /**
+         * Path of the URL.
+         */
         private final String path;
+        /**
+         * API version.
+         */
+        private final String version;
+        /**
+         * Query parameters.
+         */
         private final StringBuilder queryParamBuilder;
 
+        /**
+         * Return an Instance of {@code Builder}.
+         *
+         * @param version the StackExchange API version.
+         * @param path the path to the API route.
+         */
         public Builder(String version, String path) {
 
-            this.path = path;
+            this.version = version;
+            if (!path.isEmpty()) {
+                this.path = (path.charAt(0) != '/') ? "/" + path : path;
+            } else {
+                this.path = "/";
+            }
             queryParamBuilder = new StringBuilder();
         }
 
+        /**
+         * Add query parameters to {@code queryParamBuilder} and Return the {@code Builder}.
+         *
+         * @param key the name of the parameter.
+         * @param val the value of the parameter.
+         * @return the {@code Builder}.
+         */
         public Builder queryParam(String key, String val) {
 
             queryParamBuilder
@@ -49,18 +89,32 @@ public class StackExchangeUrl {
             return this;
         }
 
+        /**
+         * Return an instance of {@code StackExchangeUrl}.
+         *
+         * @return an instance of {@code StackExchangeUrl}.
+         * @throws MalformedURLException If URL string is broken.
+         */
         public StackExchangeUrl build() throws MalformedURLException {
 
             return new StackExchangeUrl(this);
         }
     }
 
+    /**
+     * Return an instance of {@code StackExchangeUrl}.
+     *
+     * @param builder the StackExchange URL builder.
+     * @throws MalformedURLException If URL string is broken.
+     */
     private StackExchangeUrl(Builder builder) throws MalformedURLException {
 
         String queryParams = builder.queryParamBuilder.toString();
         StringBuilder urlBuilder = new StringBuilder()
                 .append("https://")
                 .append(API_DOMAIN)
+                .append("/")
+                .append(builder.version)
                 .append(builder.path);
         if (!queryParams.isEmpty()) {
             urlBuilder.append("?").append(queryParams);
@@ -68,6 +122,14 @@ public class StackExchangeUrl {
         url = new URL(urlBuilder.toString());
     }
 
+    /**
+     * Open an connection using URL instance and return it as a {@code HttpsURLConnection}.
+     *
+     * NOTE: JVM must contain the StackExchange SSL certificate to open the connection.
+     *
+     * @return an instance of {@code HttpsURLConnection}.
+     * @throws IOException if URL instance is invalid.
+     */
     public HttpsURLConnection openConnection() throws IOException {
 
         URLConnection connection = url.openConnection();

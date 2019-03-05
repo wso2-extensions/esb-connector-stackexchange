@@ -23,21 +23,21 @@ import org.apache.synapse.mediators.transform.HeaderMediator;
 
 import javax.xml.namespace.QName;
 
-/*
- * DecompressMediator forces response decompression
+/**
+ * DecompressMediator forces response decompression.
  */
 public class DecompressMediator extends AbstractMediator {
 
-    /*
-     * header mediator action
+    /**
+     * header mediator action.
      */
     private static final int ACTION = HeaderMediator.ACTION_REMOVE;
-    /*
-     * header mediator scope
+    /**
+     * header mediator scope.
      */
     private static final String SCOPE = "transport";
-    /*
-     * header mediator name
+    /**
+     * header mediator name.
      */
     private static final String NAME = "content-encoding";
 
@@ -48,9 +48,9 @@ public class DecompressMediator extends AbstractMediator {
         return true;
     }
 
-    /*
-     * Remove the 'content-encoding' header. This method is equivalent to
-     * <header name="content-encoding" action="remove" scope="transport"/>
+    /**
+     * Remove the 'content-encoding' header.
+     * @param context the MessageContext instance of the mediator.
      */
     private void removeContentEncodingHeader(MessageContext context) {
 
@@ -62,6 +62,11 @@ public class DecompressMediator extends AbstractMediator {
         headerMediator.mediate(context);
     }
 
+    /**
+     * Return the namespace URI value.
+     * @param context the MessageContext instance of the mediator.
+     * @return the namespace URI value.
+     */
     private String getNamespaceURI(MessageContext context) {
 
         return context.getConfiguration()

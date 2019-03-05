@@ -21,11 +21,15 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/*
+/**
  * Here we are defining set of helper utils for convenience.
  */
 public class CommonTestUtil {
 
+    /**
+     * Return the name of the connector.
+     * @return the name of the connector.
+     */
     public static String getConnectorName() {
 
         return System.getProperty("connector_name") +
@@ -34,6 +38,12 @@ public class CommonTestUtil {
                 ".zip";
     }
 
+    /**
+     * return the indented JSON string.
+     * @param json the unformatted JSON.
+     * @return the indented JSON string.
+     * @throws JSONException if JSON is broken.
+     */
     public static String prettyJson(JSONObject json) throws JSONException {
 
         return json.toString(2);
@@ -48,6 +58,13 @@ public class CommonTestUtil {
                 middle);
     }
 
+    /**
+     * Return the filename for a given method.
+     * @param method the method name.
+     * @param type the type of the test.
+     * @param suffix the extra latter part of the filename.
+     * @return the filename.
+     */
     public static String getFilenameOfPayload(String method, TestType type, String suffix) {
 
         if (StringUtils.isEmpty(suffix)) {
@@ -56,6 +73,9 @@ public class CommonTestUtil {
         return String.format("%s_%s_%s.json", method, type.value, suffix);
     }
 
+    /**
+     * Test types.
+     */
     public enum TestType {
         MANDATORY("mandatory"), OPTIONAL("optional"), INVALID("invalid"), PAGING("paging");
 
