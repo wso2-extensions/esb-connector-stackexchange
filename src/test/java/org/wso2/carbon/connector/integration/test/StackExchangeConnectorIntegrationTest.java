@@ -33,10 +33,13 @@ import org.wso2.connector.integration.test.base.RestResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.TestType;
+import static org.wso2.carbon.connector.integration.test.CommonTestUtil.clearLogMessage;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getConnectorName;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getFilenameOfPayload;
+import static org.wso2.carbon.connector.integration.test.CommonTestUtil.prettyJson;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.StackExchangeCommonWrapper;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.StackExchangeItems;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeCommonWrapper;
@@ -50,21 +53,14 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
 
+    public static final Properties stackExchangeProperties = new Properties();
+
     /**
-     * System property keys for saving StackExchange specific data.
+     * Common property keys for saving StackExchange specific data.
      */
     public static final String STACKEXCHANGE_HAS_QUESTION = "stackexchange.hasquestion";
     public static final String STACKEXCHANGE_HAS_ANSWER = "stackexchange.hasanswer";
     public static final String STACKEXCHANGE_PRIVILEGES = "stackexchange.privileges";
-
-    /**
-     * Keys needed to extract data from StackExchange an response.
-     */
-    private static final String SE_RES_KEY_NAME = "name";
-    private static final String SE_RES_KEY_INCLUDED_FIELDS = "included_fields";
-    private static final String SE_RES_KEY_QUESTION_ID = "question_id";
-    private static final String SE_RES_KEY_ANSWER_ID = "answer_id";
-    private static final String SE_RES_KEY_SHORT_DESCRIPTION = "short_description";
 
     /**
      * Connector property keys for saving StackExchange specific data.
@@ -78,6 +74,15 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     private static final String PROP_KEY_ANSWER_ID_LIST = "answerIdList";
     /* To store a semicolon delimited set of site tags */
     private static final String PROP_KEY_SITE_TAGS = "siteTags";
+
+    /**
+     * Keys needed to extract data from an StackExchange API response.
+     */
+    private static final String SE_RES_KEY_NAME = "name";
+    private static final String SE_RES_KEY_INCLUDED_FIELDS = "included_fields";
+    private static final String SE_RES_KEY_QUESTION_ID = "question_id";
+    private static final String SE_RES_KEY_ANSWER_ID = "answer_id";
+    private static final String SE_RES_KEY_SHORT_DESCRIPTION = "short_description";
 
     /**
      * Common API properties
@@ -129,9 +134,9 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Integer questionId = questionItems.getRandom(SE_RES_KEY_QUESTION_ID, Integer.class);
         /* Save availability of Placeholder question id */
         if (StringUtils.isEmpty(placeHolderQId)) {
-            System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(false));
+            stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(false));
         } else {
-            System.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(true));
+            stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(true));
             /* API routes like 'voting up a question' does not allow
                user to up vote his/her own post. In those cases we should
                avoid using placeHolderQId as the questionId. Hence looping
@@ -155,9 +160,9 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         /* Save availability of Placeholder answer id */
         if (StringUtils.isEmpty(placeHolderAId)) {
-            System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
+            stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
         } else {
-            System.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(true));
+            stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(true));
         }
 
         /* Check credential availability to avoid unnecessary failures */
@@ -168,7 +173,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
             setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
         } else {
             /* Set defaults */
-            System.setProperty(STACKEXCHANGE_PRIVILEGES, StackExchange.PRIVILEGE_DEFAULT);
+            stackExchangeProperties.setProperty(STACKEXCHANGE_PRIVILEGES, StackExchange.PRIVILEGE_DEFAULT);
         }
     }
 
@@ -218,7 +223,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     private <T> void setListLikePropertyInSystem(String propertyName, T[] array) {
 
-        System.setProperty(propertyName, getTArrayAsSemicolonDelimitedString(array));
+        stackExchangeProperties.setProperty(propertyName, getTArrayAsSemicolonDelimitedString(array));
     }
 
     private <T> void setListLikePropertyInConnector(String propertyName, T[] array) {
@@ -244,20 +249,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testGetMeWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getMe", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getMe", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
     public void testGetMeWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getMe", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getMe", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= addQuestion ======================================= */
@@ -266,20 +275,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testAddQuestionWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("addQuestion", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("addQuestion", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange
     @Test(groups = {"wso2.ei"})
     public void testAddQuestionWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("addQuestion", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("addQuestion", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= deleteQuestionById ======================================= */
@@ -288,20 +301,28 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testDeleteQuestionByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("deleteQuestionById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("deleteQuestionById", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(needMyQuestion = true)
     @Test(groups = {"wso2.ei"})
     public void testDeleteQuestionByIdWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("deleteQuestionById", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("deleteQuestionById", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= downvoteQuestionById ======================================= */
@@ -310,20 +331,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testDownvoteQuestionByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteQuestionById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("downvoteQuestionById", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(privilege = "vote down")
     @Test(groups = {"wso2.ei"})
     public void testDownvoteQuestionByIdWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteQuestionById", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("downvoteQuestionById", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= editQuestionById ======================================= */
@@ -332,20 +357,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testEditQuestionByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("editQuestionById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("editQuestionById", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(needMyQuestion = true, skipPrivilegeCheck = true, privilege = "edit questions and answers")
     @Test(groups = {"wso2.ei"})
     public void testEditQuestionByIdWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("editQuestionById", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("editQuestionById", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= upvoteQuestionById ======================================= */
@@ -354,20 +383,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testUpvoteQuestionByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteQuestionById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("upvoteQuestionById", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(privilege = "vote up")
     @Test(groups = {"wso2.ei"})
     public void testUpvoteQuestionByIdWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteQuestionById", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("upvoteQuestionById", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= getQuestionsByUserIds ======================================= */
@@ -376,30 +409,38 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testGetQuestionsByUserIdsWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
     public void testGetQuestionsByUserIdsWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
     public void testGetQuestionsByUserIdsWithPaging() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.PAGING);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.PAGING);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= getQuestionsWithNoAnswers ======================================= */
@@ -408,40 +449,52 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testGetQuestionsWithNoAnswersWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
     public void testGetQuestionsWithNoAnswersWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
     public void testGetQuestionsWithNoAnswersWithOptional() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.OPTIONAL);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.OPTIONAL);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
     public void testGetQuestionsWithNoAnswersWithPaging() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.PAGING);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.PAGING);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= acceptAnswerById ======================================= */
@@ -450,20 +503,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testAcceptAnswerByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("acceptAnswerById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("acceptAnswerById", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(needMyAnswer = true)
     @Test(groups = {"wso2.ei"})
     public void testAcceptAnswerByIdWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("acceptAnswerById", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("acceptAnswerById", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= addAnswer ======================================= */
@@ -472,20 +529,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testAddAnswerWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("addAnswer", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("addAnswer", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange
     @Test(groups = {"wso2.ei"})
     public void testAddAnswerWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("addAnswer", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("addAnswer", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= deleteAnswerById ======================================= */
@@ -494,20 +555,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testDeleteAnswerByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("deleteAnswerById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("deleteAnswerById", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(needMyAnswer = true)
     @Test(groups = {"wso2.ei"})
     public void testDeleteAnswerByIdWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("deleteAnswerById", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("deleteAnswerById", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= downvoteAnswerById ======================================= */
@@ -516,20 +581,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testDownvoteAnswerByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteAnswerById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("downvoteAnswerById", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(privilege = "vote down")
     @Test(groups = {"wso2.ei"})
     public void testDownvoteAnswerByIdWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("downvoteAnswerById", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("downvoteAnswerById", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= upvoteAnswerById ======================================= */
@@ -538,20 +607,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testUpvoteAnswerByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteAnswerById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("upvoteAnswerById", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(privilege = "vote up")
     @Test(groups = {"wso2.ei"})
     public void testUpvoteAnswerByIdWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("upvoteAnswerById", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("upvoteAnswerById", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= getAnswersByIds ======================================= */
@@ -560,30 +633,38 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     @Test(groups = {"wso2.ei"})
     public void testGetAnswersByIdsWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getAnswersByIds", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getAnswersByIds", TestType.INVALID, "missingParameter");
 
-        Assert.assertEquals(r.getHttpStatusCode(), 400);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.ERROR);
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
     public void testGetAnswersByIdsWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getAnswersByIds", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getAnswersByIds", TestType.MANDATORY);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
     public void testGetAnswersByIdsWithPaging() throws IOException, JSONException {
 
-        RestResponse<JSONObject> r = sendJsonPostReqToEi("getAnswersByIds", TestType.PAGING);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getAnswersByIds", TestType.PAGING);
 
-        Assert.assertEquals(r.getHttpStatusCode(), 200);
-        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(r.getBody()), WrapperType.NO_ERROR);
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
 
     /* ======================================= Helpers  ======================================= */

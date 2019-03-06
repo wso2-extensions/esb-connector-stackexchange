@@ -23,6 +23,7 @@ import org.testng.ITestResult;
 import org.testng.SkipException;
 import org.testng.internal.TestResult;
 
+import static org.wso2.carbon.connector.integration.test.StackExchangeConnectorIntegrationTest.*;
 import static org.wso2.carbon.connector.integration.test.StackExchangeConnectorIntegrationTest.STACKEXCHANGE_HAS_ANSWER;
 import static org.wso2.carbon.connector.integration.test.StackExchangeConnectorIntegrationTest.STACKEXCHANGE_HAS_QUESTION;
 import static org.wso2.carbon.connector.integration.test.StackExchangeConnectorIntegrationTest.STACKEXCHANGE_PRIVILEGES;
@@ -48,7 +49,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
             /* If needMyAnswer is true then the test method needs an id for an user owned answer.
                If we have one we should let the test proceed or skip otherwise */
             if (stackExchange.needMyAnswer()) {
-                String hasA = System.getProperty(STACKEXCHANGE_HAS_ANSWER);
+                String hasA = stackExchangeProperties.getProperty(STACKEXCHANGE_HAS_ANSWER);
                 if (!Boolean.parseBoolean(hasA)) {
                     iTestResult.setStatus(TestResult.SKIP);
                     throw new SkipException("Cannot execute this test due to lack of data hence skipping.");
@@ -57,7 +58,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
             /* If needMyQuestion is true then the test method needs an id for an user owned question.
                If we have one we should let the test proceed or skip otherwise */
             if (stackExchange.needMyQuestion()) {
-                String hasQ = System.getProperty(STACKEXCHANGE_HAS_QUESTION);
+                String hasQ = stackExchangeProperties.getProperty(STACKEXCHANGE_HAS_QUESTION);
                 if (!Boolean.parseBoolean(hasQ)) {
                     iTestResult.setStatus(TestResult.SKIP);
                     throw new SkipException("Cannot execute this test due to lack of data hence skipping.");
@@ -67,7 +68,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                If we find this privilege inside STACKEXCHANGE_PRIVILEGES property which is created using response
                of user's privilege route (/me/privilege) we should let the test proceed or skip otherwise. */
             if (!stackExchange.skipPrivilegeCheck()) {
-                String privileges = System.getProperty(STACKEXCHANGE_PRIVILEGES);
+                String privileges = stackExchangeProperties.getProperty(STACKEXCHANGE_PRIVILEGES);
                 /* Lowercase and trim subroutines are called to guarantee the overall safety of the logic. */
                 if (privileges != null &&
                         privileges.toLowerCase().contains(stackExchange.privilege().trim().toLowerCase())) {

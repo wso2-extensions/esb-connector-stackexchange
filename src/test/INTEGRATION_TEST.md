@@ -35,3 +35,10 @@ while doing tests we assume key is mandatory for all endpoints. This is done to 
 StackExchange users will earn certain privileges when they reach required reputation. These reputation scores may differ from site to site.
 If you have provided an account which lacks these privileges that we expect in our connector methods, we are skipping those tests. So make sure
 to use an account with enough privileges to get all the tests without being skipped. 
+
+#### Rate Limiting
+As described earlier, in order to prevent abuse, the API implements a number of throttles. As per the testing we do not
+handle these kind of failures to reduce the complexity of tests. Refer following guides if you run into any unexpected failures.
+* [throttles](https://api.stackexchange.com/docs/throttle)
+* [error-you-can-only-post-once-every-90-minutes-but-i-havent-posted-in-days](https://meta.stackoverflow.com/questions/259941/error-you-can-only-post-once-every-90-minutes-but-i-havent-posted-in-days)
+
