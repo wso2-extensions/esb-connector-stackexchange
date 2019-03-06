@@ -64,9 +64,9 @@ public class StackExchangeTestUtil {
     }
 
     /**
-     * In all API responses data is wrapped in a field called 'items'. This class provides necessary methods to extract
-     * response data which is inside the 'items' field. For the data extraction every method in the class expect name of
-     * the key and type of the key as necessary arguments.
+     * In all API responses data is wrapped in a field called 'items'. This class provides necessary methods to
+     * extract response data which is inside the 'items' field. For the data extraction every method in the class
+     * expect name of the key and type of the key as necessary arguments.
      *
      * JSON types vs Java classes
      * ==========================
@@ -246,7 +246,7 @@ public class StackExchangeTestUtil {
          */
         private static final String ERROR_STRING = "error";
         /**
-         * Fields should be stored in a Set Data Structure for performance.
+         * Fields should be stored in a Set Data Structure for better performance.
          */
         private final Set<String> commonKeySet;
 

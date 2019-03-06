@@ -52,7 +52,8 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                 String hasA = stackExchangeProperties.getProperty(STACKEXCHANGE_HAS_ANSWER);
                 if (!Boolean.parseBoolean(hasA)) {
                     iTestResult.setStatus(TestResult.SKIP);
-                    throw new SkipException("Cannot execute this test due to lack of data hence skipping.");
+                    throw new SkipException(
+                            "Cannot execute this test due to lack of data hence skipping: No answer id found.");
                 }
             }
             /* If needMyQuestion is true then the test method needs an id for an user owned question.
@@ -61,7 +62,8 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                 String hasQ = stackExchangeProperties.getProperty(STACKEXCHANGE_HAS_QUESTION);
                 if (!Boolean.parseBoolean(hasQ)) {
                     iTestResult.setStatus(TestResult.SKIP);
-                    throw new SkipException("Cannot execute this test due to lack of data hence skipping.");
+                    throw new SkipException(
+                            "Cannot execute this test due to lack of data hence skipping: No question id found.");
                 }
             }
             /* Test method has stored the privilege which user should have gained to run the test method.
@@ -80,7 +82,7 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                         stackExchange.privilege()));
             }
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Could not find the test method", e);
+            throw new RuntimeException("Error occurred while getting the test method.", e);
         }
     }
 

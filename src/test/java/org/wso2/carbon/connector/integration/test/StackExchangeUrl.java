@@ -64,12 +64,11 @@ public class StackExchangeUrl {
         public Builder(String version, String path) {
 
             this.version = version;
-            /* Paths should always start with a '/'. But if it is not given that way
-               we shouldn't fail the process. Instead manually appending '/' in those cases. */
+            /* Paths should always start with a '/'. But if it isn't the case
+               we should append '/' ourselves. */
             if (!path.isEmpty()) {
                 this.path = (path.charAt(0) != '/') ? "/" + path : path;
             } else {
-                /* This case should never occur. */
                 this.path = "/";
             }
             queryParamBuilder = new StringBuilder();
