@@ -52,12 +52,12 @@
                 <!--======================== Question ========================-->
                 <case regex="urn:addQuestion">
                     <property expression="json-eval($.title)" name="title"/>
-                    <property expression="json-eval($.body)" name="body"/>
+                    <property expression="json-eval($.postBody)" name="postBody"/>
                     <property expression="json-eval($.tags)" name="tags"/>
                     <stackexchange.addQuestion>
                         <!-- Mandatory -->
                         <title>{$ctx:title}</title>
-                        <body>{$ctx:body}</body>
+                        <postBody>{$ctx:postBody}</postBody>
                         <tags>{$ctx:tags}</tags>
                         <!-- Optional -->
                         <filter>{$ctx:filter}</filter>
@@ -76,14 +76,14 @@
                 </case>
                 <case regex="urn:editQuestionById">
                     <property expression="json-eval($.tags)" name="tags"/>
-                    <property expression="json-eval($.body)" name="body"/>
+                    <property expression="json-eval($.postBody)" name="postBody"/>
                     <property expression="json-eval($.title)" name="title"/>
                     <property expression="json-eval($.id)" name="id"/>
                     <stackexchange.editQuestionById>
                         <!-- Mandatory -->
                         <id>{$ctx:id}</id>
                         <title>{$ctx:title}</title>
-                        <body>{$ctx:body}</body>
+                        <postBody>{$ctx:postBody}</postBody>
                         <tags>{$ctx:tags}</tags>
                         <!-- Optional -->
                         <filter>{$ctx:filter}</filter>
@@ -146,24 +146,24 @@
                 </case>
                 <!--======================== Answer ========================-->
                 <case regex="urn:addAnswer">
-                    <property expression="json-eval($.body)" name="body"/>
+                    <property expression="json-eval($.postBody)" name="postBody"/>
                     <property expression="json-eval($.id)" name="id"/>
                     <stackexchange.addAnswer>
                         <!-- Mandatory -->
                         <id>{$ctx:id}</id>
-                        <body>{$ctx:body}</body>
+                        <postBody>{$ctx:postBody}</postBody>
                         <!-- Optional -->
                         <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>
                     </stackexchange.addAnswer>
                 </case>
                 <case regex="urn:editAnswerById">
-                    <property expression="json-eval($.body)" name="body"/>
+                    <property expression="json-eval($.postBody)" name="postBody"/>
                     <property expression="json-eval($.id)" name="id"/>
                     <stackexchange.editAnswerById>
                         <!-- Mandatory -->
                         <id>{$ctx:id}</id>
-                        <body>{$ctx:body}</body>
+                        <postBody>{$ctx:postBody}</postBody>
                         <!-- Optional -->
                         <filter>{$ctx:filter}</filter>
                         <preview>{$ctx:preview}</preview>

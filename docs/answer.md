@@ -2,7 +2,8 @@
 
 ### Overview
 The following operations allow you to work with answers in StackExchange. Click an operation name to see details on how to use it. 
-For a sample proxy service that illustrates how to work with answers, see [Sample configuration](#sample-configuration).
+For a sample proxy service that illustrates how to work with answers, 
+see [Sample configuration](#sample-configuration).
 
 | Operation | Description |
 | ------------- |-------------|
@@ -22,20 +23,76 @@ This section provides details on each of the operations.
 ```xml
 <stackexchange.getAnswersByIds>
     <ids>{$ctx:ids}</ids>
+    <filter>{$ctx:filter}</filter>
+    <sort>{$ctx:sort}</sort>
+    <page>{$ctx:page}</page>
+    <max>{$ctx:max}</max>
+    <fromdata>{$ctx:fromdata}</fromdata>
+    <order>{$ctx:order}</order>
+    <pagesize>{$ctx:pagesize}</pagesize>
+    <min>{$ctx:min}</min>
+    <todate>{$ctx:todate}</todate>
 </stackexchange.getAnswersByIds>
 ```
 
 **Properties**
 * ids: Semicolon delimited answer ids. e.g. 1;2;3
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* pagesize: Number of items should be stored in a single page.
+* page: Which page to send among many pages in the response.
+* fromdate: Starting date in fromdate to todate window
+* todate: Ending date in fromdate to todate window
+* min: Min value in min to max window
+* max: Max value in min to max window
+* sort: According to which field item list should be sorted  
+* order: Sorting order ascending (asc) or descending (desc)
+
 
 **Sample request**
+```json
+{
+  "ids":"1",
+  "pagesize": 1,
+  "page": 1 
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [
+    {
+      "tags": [
+        "app",
+        "android"
+      ],
+      "owner": {
+        "reputation": 726,
+        "user_id": 1,
+        "user_type": "moderator",
+        "profile_image": "https://i.stack.imgur.com/nDllk.png?s=128&g=1",
+        "display_name": "Geoff Dalgas",
+        "link": "https://stackapps.com/users/1/geoff-dalgas"
+      },
+      "is_answered": false,
+      "view_count": 2692,
+      "answer_count": 0,
+      "score": 28,
+      "last_activity_date": 1478279632,
+      "creation_date": 1374695948,
+      "last_edit_date": 1478279632,
+      "question_id": 4240,
+      "link": "https://stackapps.com/questions/4240/official-stack-exchange-android-app",
+      "title": "Official Stack Exchange Android App"
+    }
+  ],
+  "has_more": false,
+  "quota_max": 300,
+  "quota_remaining": 281
+}
+```
 
 Following is a sample REST request that can be handled by the getAnswersByIds operation.
-```xml
-<stackexchange.getAnswersByIds>
-    <ids>1;2;3</ids>
-</stackexchange.getAnswersByIds>
-```
 
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/answers-by-ids](https://api.stackexchange.com/docs/answers-by-ids)
@@ -45,7 +102,9 @@ Following is a sample REST request that can be handled by the getAnswersByIds op
 ```xml
 <stackexchange.addAnswer>
     <id>{$ctx:id}</id>
-    <body>{$ctx:body}</body>
+    <postBody>{$ctx:postBody}</postBody>
+    <preview>{$ctx:preview}</preview>
+    <filter>{$ctx:filter}</filter>
 </stackexchange.addAnswer>
 ```
 
@@ -55,16 +114,6 @@ Following is a sample REST request that can be handled by the getAnswersByIds op
 **Sample request**
 
 Following is a sample REST request that can be handled by the addAnswer operation.
-```xml
-<stackexchange.addAnswer>
-    <key>VnXXXXXXXXXXXXXXXXXXXXXX</key>
-    <site>stackoverflow</site>
-    <accessToken>7rXXXXXXXXXXXXXXXXXXXXXX</accessToken>
-    <id>8940</id>
-    <preview>true</preview>
-    <body>It's an answer. A terrible answer, but an answer nonetheless</body>
-</stackexchange.addAnswer>
-```
 
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/create-answer](https://api.stackexchange.com/docs/create-answer)
@@ -74,6 +123,8 @@ Following is a sample REST request that can be handled by the addAnswer operatio
 ```xml
 <stackexchange.deleteAnswerById>
     <id>{$ctx:id}</id>
+    <preview>{$ctx:preview}</preview>
+    <filter>{$ctx:filter}</filter>
 </stackexchange.deleteAnswerById>
 ```
 
@@ -83,15 +134,6 @@ Following is a sample REST request that can be handled by the addAnswer operatio
 **Sample request**
 
 Following is a sample REST request that can be handled by the deleteAnswer operation.
-```xml
-<stackexchange.deleteAnswerById>
-    <key>VnXXXXXXXXXXXXXXXXXXXXXX</key>
-    <site>stackoverflow</site>
-    <accessToken>7rXXXXXXXXXXXXXXXXXXXXXX</accessToken>
-    <id>9840</id>
-    <preview>true</preview>
-</stackexchange.deleteAnswerById>
-```
 
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/delete-answer](https://api.stackexchange.com/docs/delete-answer)
@@ -101,7 +143,9 @@ Following is a sample REST request that can be handled by the deleteAnswer opera
 ```xml
 <stackexchange.editAnswerById>
     <id>{$ctx:id}</id>
-    <body>{$ctx:body}</body>
+    <postBody>{$ctx:postBody}</postBody>
+    <preview>{$ctx:preview}</preview>
+    <filter>{$ctx:filter}</filter>
 </stackexchange.editAnswerById>
 ```
 
@@ -111,16 +155,6 @@ Following is a sample REST request that can be handled by the deleteAnswer opera
 **Sample request**
 
 Following is a sample REST request that can be handled by the editAnswerById operation.
-```xml
-<stackexchange.editAnswerById>
-    <key>VnXXXXXXXXXXXXXXXXXXXXXX</key>
-    <site>stackoverflow</site>
-    <accessToken>7rXXXXXXXXXXXXXXXXXXXXXX</accessToken>
-    <id>9840</id>
-    <preview>true</preview>
-    <body>It's an answer. A terrible answer, but an answer nonetheless</body>
-</stackexchange.editAnswerById>
-```
 
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/edit-answer](https://api.stackexchange.com/docs/edit-answer)
@@ -130,6 +164,8 @@ Following is a sample REST request that can be handled by the editAnswerById ope
 ```xml
 <stackexchange.upvoteAnswerById>
     <id>{$ctx:id}</id>
+    <preview>{$ctx:preview}</preview>
+    <filter>{$ctx:filter}</filter>
 </stackexchange.upvoteAnswerById>
 ```
 
@@ -139,15 +175,6 @@ Following is a sample REST request that can be handled by the editAnswerById ope
 **Sample request**
 
 Following is a sample REST request that can be handled by the upvoteAnswerById operation.
-```xml
-<stackexchange.upvoteAnswerById>
-    <key>VnXXXXXXXXXXXXXXXXXXXXXX</key>
-    <site>stackoverflow</site>
-    <accessToken>7rXXXXXXXXXXXXXXXXXXXXXX</accessToken>
-    <id>9840</id>
-    <preview>true</preview>
-</stackexchange.upvoteAnswerById>
-```
 
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/upvote-answer](https://api.stackexchange.com/docs/upvote-answer)
@@ -157,6 +184,8 @@ Following is a sample REST request that can be handled by the upvoteAnswerById o
 ```xml
 <stackexchange.downvoteAnswerById>
     <id>{$ctx:id}</id>
+    <preview>{$ctx:preview}</preview>
+    <filter>{$ctx:filter}</filter>
 </stackexchange.downvoteAnswerById>
 ```
 
@@ -166,15 +195,6 @@ Following is a sample REST request that can be handled by the upvoteAnswerById o
 **Sample request**
 
 Following is a sample REST request that can be handled by the downvoteAnswerById operation.
-```xml
-<stackexchange.downvoteAnswerById>
-    <key>VnXXXXXXXXXXXXXXXXXXXXXX</key>
-    <site>stackoverflow</site>
-    <accessToken>7rXXXXXXXXXXXXXXXXXXXXXX</accessToken>
-    <id>9840</id>
-    <preview>true</preview>
-</stackexchange.upvoteAnswerById>
-```
 
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/downvote-answer](https://api.stackexchange.com/docs/downvote-answer)
@@ -184,6 +204,8 @@ Following is a sample REST request that can be handled by the downvoteAnswerById
 ```xml
 <stackexchange.acceptAnswerById>
     <id>{$ctx:id}</id>
+    <preview>{$ctx:preview}</preview>
+    <filter>{$ctx:filter}</filter>
 </stackexchange.acceptAnswerById>
 ```
 
@@ -193,15 +215,6 @@ Following is a sample REST request that can be handled by the downvoteAnswerById
 **Sample request**
 
 Following is a sample REST request that can be handled by the acceptAnswerById operation.
-```xml
-<stackexchange.acceptAnswerById>
-    <key>VnXXXXXXXXXXXXXXXXXXXXXX</key>
-    <site>stackoverflow</site>
-    <accessToken>7rXXXXXXXXXXXXXXXXXXXXXX</accessToken>
-    <id>9840</id>
-    <preview>true</preview>
-</stackexchange.acceptAnswerById>
-```
 
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/accept-answer](https://api.stackexchange.com/docs/accept-answer)

@@ -17,7 +17,7 @@
   -->
 <template xmlns="http://ws.apache.org/ns/synapse" name="editAnswerById">
     <parameter name="id" description="Id of the question"/>
-    <parameter name="body" description="Body of the answer"/>
+    <parameter name="postBody" description="Body of the answer"/>
     <!-- OPTIONAL -->
     <parameter name="filter" description="Response filter"/>
     <parameter name="preview"
@@ -26,7 +26,7 @@
                             anything on the site."/>
     <sequence>
         <property name="uri.var.id" expression="$func:id"/>
-        <property name="uri.var.body" expression="$func:body"/>
+        <property name="uri.var.postBody" expression="$func:postBody"/>
         <!-- OPTIONAL -->
         <property name="uri.var.filter" expression="$func:filter"/>
         <property name="uri.var.preview" expression="$func:preview"/>
@@ -42,10 +42,10 @@
                 }
             </format>
             <args>
-                <arg evaluator="json" expression="$ctx.uri.var.site"/>
-                <arg evaluator="json" expression="$ctx.uri.var.accessToken"/>
-                <arg evaluator="json" expression="$ctx.uri.var.key"/>
-                <arg evaluator="json" expression="$ctx.uri.var.body"/>
+                <arg evaluator="xml" expression="$ctx.uri.var.site"/>
+                <arg evaluator="xml" expression="$ctx.uri.var.accessToken"/>
+                <arg evaluator="xml" expression="$ctx.uri.var.key"/>
+                <arg evaluator="xml" expression="$ctx.uri.var.postBody"/>
             </args>
         </payloadFactory>
         <script language="js">

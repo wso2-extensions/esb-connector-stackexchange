@@ -5,7 +5,7 @@
   "key": "%s(key)",
   "id": "%s(placeHolderQId)",
   "title": "URLConnection does not decompress Gzip",
-  "body": "A simple compressed response from URLConnection instance should be decompressed if Accept-Encoding headers are set correctly. But it doesn't seems to be working. Have you ever experienced this type of problem?",
+  "postBody": "A simple compressed response from URLConnection instance should be decompressed if Accept-Encoding headers are set correctly. But it doesn't seems to be working. Have you ever experienced this type of problem?",
   "comment": "Sample comment",
   "tags": "library;bug",
   "preview": true

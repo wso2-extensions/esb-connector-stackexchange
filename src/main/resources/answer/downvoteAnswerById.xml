@@ -38,9 +38,9 @@
                 }
             </format>
             <args>
-                <arg evaluator="json" expression="$ctx:uri.var.site"/>
-                <arg evaluator="json" expression="$ctx:uri.var.accessToken"/>
-                <arg evaluator="json" expression="$ctx:uri.var.key"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.site"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.accessToken"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.key"/>
             </args>
         </payloadFactory>
         <script language="js">

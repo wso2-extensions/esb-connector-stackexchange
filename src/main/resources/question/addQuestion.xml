@@ -17,7 +17,7 @@
   -->
 <template xmlns="http://ws.apache.org/ns/synapse" name="addQuestion">
     <parameter name="title" description="Title of the question"/>
-    <parameter name="body" description="Body of the question"/>
+    <parameter name="postBody" description="Body of the question"/>
     <parameter name="tags" description="Semicolon delimited tag names"/>
     <!-- OPTIONAL -->
     <parameter name="filter" description="Response filter"/>
@@ -27,7 +27,7 @@
                             anything on the site."/>
     <sequence>
         <property name="uri.var.title" expression="$func:title"/>
-        <property name="uri.var.body" expression="$func:body"/>
+        <property name="uri.var.postBody" expression="$func:postBody"/>
         <property name="uri.var.tags" expression="$func:tags"/>
         <!-- OPTIONAL -->
         <property name="uri.var.filter" expression="$func:filter"/>
@@ -44,12 +44,12 @@
                 }
             </format>
             <args>
-                <arg evaluator="json" expression="$ctx:uri.var.site"/>
-                <arg evaluator="json" expression="$ctx:uri.var.accessToken"/>
-                <arg evaluator="json" expression="$ctx:uri.var.key"/>
-                <arg evaluator="json" expression="$ctx:uri.var.title"/>
-                <arg evaluator="json" expression="$ctx:uri.var.body"/>
-                <arg evaluator="json" expression="$ctx:uri.var.tags"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.site"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.accessToken"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.key"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.title"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.postBody"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.tags"/>
             </args>
         </payloadFactory>
         <script language="js">
