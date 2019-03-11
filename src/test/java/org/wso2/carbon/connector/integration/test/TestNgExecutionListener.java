@@ -56,6 +56,14 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                             "Cannot execute this test due to lack of data hence skipping: No answer id found.");
                 }
             }
+            if (stackExchange.needUnacceptedAnswer()) {
+                String hasUnacceptedA = stackExchangeProperties.getProperty(STACKEXCHANGE_IS_UNACCEPTED_ANSWER);
+                if (!Boolean.parseBoolean(hasUnacceptedA)) {
+                    iTestResult.setStatus(TestResult.SKIP);
+                    throw new SkipException(
+                            "Cannot execute this test due to lack of data hence skipping: Answer should be unaccepted.");
+                }
+            }
             /* If needMyQuestion is true then the test method needs an id for an user owned question.
                If we have one we should let the test proceed or skip otherwise */
             if (stackExchange.needMyQuestion()) {
@@ -64,6 +72,14 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                     iTestResult.setStatus(TestResult.SKIP);
                     throw new SkipException(
                             "Cannot execute this test due to lack of data hence skipping: No question id found.");
+                }
+            }
+            if (stackExchange.needMyQuestionWithAnswers()) {
+                String hasQ = stackExchangeProperties.getProperty(STACKEXCHANGE_HAS_QUESTION_WITH_ANSWERS);
+                if (!Boolean.parseBoolean(hasQ)) {
+                    iTestResult.setStatus(TestResult.SKIP);
+                    throw new SkipException(
+                            "Cannot execute this test due to lack of data hence skipping: No question id found with valid answer(s).");
                 }
             }
             /* Test method has stored the privilege which user should have gained to run the test method.

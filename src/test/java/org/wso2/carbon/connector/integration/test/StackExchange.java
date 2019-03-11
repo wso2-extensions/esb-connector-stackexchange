@@ -36,6 +36,18 @@ public @interface StackExchange {
     boolean needMyQuestion() default false;
 
     /**
+     *
+     * @return
+     */
+    boolean needMyQuestionWithAnswers() default false;
+    /**
+     * Return whether the specific method needs an unaccepted answer id created by user.
+     *
+     * @return whether the specific method needs an unaccepted answer id created by user.
+     */
+    boolean needUnacceptedAnswer() default false;
+
+    /**
      * Return the privilege need to execute the test method successfully.
      *
      * @return the privilege need to execute the test method successfully.

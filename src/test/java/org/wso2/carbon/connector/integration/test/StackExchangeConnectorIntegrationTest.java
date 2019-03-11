@@ -59,7 +59,9 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
      * Common property keys for saving StackExchange specific data.
      */
     public static final String STACKEXCHANGE_HAS_QUESTION = "stackexchange.hasquestion";
+    public static final String STACKEXCHANGE_HAS_QUESTION_WITH_ANSWERS = "stackexchange.hasquestionwithanswers";
     public static final String STACKEXCHANGE_HAS_ANSWER = "stackexchange.hasanswer";
+    public static final String STACKEXCHANGE_IS_UNACCEPTED_ANSWER = "stackexchange.isunacceptedanswer";
     public static final String STACKEXCHANGE_PRIVILEGES = "stackexchange.privileges";
 
     /**
@@ -83,6 +85,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     private static final String SE_RES_KEY_QUESTION_ID = "question_id";
     private static final String SE_RES_KEY_ANSWER_ID = "answer_id";
     private static final String SE_RES_KEY_SHORT_DESCRIPTION = "short_description";
+    private static final String SE_RES_KEY_IS_ACCEPTED = "is_accepted";
 
     /**
      * Common API properties
@@ -114,6 +117,8 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         String accessToken = connectorProperties.getProperty("accessToken");
         String placeHolderQId = connectorProperties.getProperty("placeHolderQId");
         String placeHolderAId = connectorProperties.getProperty("placeHolderAId");
+        String placeHolderASite = connectorProperties.getProperty("placeHolderASite");
+        String placeHolderQSite = connectorProperties.getProperty("placeHolderQSite");
 
         this.key = key;
         this.site = site;
@@ -135,8 +140,26 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         /* Save availability of Placeholder question id */
         if (StringUtils.isEmpty(placeHolderQId)) {
             stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(false));
+            stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_QUESTION_WITH_ANSWERS, String.valueOf(false));
         } else {
             stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_QUESTION, String.valueOf(true));
+            StackExchangeItems placeHolderQuestionAnswerItems = getStackExchangeAnswerItems(
+                    Integer.parseInt(placeHolderQId), placeHolderQSite);
+            if (placeHolderQuestionAnswerItems.isEmpty()) {
+                stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_QUESTION_WITH_ANSWERS, String.valueOf(false));
+            } else {
+                boolean hasAcceptedAnswer = false;
+                for (int i = 0; i < placeHolderQuestionAnswerItems.length(); i++) {
+                    Integer placeHolderQuestionAnswerId = placeHolderQuestionAnswerItems.getAt(
+                            SE_RES_KEY_ANSWER_ID, Integer.class, i);
+                    if (isAnswerAccepted(placeHolderQuestionAnswerId, placeHolderQSite)) {
+                        hasAcceptedAnswer = true;
+                        break;
+                    }
+                }
+                stackExchangeProperties.setProperty(
+                        STACKEXCHANGE_HAS_QUESTION_WITH_ANSWERS, String.valueOf(hasAcceptedAnswer));
+            }
             /* API routes like 'voting up a question' does not allow
                user to up vote his/her own post. In those cases we should
                avoid using placeHolderQId as the questionId. Hence looping
@@ -163,6 +186,11 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
             stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
         } else {
             stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(true));
+            if (isAnswerAccepted(Integer.parseInt(placeHolderAId), placeHolderASite)) {
+                stackExchangeProperties.setProperty(STACKEXCHANGE_IS_UNACCEPTED_ANSWER, String.valueOf(false));
+            } else {
+                stackExchangeProperties.setProperty(STACKEXCHANGE_IS_UNACCEPTED_ANSWER, String.valueOf(true));
+            }
         }
 
         /* Check credential availability to avoid unnecessary failures */
@@ -175,6 +203,14 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
             /* Set defaults */
             stackExchangeProperties.setProperty(STACKEXCHANGE_PRIVILEGES, StackExchange.PRIVILEGE_DEFAULT);
         }
+    }
+
+    private boolean isAnswerAccepted(int answerId, String site) throws Exception {
+        StackExchangeUrl answerUrl =
+                new StackExchangeUrl.Builder(apiVersion, "/answers/" + answerId)
+                        .queryParam("site", site).build();
+        StackExchangeItems answerItems = getStackExchangeItems( answerUrl);
+        return answerItems.getAt(SE_RES_KEY_IS_ACCEPTED, Boolean.class, 0);
     }
 
     private StackExchangeItems getStackExchangeTagItems() throws Exception {
@@ -201,6 +237,14 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
                         .queryParam("accepted", "False")
                         .queryParam("answers", "1").build();
         return getStackExchangeItems(questionUrl);
+    }
+
+    private StackExchangeItems getStackExchangeAnswerItems(int questionId, String site) throws Exception {
+
+        StackExchangeUrl answerUrl =
+                new StackExchangeUrl.Builder(apiVersion, "/questions/" + questionId + "/answers")
+                        .queryParam("site", site).build();
+        return getStackExchangeItems(answerUrl);
     }
 
     private StackExchangeItems getStackExchangeAnswerItems(int questionId) throws Exception {
@@ -499,7 +543,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= acceptAnswerById ======================================= */
 
-    @StackExchange(needMyAnswer = true)
+    @StackExchange(needMyQuestionWithAnswers = true)
     @Test(groups = {"wso2.ei"})
     public void testAcceptAnswerByIdWithInvalid() throws IOException, JSONException {
 
@@ -509,7 +553,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
-    @StackExchange(needMyAnswer = true)
+    @StackExchange(needMyQuestionWithAnswers = true)
     @Test(groups = {"wso2.ei"})
     public void testAcceptAnswerByIdWithMandatory() throws IOException, JSONException {
 
@@ -551,7 +595,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= deleteAnswerById ======================================= */
 
-    @StackExchange(needMyAnswer = true)
+    @StackExchange(needMyAnswer = true, needUnacceptedAnswer = true)
     @Test(groups = {"wso2.ei"})
     public void testDeleteAnswerByIdWithInvalid() throws IOException, JSONException {
 
@@ -561,7 +605,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
-    @StackExchange(needMyAnswer = true)
+    @StackExchange(needMyAnswer = true, needUnacceptedAnswer = true)
     @Test(groups = {"wso2.ei"})
     public void testDeleteAnswerByIdWithMandatory() throws IOException, JSONException {
 

@@ -1,6 +1,6 @@
 {
   "id": "%s(placeHolderAId)",
   "site": "%s(site)",
-  "access_token": "%s(accessToken)",
+  "accessToken": "%s(accessToken)",
   "key": "%s(key)"
 }
