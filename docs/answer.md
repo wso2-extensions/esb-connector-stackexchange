@@ -51,9 +51,9 @@ This section provides details on each of the operations.
 **Sample request**
 ```json
 {
-  "ids":"1",
+  "ids": 8239,
   "pagesize": 1,
-  "page": 1 
+  "page": 1
 }
 ```
 
@@ -62,33 +62,27 @@ This section provides details on each of the operations.
 {
   "items": [
     {
-      "tags": [
-        "app",
-        "android"
-      ],
       "owner": {
-        "reputation": 726,
-        "user_id": 1,
+        "reputation": 10790,
+        "user_id": 7653,
         "user_type": "moderator",
-        "profile_image": "https://i.stack.imgur.com/nDllk.png?s=128&g=1",
-        "display_name": "Geoff Dalgas",
-        "link": "https://stackapps.com/users/1/geoff-dalgas"
+        "accept_rate": 75,
+        "profile_image": "https://www.gravatar.com/avatar/08ad3e87a75ff0936395b59325d8b151?s=128&d=identicon&r=PG",
+        "display_name": "Brock Adams",
+        "link": "https://stackapps.com/users/7653/brock-adams"
       },
-      "is_answered": false,
-      "view_count": 2692,
-      "answer_count": 0,
-      "score": 28,
-      "last_activity_date": 1478279632,
-      "creation_date": 1374695948,
-      "last_edit_date": 1478279632,
-      "question_id": 4240,
-      "link": "https://stackapps.com/questions/4240/official-stack-exchange-android-app",
-      "title": "Official Stack Exchange Android App"
+      "is_accepted": true,
+      "score": 1,
+      "last_activity_date": 1550356234,
+      "last_edit_date": 1550356234,
+      "creation_date": 1550355696,
+      "answer_id": 8239,
+      "question_id": 8238
     }
   ],
   "has_more": false,
   "quota_max": 300,
-  "quota_remaining": 281
+  "quota_remaining": 181
 }
 ```
 
@@ -110,8 +104,43 @@ Following is a sample REST request that can be handled by the getAnswersByIds op
 
 **Properties**
 * id: Id of the question to add an answer. e.g. 8940
+* 
 
 **Sample request**
+```json
+{
+  "id": 1,
+  "postBody": "Branch prediction: With a sorted array, the condition data[c] >= 128 is first false for a streak of values, then becomes true for all later values. That's easy to predict. With an unsorted array, you pay for the branching cost",
+  "preview": true
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [
+    {
+      "owner": {
+        "reputation": 1,
+        "user_id": 58519,
+        "user_type": "registered",
+        "profile_image": "https://lh5.googleusercontent.com/-kVyGXuaKbiQ/AAAAAAAAAAI/AAAAAAAAAAA/ACevoQM6oMuunuZdDgfqW9iGK8svF3jnmA/mo/photo.jpg?sz=128",
+        "display_name": "Bhathiya Wijesinghe",
+        "link": "https://stackapps.com/users/58519/bhathiya-wijesinghe"
+      },
+      "is_accepted": false,
+      "score": 0,
+      "last_activity_date": 1552284775,
+      "creation_date": 1552284775,
+      "answer_id": 0,
+      "question_id": 1
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9974
+}
+```
 
 Following is a sample REST request that can be handled by the addAnswer operation.
 

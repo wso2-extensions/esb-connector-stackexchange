@@ -100,7 +100,6 @@ Following is a sample REST request that can be handled by the getQuestionsByUser
 ```xml
 <stackexchange.addQuestion>
     <title>{$ctx:title}</title>
-    <site>{$ctx:site}</site>
     <tags>{$ctx:tags}</tags>
     <postBody>{$ctx:postBody}</postBody>
     <filter>{$ctx:filter}</filter>
@@ -109,9 +108,53 @@ Following is a sample REST request that can be handled by the getQuestionsByUser
 ```
 
 **Properties**
-* id: Id of the question to add an question. e.g. 8940
+* title: Title of the question.
+* tags: Semicolon delimited set of tags for the question.
+* postBody: Body of the question.
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* preview: Preview parameter is used for development and testing purposes. When preview is set to true,
+           request will only simulate whether it is a valid request or not and will not change
+           anything on the site.
 
 **Sample request**
+```json
+{
+  "site": "stackoverflow",
+  "title": "URLConnection does not decompress Gzip",
+  "postBody": "A simple compressed response from URLConnection instance should be decompressed if Accept-Encoding headers are set correctly. But doesn't do that. Have you experienced this type of problem?",
+  "tags": "java",
+  "preview": true
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [
+    {
+      "tags": [
+        "java"
+      ],
+      "owner": {
+        "reputation": 1,
+        "user_id": 10965992,
+        "user_type": "registered",
+        "profile_image": "https://lh5.googleusercontent.com/-kVyGXuaKbiQ/AAAAAAAAAAI/AAAAAAAAAAA/ACevoQM6oMuunuZdDgfqW9iGK8svF3jnmA/mo/photo.jpg?sz=128",
+        "display_name": "Bhathiya Wijesinghe",
+        "link": "https://stackoverflow.com/users/10965992/bhathiya-wijesinghe"
+      },
+      "is_answered": false,
+      "score": 0,
+      "last_activity_date": 1552285161,
+      "creation_date": 1552285161,
+      "title": "URLConnection does not decompress Gzip"
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9971
+}
+```
 
 Following is a sample REST request that can be handled by the addQuestion operation.
 
@@ -129,9 +172,30 @@ Following is a sample REST request that can be handled by the addQuestion operat
 ```
 
 **Properties**
-* ids: Id of the question. e.g. 8940
+* id: Id of the question. e.g. 8940
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* preview: Preview parameter is used for development and testing purposes. When preview is set to true,
+           request will only simulate whether it is a valid request or not and will not change
+           anything on the site.
 
 **Sample request**
+```json
+{
+  "site": "stackapps",
+  "id": 8236,
+  "preview": true
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9967
+}
+```
 
 Following is a sample REST request that can be handled by the deleteQuestion operation.
 
@@ -150,9 +214,57 @@ Following is a sample REST request that can be handled by the deleteQuestion ope
 ```
 
 **Properties**
-* ids: Id of the question. e.g. 8940
+* id: Id of the question. e.g. 8940
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* preview: Preview parameter is used for development and testing purposes. When preview is set to true,
+           request will only simulate whether it is a valid request or not and will not change
+           anything on the site.
 
 **Sample request**
+```json
+{
+  "site": "stackapps",
+  "id": "8236",
+  "title": "URLConnection does not decompress Gzip",
+  "postBody": "A simple compressed response from URLConnection instance should be decompressed if Accept-Encoding headers are set correctly. But it doesn't seems to be working. Have you ever experienced this type of problem?",
+  "comment": "Sample comment",
+  "tags": "library;bug",
+  "preview": true
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [
+    {
+      "tags": [
+        "bug",
+        "library"
+      ],
+      "owner": {
+        "reputation": 1,
+        "user_id": 58519,
+        "user_type": "registered",
+        "profile_image": "https://lh5.googleusercontent.com/-kVyGXuaKbiQ/AAAAAAAAAAI/AAAAAAAAAAA/ACevoQM6oMuunuZdDgfqW9iGK8svF3jnmA/mo/photo.jpg?sz=128",
+        "display_name": "Bhathiya Wijesinghe",
+        "link": "https://stackapps.com/users/58519/bhathiya-wijesinghe"
+      },
+      "is_answered": false,
+      "score": -1,
+      "last_activity_date": 1552286273,
+      "creation_date": 1550134853,
+      "last_edit_date": 1552286273,
+      "question_id": 8236,
+      "link": "https://stackapps.com/questions/8236/urlconnection-does-not-decompress-gzip",
+      "title": "URLConnection does not decompress Gzip"
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9963
+}
+```
 
 Following is a sample REST request that can be handled by the editQuestionById operation.
 
