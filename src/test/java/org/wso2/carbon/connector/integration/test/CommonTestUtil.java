@@ -40,27 +40,6 @@ public class CommonTestUtil {
     }
 
     /**
-     * Return the indented JSON string.
-     *
-     * @param json the unformatted JSON.
-     * @return the indented JSON string.
-     * @throws JSONException if JSON is broken.
-     */
-    public static String prettyJson(JSONObject json) throws JSONException {
-
-        return json.toString(2);
-    }
-
-    public static String clearLogMessage(String middle) {
-
-        return String.format("\n" +
-                        "====================================================\n" +
-                        "%s\n" +
-                        "====================================================\n",
-                middle);
-    }
-
-    /**
      * Return the filename for a given method.
      *
      * @param method the method name.

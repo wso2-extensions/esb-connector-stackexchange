@@ -36,10 +36,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.TestType;
-import static org.wso2.carbon.connector.integration.test.CommonTestUtil.clearLogMessage;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getConnectorName;
 import static org.wso2.carbon.connector.integration.test.CommonTestUtil.getFilenameOfPayload;
-import static org.wso2.carbon.connector.integration.test.CommonTestUtil.prettyJson;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.StackExchangeCommonWrapper;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.StackExchangeItems;
 import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.getStackExchangeCommonWrapper;
@@ -192,6 +190,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
             stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
         } else {
             stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(true));
+            /* TODO: Check placeHolderAId and answer id collide. */
             if (hasAnswerAccepted(Integer.parseInt(placeHolderAId), placeHolderASite)) {
                 stackExchangeProperties.setProperty(STACKEXCHANGE_IS_UNACCEPTED_ANSWER, String.valueOf(false));
             } else {
@@ -328,10 +327,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getUsersByIds", TestType.MANDATORY);
 
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
-
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
@@ -353,10 +348,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testAddQuestionWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("addQuestion", TestType.MANDATORY);
-
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
 
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
@@ -402,10 +393,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("downvoteQuestionById", TestType.MANDATORY);
 
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
-
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
@@ -427,10 +414,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testEditQuestionByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("editQuestionById", TestType.MANDATORY);
-
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
 
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
@@ -454,10 +437,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("upvoteQuestionById", TestType.MANDATORY);
 
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
-
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
@@ -480,10 +459,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.MANDATORY);
 
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
-
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
@@ -493,10 +468,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testGetQuestionsByUserIdsWithPaging() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.PAGING);
-
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
 
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
@@ -520,10 +491,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.MANDATORY);
 
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
-
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
@@ -534,10 +501,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.OPTIONAL);
 
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
-
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
@@ -547,10 +510,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testGetQuestionsWithNoAnswersWithPaging() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.PAGING);
-
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
 
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
@@ -574,10 +533,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("acceptAnswerById", TestType.MANDATORY);
 
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
-
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
@@ -599,10 +554,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testAddAnswerWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("addAnswer", TestType.MANDATORY);
-
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
 
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
@@ -626,10 +577,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("deleteAnswerById", TestType.MANDATORY);
 
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
-
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
@@ -651,10 +598,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testEditAnswerByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("editAnswerById", TestType.MANDATORY);
-
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
 
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
@@ -678,10 +621,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("downvoteAnswerById", TestType.MANDATORY);
 
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
-
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
@@ -703,10 +642,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testUpvoteAnswerByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("upvoteAnswerById", TestType.MANDATORY);
-
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
 
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
@@ -730,10 +665,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getAnswersByIds", TestType.MANDATORY);
 
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
-
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
     }
@@ -743,10 +674,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testGetAnswersByIdsWithPaging() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getAnswersByIds", TestType.PAGING);
-
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
 
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);

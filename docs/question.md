@@ -382,6 +382,45 @@ Upvote an existing question.
            anything on the site.
 
 **Sample request**
+```json
+{
+  "id": "8236",
+  "preview": true
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [
+    {
+      "tags": [
+        "bug",
+        "library"
+      ],
+      "owner": {
+        "reputation": 1,
+        "user_id": 58519,
+        "user_type": "registered",
+        "profile_image": "https://lh5.googleusercontent.com/-kVyGXuaKbiQ/AAAAAAAAAAI/AAAAAAAAAAA/ACevoQM6oMuunuZdDgfqW9iGK8svF3jnmA/mo/photo.jpg?sz=128",
+        "display_name": "Bhathiya Wijesinghe",
+        "link": "https://stackapps.com/users/58519/bhathiya-wijesinghe"
+      },
+      "is_answered": false,
+      "score": -1,
+      "last_activity_date": 1552286273,
+      "creation_date": 1550134853,
+      "last_edit_date": 1552286273,
+      "question_id": 8236,
+      "link": "https://stackapps.com/questions/8236/urlconnection-does-not-decompress-gzip",
+      "title": "URLConnection does not decompress Gzip"
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9963
+}
+```
 
 Following is a sample REST request that can be handled by the upvoteQuestionById operation.
 
@@ -408,6 +447,45 @@ Downvote an existing question.
            anything on the site.
 
 **Sample request**
+```json
+{
+  "id": "8236",
+  "preview": true
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [
+    {
+      "tags": [
+        "bug",
+        "library"
+      ],
+      "owner": {
+        "reputation": 1,
+        "user_id": 58519,
+        "user_type": "registered",
+        "profile_image": "https://lh5.googleusercontent.com/-kVyGXuaKbiQ/AAAAAAAAAAI/AAAAAAAAAAA/ACevoQM6oMuunuZdDgfqW9iGK8svF3jnmA/mo/photo.jpg?sz=128",
+        "display_name": "Bhathiya Wijesinghe",
+        "link": "https://stackapps.com/users/58519/bhathiya-wijesinghe"
+      },
+      "is_answered": false,
+      "score": -1,
+      "last_activity_date": 1552286273,
+      "creation_date": 1550134853,
+      "last_edit_date": 1552286273,
+      "question_id": 8236,
+      "link": "https://stackapps.com/questions/8236/urlconnection-does-not-decompress-gzip",
+      "title": "URLConnection does not decompress Gzip"
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9963
+}
+```
 
 Following is a sample REST request that can be handled by the downvoteQuestionById operation.
 

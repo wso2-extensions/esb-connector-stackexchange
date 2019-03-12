@@ -19,8 +19,6 @@ package org.wso2.carbon.connector.integration.test;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,8 +36,6 @@ import javax.net.ssl.HttpsURLConnection;
  * API specific helper structures and methods to be used in tests.
  */
 public class StackExchangeTestUtil {
-
-    private static final Log LOG = LogFactory.getLog(StackExchangeTestUtil.class);
 
     /**
      * Return an instance of {@code StackExchangeItems} created using StackExchange API response.
@@ -235,7 +231,7 @@ public class StackExchangeTestUtil {
      * EI responses in tests we define following logic in the class based on above facts.
      *
      * case1: If response contain non of the fields then it is an UNKNOWN response. This could possibly happen
-     *        due to decompression issues.
+     * due to decompression issues.
      * case2: If response contains any field like 'error_*' it is an ERROR response.
      * case3: If non of the above is true it is a NO_ERROR response.
      */
@@ -281,7 +277,7 @@ public class StackExchangeTestUtil {
          * Return the {@code WrapperType} according to the below logic.
          *
          * case1: If response contain non of the fields then it is an UNKNOWN response. This could possibly happen
-         *        due to decompression issues.
+         * due to decompression issues.
          * case2: If response contains any field like 'error_*' it is an ERROR response.
          * case3: If non of the above is true it is a NO_ERROR response.
          *

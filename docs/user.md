@@ -85,3 +85,9 @@ Return the information about about set of users.
   "quota_remaining": 9686
 }
 ```
+
+Following is a sample REST request that can be handled by the getUsersByIds operation.
+
+**Related StackExchange API documentations**
+* [https://api.stackexchange.com/docs/users-by-ids](https://api.stackexchange.com/docs/users-by-ids)
+* [https://api.stackexchange.com/docs/me](https://api.stackexchange.com/docs/me)

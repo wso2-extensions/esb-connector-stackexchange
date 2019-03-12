@@ -56,6 +56,8 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                             "Cannot execute this test due to lack of data hence skipping: No answer id found.");
                 }
             }
+            /* If needUnacceptedAnswer is true then the test method needs an id of an answer which should be unaccepted
+               If we have one we should let the test proceed or skip otherwise */
             if (stackExchange.needUnacceptedAnswer()) {
                 String hasUnacceptedA = stackExchangeProperties.getProperty(STACKEXCHANGE_IS_UNACCEPTED_ANSWER);
                 if (!Boolean.parseBoolean(hasUnacceptedA)) {
@@ -74,6 +76,8 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                             "Cannot execute this test due to lack of data hence skipping: No question id found.");
                 }
             }
+            /* If needMyQuestionWithAnswers is true then the test method needs an id for an user owned answered
+               question. If we have one we should let the test proceed or skip otherwise */
             if (stackExchange.needMyQuestionWithAnswers()) {
                 String hasQ = stackExchangeProperties.getProperty(STACKEXCHANGE_HAS_QUESTION_WITH_ANSWERS);
                 if (!Boolean.parseBoolean(hasQ)) {
@@ -104,6 +108,5 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
 
     @Override
     public void afterInvocation(IInvokedMethod iInvokedMethod, ITestResult iTestResult) {
-
     }
 }

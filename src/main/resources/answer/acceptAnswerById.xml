@@ -84,4 +84,3 @@
         <class name="org.wso2.carbon.connector.DecompressMediator"/>
     </sequence>
 </template>
-

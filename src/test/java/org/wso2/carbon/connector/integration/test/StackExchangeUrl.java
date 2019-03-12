@@ -127,8 +127,6 @@ public class StackExchangeUrl {
     /**
      * Open an connection using URL instance and return it as a {@code HttpsURLConnection}.
      *
-     * NOTE: JVM must contain the StackExchange SSL certificate to open the connection.
-     *
      * @return an instance of {@code HttpsURLConnection}.
      * @throws IOException if URL instance is invalid.
      */
