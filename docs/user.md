@@ -8,14 +8,48 @@ For a sample proxy service that illustrates how to work with users, see [Sample 
 
 | Operation | Description |
 | ------------- |-------------|
-| [getMe](#getting-the-information-about-yourself) | Return the information about yourself. |
+| [getUsersByIds](#getting-the-set-of-users-identified-by-ids) | Return the information about about set of users. |
 
 ## Operation details
 This section provides details on each of the operations.
 
-### Getting the information about yourself
+### Getting the information about about set of users
+Return the information about about set of users.
+
+```xml
+<stackexchange.getUsersByIds>
+    <ids>{$ctx:ids}</ids>
+    <filter>{$ctx:filter}</filter>
+    <page>{$ctx:page}</page>
+    <pagesize>{$ctx:pagesize}</pagesize>
+    <min>{$ctx:min}</min>
+    <max>{$ctx:max}</max>
+    <fromdate>{$ctx:fromdate}</fromdate>
+    <todate>{$ctx:todate}</todate>
+    <order>{$ctx:order}</order>
+    <sort>{$ctx:sort}</sort>
+</stackexchange.getUsersByIds>
+```
+
+**Properties**
+* ids: Semicolon delimited user ids or 'me' if you want get information about yourself.
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* pagesize: Number of items should be stored in a single page.
+* page: Which page to send among many pages in the response.
+* fromdate: Starting date in fromdate to todate window
+* todate: Ending date in fromdate to todate window
+* min: Min value in min to max window
+* max: Max value in min to max window
+* sort: According to which field item list should be sorted  
+* order: Sorting order ascending (asc) or descending (desc)
 
 **Sample request**
+```json
+{
+  "ids": "me",
+  "site": "stackoverflow"
+}
+```
 
 **Sample response**
 ```json

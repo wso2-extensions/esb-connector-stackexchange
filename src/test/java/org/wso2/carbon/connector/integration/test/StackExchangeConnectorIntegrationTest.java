@@ -310,13 +310,13 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         return builder.toString();
     }
 
-    /* ======================================= getMe ======================================= */
+    /* ======================================= getUsersByIds ======================================= */
 
     @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
-    public void testGetMeWithInvalid() throws IOException, JSONException {
+    public void testUsersByIdsWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("getMe", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getUsersByIds", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
@@ -324,9 +324,9 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     @StackExchange(skipPrivilegeCheck = true)
     @Test(groups = {"wso2.ei"})
-    public void testGetMeWithMandatory() throws IOException, JSONException {
+    public void testGetUsersByIdsWithMandatory() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("getMe", TestType.MANDATORY);
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("getUsersByIds", TestType.MANDATORY);
 
         if (response.getHttpStatusCode() != 200) {
             LOG.info(clearLogMessage(prettyJson(response.getBody())));

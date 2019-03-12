@@ -20,6 +20,8 @@ For a sample proxy service that illustrates how to work with questions, see [Sam
 This section provides details on each of the operations.
 
 ### getting the set of questions identified by user ids
+Return the set of questions identified by user ids.
+
 **getQuestionsByUserIds**
 ```xml
 <stackexchange.getQuestionsByUserIds>
@@ -98,6 +100,8 @@ Following is a sample REST request that can be handled by the getQuestionsByUser
 [https://api.stackexchange.com/docs/questions-by-ids](https://api.stackexchange.com/docs/questions-by-ids)
 
 ### getting the set of questions identified by user ids
+Return set of question with no answers.
+
 **getQuestionsByUserIds**
 ```xml
 <stackexchange.getQuestionsByUserIds>
@@ -170,6 +174,8 @@ Following is a sample REST request that can be handled by the getQuestionsByUser
 [https://api.stackexchange.com/docs/no-answer-questions](https://api.stackexchange.com/docs/no-answer-questions)
 
 ### Adding an question
+Create a new question.
+
 **addQuestion**
 ```xml
 <stackexchange.addQuestion>
@@ -236,6 +242,8 @@ Following is a sample REST request that can be handled by the addQuestion operat
 [https://api.stackexchange.com/docs/create-question](https://api.stackexchange.com/docs/create-question)
 
 ### Deleting an question
+Delete an existing question.
+
 **deleteQuestionById**
 ```xml
 <stackexchange.deleteQuestionById>
@@ -277,6 +285,8 @@ Following is a sample REST request that can be handled by the deleteQuestion ope
 [https://api.stackexchange.com/docs/delete-question](https://api.stackexchange.com/docs/delete-question)
 
 ### Editing an question
+Delete an existing question.
+
 **editQuestionById**
 ```xml
 <stackexchange.editQuestionById>
@@ -353,6 +363,8 @@ Following is a sample REST request that can be handled by the editQuestionById o
 [https://api.stackexchange.com/docs/edit-question](https://api.stackexchange.com/docs/edit-question)
 
 ### Upvoting an question
+Upvote an existing question.
+
 **upvoteQuestionById**
 ```xml
 <stackexchange.upvoteQuestionById>
@@ -377,6 +389,8 @@ Following is a sample REST request that can be handled by the upvoteQuestionById
 [https://api.stackexchange.com/docs/upvote-question](https://api.stackexchange.com/docs/upvote-question)
 
 ### Downvoting an question
+Downvote an existing question.
+
 **downvoteQuestionById**
 ```xml
 <stackexchange.downvoteQuestionById>

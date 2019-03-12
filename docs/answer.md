@@ -21,6 +21,8 @@ see [Sample configuration](#sample-configuration).
 This section provides details on each of the operations.
 
 ### getting the set of answers identified by ids
+Return the set of answers identified by ids.
+
 **getAnswersByIds**
 ```xml
 <stackexchange.getAnswersByIds>
@@ -94,6 +96,8 @@ Following is a sample REST request that can be handled by the getAnswersByIds op
 [https://api.stackexchange.com/docs/answers-by-ids](https://api.stackexchange.com/docs/answers-by-ids)
 
 ### Adding an answer
+Create a new answer.
+
 **addAnswer**
 ```xml
 <stackexchange.addAnswer>
@@ -154,6 +158,8 @@ Following is a sample REST request that can be handled by the addAnswer operatio
 [https://api.stackexchange.com/docs/create-answer](https://api.stackexchange.com/docs/create-answer)
 
 ### Deleting an answer
+Delete an existing answer.
+
 **deleteAnswerById**
 ```xml
 <stackexchange.deleteAnswerById>
@@ -195,6 +201,8 @@ Following is a sample REST request that can be handled by the deleteAnswer opera
 [https://api.stackexchange.com/docs/delete-answer](https://api.stackexchange.com/docs/delete-answer)
 
 ### Editing an answer
+Edit an existing answer.
+
 **editAnswerById**
 ```xml
 <stackexchange.editAnswerById>
@@ -256,6 +264,8 @@ Following is a sample REST request that can be handled by the editAnswerById ope
 [https://api.stackexchange.com/docs/edit-answer](https://api.stackexchange.com/docs/edit-answer)
 
 ### Upvoting an answer
+Upvote an existing answer.
+
 **upvoteAnswerById**
 ```xml
 <stackexchange.upvoteAnswerById>
@@ -313,6 +323,8 @@ Following is a sample REST request that can be handled by the upvoteAnswerById o
 [https://api.stackexchange.com/docs/upvote-answer](https://api.stackexchange.com/docs/upvote-answer)
 
 ### Downvoting an answer
+Downvote an existing answer.
+
 **downvoteAnswerById**
 ```xml
 <stackexchange.downvoteAnswerById>
@@ -370,6 +382,8 @@ Following is a sample REST request that can be handled by the downvoteAnswerById
 [https://api.stackexchange.com/docs/downvote-answer](https://api.stackexchange.com/docs/downvote-answer)
 
 ### Accepting an answer
+Accept an existing answer.
+
 **acceptAnswerById**
 ```xml
 <stackexchange.acceptAnswerById>

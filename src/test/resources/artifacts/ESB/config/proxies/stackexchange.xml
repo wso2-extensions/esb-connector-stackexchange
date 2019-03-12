@@ -46,8 +46,20 @@
             </stackexchange.init>
             <switch source="get-property('transport', 'Action')">
                 <!--======================== User ========================-->
-                <case regex="urn:getMe">
-                    <stackexchange.getMe/>
+                <case regex="urn:getUsersByIds">
+                    <stackexchange.getUsersByIds>
+                        <!-- Mandatory -->
+                        <ids>{$ctx:ids}</ids>
+                        <!-- Paging -->
+                        <page>{$ctx:page}</page>
+                        <pagesize>{$ctx:pagesize}</pagesize>
+                        <min>{$ctx:min}</min>
+                        <max>{$ctx:max}</max>
+                        <fromdate>{$ctx:fromdate}</fromdate>
+                        <todate>{$ctx:todate}</todate>
+                        <order>{$ctx:order}</order>
+                        <sort>{$ctx:sort}</sort>
+                    </stackexchange.getUsersByIds>
                 </case>
                 <!--======================== Question ========================-->
                 <case regex="urn:addQuestion">

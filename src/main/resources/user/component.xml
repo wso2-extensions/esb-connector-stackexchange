@@ -18,9 +18,9 @@
   -->
 <component name="user" type="synapse/template">
     <subComponents>
-        <component name="getMe">
-            <file>getMe.xml</file>
-            <description>Get self information</description>
+        <component name="getUsersByIds">
+            <file>getUsersByIds.xml</file>
+            <description>Get information related set of users</description>
         </component>
     </subComponents>
 </component>

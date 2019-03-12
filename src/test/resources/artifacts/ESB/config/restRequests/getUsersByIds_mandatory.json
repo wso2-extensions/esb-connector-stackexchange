@@ -1,4 +1,5 @@
 {
+  "ids": "me",
   "site": "%s(site)",
   "filter": "%s(filterName)",
   "accessToken": "%s(accessToken)",
