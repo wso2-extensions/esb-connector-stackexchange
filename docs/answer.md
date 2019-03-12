@@ -1,5 +1,7 @@
 # Working with Answers in StackExchange
 
+[ [Overview](#overview) ]  [ [Operation details](#operation-details) ]  [ [Sample configuration](#sample-configuration) ]
+
 ### Overview
 The following operations allow you to work with answers in StackExchange. Click an operation name to see details on how to use it. 
 For a sample proxy service that illustrates how to work with answers, 
@@ -9,11 +11,11 @@ see [Sample configuration](#sample-configuration).
 | ------------- |-------------|
 | [getAnswersByIds](#getting-the-set-of-answers-identified-by-ids) | Return the set of answers identified by ids. |
 | [addAnswer](#adding-an-answer) | Create a new answer. |
-| [deleteAnswer](#deleting-an-answer) | Delete an existing answer. |
-| [editAnswer](#editing-an-answer) | Edit an existing answer. |
-| [upvoteAnswer](#upvoting-an-answer) | Upvote an existing answer. |
-| [downvoteAnswer](#downvoting-an-answer) | Downvote an existing answer. |
-| [acceptAnswer](#Accepting-an-answer) | Accept an existing answer. |
+| [deleteAnswerById](#deleting-an-answer) | Delete an existing answer. |
+| [editAnswerById](#editing-an-answer) | Edit an existing answer. |
+| [upvoteAnswerById](#upvoting-an-answer) | Upvote an existing answer. |
+| [downvoteAnswerById](#downvoting-an-answer) | Downvote an existing answer. |
+| [acceptAnswerById](#Accepting-an-answer) | Accept an existing answer. |
 
 ## Operation details
 This section provides details on each of the operations.
@@ -104,7 +106,11 @@ Following is a sample REST request that can be handled by the getAnswersByIds op
 
 **Properties**
 * id: Id of the question to add an answer. e.g. 8940
-* 
+* postBody: Body of the answer.
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* preview: Preview parameter is used for development and testing purposes. When preview is set to true,
+           request will only simulate whether it is a valid request or not and will not change
+           anything on the site.
 
 **Sample request**
 ```json
@@ -159,8 +165,29 @@ Following is a sample REST request that can be handled by the addAnswer operatio
 
 **Properties**
 * ids: Id of the answer. e.g. 8940
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* preview: Preview parameter is used for development and testing purposes. When preview is set to true,
+           request will only simulate whether it is a valid request or not and will not change
+           anything on the site.
 
 **Sample request**
+```json
+{
+  "site": "buddhism",
+  "id": 31476,
+  "preview": true
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9783
+}
+```
 
 Following is a sample REST request that can be handled by the deleteAnswer operation.
 
@@ -179,9 +206,49 @@ Following is a sample REST request that can be handled by the deleteAnswer opera
 ```
 
 **Properties**
-* ids: Id of the answer. e.g. 8940
+* id: Id of the answer. e.g. 8940
+* postBody: Body of the answer.
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* preview: Preview parameter is used for development and testing purposes. When preview is set to true,
+           request will only simulate whether it is a valid request or not and will not change
+           anything on the site.
 
 **Sample request**
+```json
+{
+  "id": 54664724,
+  "postBody": "A simple compressed response from URLConnection instance should be decompressed if Accept-Encoding headers are set correctly. But it doesn't seems to be working. Have you ever experienced this type of problem?",
+  "preview": true
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [
+    {
+      "owner": {
+        "reputation": 16,
+        "user_id": 9104301,
+        "user_type": "registered",
+        "profile_image": "https://lh6.googleusercontent.com/-fxyNTmd3fOc/AAAAAAAAAAI/AAAAAAAAADw/jTw3x-DCCJs/photo.jpg?sz=128",
+        "display_name": "Dhanu",
+        "link": "https://stackoverflow.com/users/9104301/dhanu"
+      },
+      "is_accepted": false,
+      "score": 0,
+      "last_activity_date": 1552329565,
+      "last_edit_date": 1552329565,
+      "creation_date": 1550042874,
+      "answer_id": 54664724,
+      "question_id": 54348603
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9691
+}
+```
 
 Following is a sample REST request that can be handled by the editAnswerById operation.
 
@@ -200,8 +267,45 @@ Following is a sample REST request that can be handled by the editAnswerById ope
 
 **Properties**
 * ids: Id of the answer. e.g. 8940
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* preview: Preview parameter is used for development and testing purposes. When preview is set to true,
+           request will only simulate whether it is a valid request or not and will not change
+           anything on the site.
 
 **Sample request**
+```json
+{
+  "id": 55108393,
+  "preview": true
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [
+    {
+      "owner": {
+        "reputation": 1294,
+        "user_id": 425465,
+        "user_type": "registered",
+        "profile_image": "https://www.gravatar.com/avatar/177b8d33a63edd4ff1c150130f554f83?s=128&d=identicon&r=PG",
+        "display_name": "harlam357",
+        "link": "https://stackoverflow.com/users/425465/harlam357"
+      },
+      "is_accepted": false,
+      "score": 1,
+      "last_activity_date": 1552329779,
+      "creation_date": 1552329779,
+      "answer_id": 55108393,
+      "question_id": 55105701
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9688
+}
+```
 
 Following is a sample REST request that can be handled by the upvoteAnswerById operation.
 
@@ -220,8 +324,45 @@ Following is a sample REST request that can be handled by the upvoteAnswerById o
 
 **Properties**
 * ids: Id of the answer. e.g. 8940
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* preview: Preview parameter is used for development and testing purposes. When preview is set to true,
+           request will only simulate whether it is a valid request or not and will not change
+           anything on the site.
 
 **Sample request**
+```json
+{
+  "id": 55108393,
+  "preview": true
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [
+    {
+      "owner": {
+        "reputation": 1294,
+        "user_id": 425465,
+        "user_type": "registered",
+        "profile_image": "https://www.gravatar.com/avatar/177b8d33a63edd4ff1c150130f554f83?s=128&d=identicon&r=PG",
+        "display_name": "harlam357",
+        "link": "https://stackoverflow.com/users/425465/harlam357"
+      },
+      "is_accepted": false,
+      "score": 1,
+      "last_activity_date": 1552329779,
+      "creation_date": 1552329779,
+      "answer_id": 55108393,
+      "question_id": 55105701
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9688
+}
+```
 
 Following is a sample REST request that can be handled by the downvoteAnswerById operation.
 
@@ -240,8 +381,45 @@ Following is a sample REST request that can be handled by the downvoteAnswerById
 
 **Properties**
 * ids: Id of the answer. e.g. 8940
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* preview: Preview parameter is used for development and testing purposes. When preview is set to true,
+           request will only simulate whether it is a valid request or not and will not change
+           anything on the site.
 
 **Sample request**
+```json
+{
+  "id": 55108393,
+  "preview": true
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [
+    {
+      "owner": {
+        "reputation": 1294,
+        "user_id": 425465,
+        "user_type": "registered",
+        "profile_image": "https://www.gravatar.com/avatar/177b8d33a63edd4ff1c150130f554f83?s=128&d=identicon&r=PG",
+        "display_name": "harlam357",
+        "link": "https://stackoverflow.com/users/425465/harlam357"
+      },
+      "is_accepted": false,
+      "score": 1,
+      "last_activity_date": 1552329779,
+      "creation_date": 1552329779,
+      "answer_id": 55108393,
+      "question_id": 55105701
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9688
+}
+```
 
 Following is a sample REST request that can be handled by the acceptAnswerById operation.
 

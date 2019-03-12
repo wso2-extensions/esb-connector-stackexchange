@@ -58,10 +58,10 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /**
      * Common property keys for saving StackExchange specific data.
      */
-    public static final String STACKEXCHANGE_HAS_QUESTION = "stackexchange.hasquestion";
-    public static final String STACKEXCHANGE_HAS_QUESTION_WITH_ANSWERS = "stackexchange.hasquestionwithanswers";
-    public static final String STACKEXCHANGE_HAS_ANSWER = "stackexchange.hasanswer";
-    public static final String STACKEXCHANGE_IS_UNACCEPTED_ANSWER = "stackexchange.isunacceptedanswer";
+    public static final String STACKEXCHANGE_HAS_QUESTION = "stackexchange.has_question";
+    public static final String STACKEXCHANGE_HAS_QUESTION_WITH_ANSWERS = "stackexchange.has_question_with_answers";
+    public static final String STACKEXCHANGE_HAS_ANSWER = "stackexchange.has_answer";
+    public static final String STACKEXCHANGE_IS_UNACCEPTED_ANSWER = "stackexchange.is_unaccepted_answer";
     public static final String STACKEXCHANGE_PRIVILEGES = "stackexchange.privileges";
 
     /**
@@ -72,6 +72,8 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     private static final String PROP_KEY_QUESTION_ID = "questionId";
     /* To store a valid answer id */
     private static final String PROP_KEY_ANSWER_ID = "answerId";
+    /* To store an unaccepted answer id */
+    private static final String PROP_KEY_UNACCEPTED_ANSWER_ID = "unacceptedAnswerId";
     /* To store a semicolon delimited set of answer ids */
     private static final String PROP_KEY_ANSWER_ID_LIST = "answerIdList";
     /* To store a semicolon delimited set of site tags */
@@ -150,15 +152,19 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
             } else {
                 boolean hasAcceptedAnswer = false;
                 for (int i = 0; i < placeHolderQuestionAnswerItems.length(); i++) {
-                    Integer placeHolderQuestionAnswerId = placeHolderQuestionAnswerItems.getAt(
-                            SE_RES_KEY_ANSWER_ID, Integer.class, i);
-                    if (isAnswerAccepted(placeHolderQuestionAnswerId, placeHolderQSite)) {
+                    boolean b = placeHolderQuestionAnswerItems.getAt(SE_RES_KEY_IS_ACCEPTED, Boolean.class,0);
+                    if (b) {
                         hasAcceptedAnswer = true;
                         break;
                     }
                 }
                 stackExchangeProperties.setProperty(
                         STACKEXCHANGE_HAS_QUESTION_WITH_ANSWERS, String.valueOf(hasAcceptedAnswer));
+                if (!hasAcceptedAnswer) {
+                    Integer unacceptedAnswerId = placeHolderQuestionAnswerItems.getRandom(
+                            SE_RES_KEY_ANSWER_ID, Integer.class);
+                    connectorProperties.setProperty(PROP_KEY_UNACCEPTED_ANSWER_ID, String.valueOf(unacceptedAnswerId));
+                }
             }
             /* API routes like 'voting up a question' does not allow
                user to up vote his/her own post. In those cases we should
@@ -186,7 +192,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
             stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(false));
         } else {
             stackExchangeProperties.setProperty(STACKEXCHANGE_HAS_ANSWER, String.valueOf(true));
-            if (isAnswerAccepted(Integer.parseInt(placeHolderAId), placeHolderASite)) {
+            if (hasAnswerAccepted(Integer.parseInt(placeHolderAId), placeHolderASite)) {
                 stackExchangeProperties.setProperty(STACKEXCHANGE_IS_UNACCEPTED_ANSWER, String.valueOf(false));
             } else {
                 stackExchangeProperties.setProperty(STACKEXCHANGE_IS_UNACCEPTED_ANSWER, String.valueOf(true));
@@ -205,13 +211,22 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         }
     }
 
-    private boolean isAnswerAccepted(int answerId, String site) throws Exception {
+    private boolean hasAnswerAccepted(int answerId, String site) throws Exception {
         StackExchangeUrl answerUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/answers/" + answerId)
                         .queryParam("site", site).build();
         StackExchangeItems answerItems = getStackExchangeItems( answerUrl);
         return answerItems.getAt(SE_RES_KEY_IS_ACCEPTED, Boolean.class, 0);
     }
+
+    /**
+     * Following are set of custom API routes we have defined for convenience. These routes will help gathering
+     * data to make sure that we have enough data to run a corresponding test. So based on the data we execute
+     * or skip a test. Remember we only have one method ({@code StackExchangeTestUtil.getStackExchangeItems})
+     * to call the API and these are only wrappers to that method. We have categorized them based on the object
+     * they contain in the response.
+     *
+    /* ============================================= Tag routes ============================================= */
 
     private StackExchangeItems getStackExchangeTagItems() throws Exception {
 
@@ -222,12 +237,16 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         return getStackExchangeItems(tagUrl);
     }
 
+    /* ============================================= Filter routes ============================================= */
+
     private StackExchangeItems getStackExchangeFilterItems(String filterName) throws Exception {
 
         StackExchangeUrl filterUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/filters/" + filterName).build();
         return getStackExchangeItems(filterUrl);
     }
+
+    /* ============================================= Question routes ============================================= */
 
     private StackExchangeItems getStackExchangeQuestionItems() throws Exception {
 
@@ -238,6 +257,8 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
                         .queryParam("answers", "1").build();
         return getStackExchangeItems(questionUrl);
     }
+
+    /* ============================================= Answer routes ============================================= */
 
     private StackExchangeItems getStackExchangeAnswerItems(int questionId, String site) throws Exception {
 
@@ -254,6 +275,8 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
                         .queryParam("site", site).build();
         return getStackExchangeItems(answerUrl);
     }
+
+    /* ============================================= Privilege routes ============================================= */
 
     private StackExchangeItems getStackExchangePrivilegeItems(String accessToken) throws Exception {
 
@@ -356,14 +379,6 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testDeleteQuestionByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("deleteQuestionById", TestType.MANDATORY);
-
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
-
-        if (response.getHttpStatusCode() != 200) {
-            LOG.info(clearLogMessage(prettyJson(response.getBody())));
-        }
 
         Assert.assertEquals(response.getHttpStatusCode(), 200);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
@@ -610,6 +625,32 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     public void testDeleteAnswerByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("deleteAnswerById", TestType.MANDATORY);
+
+        if (response.getHttpStatusCode() != 200) {
+            LOG.info(clearLogMessage(prettyJson(response.getBody())));
+        }
+
+        Assert.assertEquals(response.getHttpStatusCode(), 200);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.NO_ERROR);
+    }
+
+    /* ======================================= editAnswerById ======================================= */
+
+    @StackExchange(needMyAnswer = true)
+    @Test(groups = {"wso2.ei"})
+    public void testEditAnswerByIdWithInvalid() throws IOException, JSONException {
+
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("editAnswerById", TestType.INVALID, "missingParameter");
+
+        Assert.assertEquals(response.getHttpStatusCode(), 400);
+        Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
+    }
+
+    @StackExchange(needMyAnswer = true)
+    @Test(groups = {"wso2.ei"})
+    public void testEditAnswerByIdWithMandatory() throws IOException, JSONException {
+
+        RestResponse<JSONObject> response = sendJsonPostReqToEi("editAnswerById", TestType.MANDATORY);
 
         if (response.getHttpStatusCode() != 200) {
             LOG.info(clearLogMessage(prettyJson(response.getBody())));

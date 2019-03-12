@@ -38,14 +38,14 @@
                 "site": "$1",
                 "access_token": "$2",
                 "key": "$3",
-                "body": "$5"
+                "body": "$4"
                 }
             </format>
             <args>
-                <arg evaluator="xml" expression="$ctx.uri.var.site"/>
-                <arg evaluator="xml" expression="$ctx.uri.var.accessToken"/>
-                <arg evaluator="xml" expression="$ctx.uri.var.key"/>
-                <arg evaluator="xml" expression="$ctx.uri.var.postBody"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.site"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.accessToken"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.key"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.postBody"/>
             </args>
         </payloadFactory>
         <script language="js">

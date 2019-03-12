@@ -47,7 +47,6 @@
                 <arg evaluator="xml" expression="$ctx:uri.var.postBody"/>
             </args>
         </payloadFactory>
-        <log level="full" />
         <script language="js">
             <![CDATA[
                 var payload = mc.getPayloadJSON();

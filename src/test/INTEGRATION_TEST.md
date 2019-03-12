@@ -22,7 +22,8 @@
         
         1. **placeHolderQId**: Fill this with a question id that you own in the StackExchange network. This question should belong to the same account that you have been using so far while following above steps. You can simply put your App placeholder post's question id if you don't have any.
         2. **placeHolderAId**: Fill this with an answer id that you own in the StackExchange network. This question should belong to the same account that you have been using so far while following above steps. 
-        3. **placeHolderSite**: Site which above ids belong to.
+        3. **placeHolderQSite**: Site which question id belong to.
+        3. **placeHolderASite**: Site which answer id belong to.
     
 ### Notes
 #### API Key

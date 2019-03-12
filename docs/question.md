@@ -1,5 +1,7 @@
 # Working with Questions in StackExchange
 
+[ [Overview](#overview) ]  [ [Operation details](#operation-details) ]  [ [Sample configuration](#sample-configuration) ]
+
 ### Overview
 The following operations allow you to work with questions in StackExchange. Click an operation name to see details on how to use it. 
 For a sample proxy service that illustrates how to work with questions, see [Sample configuration](#sample-configuration).
@@ -94,6 +96,78 @@ Following is a sample REST request that can be handled by the getQuestionsByUser
 
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/questions-by-ids](https://api.stackexchange.com/docs/questions-by-ids)
+
+### getting the set of questions identified by user ids
+**getQuestionsByUserIds**
+```xml
+<stackexchange.getQuestionsByUserIds>
+    <filter>{$ctx:filter}</filter>
+    <sort>{$ctx:sort}</sort>
+    <page>{$ctx:page}</page>
+    <max>{$ctx:max}</max>
+    <fromdata>{$ctx:fromdata}</fromdata>
+    <order>{$ctx:order}</order>
+    <pagesize>{$ctx:pagesize}</pagesize>
+    <min>{$ctx:min}</min>
+    <todate>{$ctx:todate}</todate>
+</stackexchange.getQuestionsByUserIds>
+```
+
+**Properties**
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* pagesize: Number of items should be stored in a single page.
+* page: Which page to send among many pages in the response.
+* fromdate: Starting date in fromdate to todate window
+* todate: Ending date in fromdate to todate window
+* min: Min value in min to max window
+* max: Max value in min to max window
+* sort: According to which field item list should be sorted  
+* order: Sorting order ascending (asc) or descending (desc)
+
+**Sample request**
+```json
+{
+  "tagged": "rust",
+  "pagesize": 1,
+  "page": 1
+}
+```
+
+**Sample response**
+```json
+{
+  "items": [
+    {
+      "tags": [
+        "elasticsearch",
+        "elasticsearch-aggregation"
+      ],
+      "owner": {
+        "reputation": 1,
+        "user_id": 8700874,
+        "user_type": "registered",
+        "profile_image": "https://www.gravatar.com/avatar/7b3c8dd9e6a2349673be166e8eb1c5d5?s=128&d=identicon&r=PG&f=1",
+        "display_name": "Saravanan",
+        "link": "https://stackoverflow.com/users/8700874/saravanan"
+      },
+      "is_answered": false,
+      "view_count": 2,
+      "answer_count": 0,
+      "score": 0,
+      "last_activity_date": 1552358792,
+      "creation_date": 1552358792,
+      "question_id": 55113371,
+      "link": "https://stackoverflow.com/questions/55113371/aggregations-in-elastic-search",
+      "title": "Aggregations in Elastic Search"
+    }
+  ]
+}
+```
+
+Following is a sample REST request that can be handled by the getQuestionsByUserIds operation.
+
+**Related StackExchange API documentation**
+[https://api.stackexchange.com/docs/no-answer-questions](https://api.stackexchange.com/docs/no-answer-questions)
 
 ### Adding an question
 **addQuestion**
@@ -207,6 +281,9 @@ Following is a sample REST request that can be handled by the deleteQuestion ope
 ```xml
 <stackexchange.editQuestionById>
     <id>{$ctx:id}</id>
+    <title>{$ctx:title}</title>
+    <comment>{$ctx:comment}</comment>
+    <tags>{$ctx:tags}</tags>
     <postBody>{$ctx:postBody}</postBody>
     <preview>{$ctx:preview}</preview>
     <filter>{$ctx:filter}</filter>
@@ -215,6 +292,10 @@ Following is a sample REST request that can be handled by the deleteQuestion ope
 
 **Properties**
 * id: Id of the question. e.g. 8940
+* title: Title of the question.
+* comment: Comment about the edit.
+* tags: Semicolon delimited set of tags for the question.
+* postBody: Body of the question.
 * filter: Filter you have chosen to filter fields in the response. e.g. default
 * preview: Preview parameter is used for development and testing purposes. When preview is set to true,
            request will only simulate whether it is a valid request or not and will not change
@@ -282,7 +363,11 @@ Following is a sample REST request that can be handled by the editQuestionById o
 ```
 
 **Properties**
-* ids: Id of the question. e.g. 8940
+* id: Id of the question. e.g. 8940
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* preview: Preview parameter is used for development and testing purposes. When preview is set to true,
+           request will only simulate whether it is a valid request or not and will not change
+           anything on the site.
 
 **Sample request**
 
@@ -302,7 +387,11 @@ Following is a sample REST request that can be handled by the upvoteQuestionById
 ```
 
 **Properties**
-* ids: Id of the question. e.g. 8940
+* id: Id of the question. e.g. 8940
+* filter: Filter you have chosen to filter fields in the response. e.g. default
+* preview: Preview parameter is used for development and testing purposes. When preview is set to true,
+           request will only simulate whether it is a valid request or not and will not change
+           anything on the site.
 
 **Sample request**
 
@@ -310,23 +399,3 @@ Following is a sample REST request that can be handled by the downvoteQuestionBy
 
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/downvote-question](https://api.stackexchange.com/docs/downvote-question)
-
-### Accepting an question
-**acceptQuestionById**
-```xml
-<stackexchange.acceptQuestionById>
-    <id>{$ctx:id}</id>
-    <preview>{$ctx:preview}</preview>
-    <filter>{$ctx:filter}</filter>
-</stackexchange.acceptQuestionById>
-```
-
-**Properties**
-* ids: Id of the question. e.g. 8940
-
-**Sample request**
-
-Following is a sample REST request that can be handled by the acceptQuestionById operation.
-
-**Related StackExchange API documentation**
-[https://api.stackexchange.com/docs/accept-question](https://api.stackexchange.com/docs/accept-question)

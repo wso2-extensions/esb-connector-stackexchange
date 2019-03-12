@@ -15,41 +15,30 @@ public @interface StackExchange {
     String PRIVILEGE_DEFAULT = "create posts";
 
     /**
-     * Return whether the privileges checking should be skipped.
-     *
      * @return whether the privileges checking should be skipped.
      */
     boolean skipPrivilegeCheck() default false;
 
     /**
-     * Return whether the specific method needs an answer id created by user.
-     *
      * @return whether the specific method needs an answer id created by user.
      */
     boolean needMyAnswer() default false;
 
     /**
-     * Return whether the specific method needs an question id created by user.
-     *
      * @return whether the specific method needs an question id created by user.
      */
     boolean needMyQuestion() default false;
 
     /**
-     *
-     * @return
+     * @return whether the specific method needs an question id with at least one answer created by user.
      */
     boolean needMyQuestionWithAnswers() default false;
     /**
-     * Return whether the specific method needs an unaccepted answer id created by user.
-     *
      * @return whether the specific method needs an unaccepted answer id created by user.
      */
     boolean needUnacceptedAnswer() default false;
 
     /**
-     * Return the privilege need to execute the test method successfully.
-     *
      * @return the privilege need to execute the test method successfully.
      */
     String privilege() default PRIVILEGE_DEFAULT;
