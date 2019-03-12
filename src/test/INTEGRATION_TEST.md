@@ -42,4 +42,3 @@ As described earlier, in order to prevent abuse, the API implements a number of 
 handle these kind of failures to reduce the complexity of tests. Refer following guides if you run into any unexpected failures.
 * [throttles](https://api.stackexchange.com/docs/throttle)
 * [error-you-can-only-post-once-every-90-minutes-but-i-havent-posted-in-days](https://meta.stackoverflow.com/questions/259941/error-you-can-only-post-once-every-90-minutes-but-i-havent-posted-in-days)
-
