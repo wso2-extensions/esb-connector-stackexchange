@@ -1,6 +1,6 @@
 # esb-connector-stackexchange
 
-The StackExchange Connector allows you to access the [StackExchange REST API](https://api.stackexchange.com/docs) 
+The StackExchange [Connector](https://docs.wso2.com/display/EI640/Working+with+Connectors) allows you to access the [StackExchange REST API](https://api.stackexchange.com/docs) 
 through WSO2 Enterprise Integrator (WSO2 EI). StackExchange is a network of question-and-answer websites on topics in 
 diverse fields, each site covering a specific topic, where questions, answers, and users are subject to a reputation 
 award process. The reputation system allows the sites to be self-moderating.
