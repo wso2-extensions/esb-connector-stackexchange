@@ -83,7 +83,8 @@ public class TestNgExecutionListener implements IInvokedMethodListener {
                 if (!Boolean.parseBoolean(hasQ)) {
                     iTestResult.setStatus(TestResult.SKIP);
                     throw new SkipException(
-                            "Cannot execute this test due to lack of data hence skipping: No question id found with valid answer(s).");
+                            "Cannot execute this test due to lack of data hence skipping: " +
+                                    "No question id found with valid answer(s).");
                 }
             }
             /* Test method has stored the privilege which user should have gained to run the test method.

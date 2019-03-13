@@ -20,7 +20,7 @@
     <subComponents>
         <component name="getAnswersByIds">
             <file>getAnswersByIds.xml</file>
-            <description>Get questions specified by one or more ids</description>
+            <description>Get answers specified by one or more ids</description>
         </component>
         <component name="acceptAnswerById">
             <file>acceptAnswerById.xml</file>

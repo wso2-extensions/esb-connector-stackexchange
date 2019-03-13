@@ -71,8 +71,6 @@ public class DecompressMediator extends AbstractMediator {
      */
     private String getNamespaceURI(MessageContext context) {
 
-        return context.getConfiguration()
-                .getDefaultQName()
-                .getNamespaceURI();
+        return context.getConfiguration().getDefaultQName().getNamespaceURI();
     }
 }

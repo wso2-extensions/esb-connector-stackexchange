@@ -33,10 +33,7 @@ public class CommonTestUtil {
      */
     public static String getConnectorName() {
 
-        return System.getProperty("connector_name") +
-                "-connector-" +
-                System.getProperty("connector_version") +
-                ".zip";
+        return System.getProperty("connector_name") + "-connector-" + System.getProperty("connector_version") + ".zip";
     }
 
     /**

@@ -37,7 +37,7 @@
         <automation.framework.version>4.4.3</automation.framework.version>
         <synapse.version>2.1.7-wso2v19</synapse.version>
         <carbon.mediation.version>4.6.19</carbon.mediation.version>
-        <json.version>20080701</json.version>
+        <json.version>20090211</json.version>
         <org.testng.version>6.14.3</org.testng.version>
         <httpmime.version>4.3.6</httpmime.version>
         <jets3t.version>0.9.4</jets3t.version>
@@ -59,7 +59,7 @@
             <version>${synapse.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.json.wso2</groupId>
+            <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>${json.version}</version>
         </dependency>
@@ -153,11 +153,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <version>${httpmime.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>${json.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.ei</groupId>

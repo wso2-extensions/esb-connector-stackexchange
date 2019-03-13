@@ -49,8 +49,6 @@ import static org.wso2.carbon.connector.integration.test.StackExchangeTestUtil.g
 @Listeners(TestNgExecutionListener.class)
 public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationTestBase {
 
-    private static final Log LOG = LogFactory.getLog(StackExchangeConnectorIntegrationTest.class);
-
     public static final Properties stackExchangeProperties = new Properties();
 
     /**
@@ -127,7 +125,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         /* Save few tags specific to the site */
         StackExchangeItems tagItems = getStackExchangeTagItems();
         String[] tagNameArray = tagItems.getAll(SE_RES_KEY_NAME, String.class);
-        setListLikePropertyInConnector(PROP_KEY_SITE_TAGS, tagNameArray);
+        setListLikeProperties(connectorProperties, PROP_KEY_SITE_TAGS, tagNameArray);
 
         /* Create a common wrapper using filter route */
         StackExchangeItems filterItems = getStackExchangeFilterItems(filterName);
@@ -150,8 +148,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
             } else {
                 boolean hasAcceptedAnswer = false;
                 for (int i = 0; i < placeHolderQuestionAnswerItems.length(); i++) {
-                    boolean b = placeHolderQuestionAnswerItems.getAt(SE_RES_KEY_IS_ACCEPTED, Boolean.class,0);
-                    if (b) {
+                    if (placeHolderQuestionAnswerItems.getAt(SE_RES_KEY_IS_ACCEPTED, Boolean.class,0)) {
                         hasAcceptedAnswer = true;
                         break;
                     }
@@ -183,7 +180,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Integer answerId = answerItems.getRandom(SE_RES_KEY_ANSWER_ID, Integer.class);
         Integer[] answerIdArray = answerItems.getAll(SE_RES_KEY_ANSWER_ID, Integer.class);
         connectorProperties.setProperty(PROP_KEY_ANSWER_ID, String.valueOf(answerId));
-        setListLikePropertyInConnector(PROP_KEY_ANSWER_ID_LIST, answerIdArray);
+        setListLikeProperties(connectorProperties, PROP_KEY_ANSWER_ID_LIST, answerIdArray);
 
         /* Save availability of Placeholder answer id */
         if (StringUtils.isEmpty(placeHolderAId)) {
@@ -202,8 +199,9 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         if (StringUtils.isNotEmpty(accessToken) && StringUtils.isNotEmpty(key)) {
             /* Save privilege wordings belong to given credentials */
             StackExchangeItems privilegeItems = getStackExchangePrivilegeItems(accessToken);
-            String[] privilegeShortDescriptionArray = privilegeItems.getAll(SE_RES_KEY_SHORT_DESCRIPTION, String.class);
-            setListLikePropertyInSystem(STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
+            String[] privilegeShortDescriptionArray =
+                    privilegeItems.getAll(SE_RES_KEY_SHORT_DESCRIPTION, String.class);
+            setListLikeProperties(stackExchangeProperties, STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
         } else {
             /* Set defaults */
             stackExchangeProperties.setProperty(STACKEXCHANGE_PRIVILEGES, StackExchange.PRIVILEGE_DEFAULT);
@@ -225,14 +223,14 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         return answerItems.getAt(SE_RES_KEY_IS_ACCEPTED, Boolean.class, 0);
     }
 
-    /**
+    /*
      * Following are set of custom API routes we have defined for convenience. These routes will help gathering
      * data to make sure that we have enough data to run a corresponding test. So based on the data we execute
      * or skip a test. Remember we only have one method ({@code StackExchangeTestUtil.getStackExchangeItems})
      * to call the API and these are only wrappers to that method. We have categorized them based on the object
      * they contain in the response.
      *
-    /* ============================================= Tag routes ============================================= */
+     * ============================================= Tag routes ============================================= */
 
     /**
      * @return the Tag items belong to the {@code site}
@@ -264,9 +262,9 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ============================================= Question routes ============================================= */
 
     /**
+     * Return the question items with at least one answer.
      *
-     * @return
-     * @throws Exception
+     * @return the question items with at least one answer.
      */
     private StackExchangeItems getStackExchangeQuestionItems() throws Exception {
 
@@ -280,6 +278,13 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ============================================= Answer routes ============================================= */
 
+    /**
+     * Return all the answers belong to the given question.
+     *
+     * @param questionId the id of the question.
+     * @param site the site question belong to.
+     * @return all the answers belong to the given question.
+     */
     private StackExchangeItems getStackExchangeAnswerItems(int questionId, String site) throws Exception {
 
         StackExchangeUrl answerUrl =
@@ -288,6 +293,12 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         return getStackExchangeItems(answerUrl);
     }
 
+    /**
+     * Return all the answers belong to the given question.
+     *
+     * @param questionId the id of the question.
+     * @return all the answers belong to the given question.
+     */
     private StackExchangeItems getStackExchangeAnswerItems(int questionId) throws Exception {
 
         StackExchangeUrl answerUrl =
@@ -298,6 +309,12 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ============================================= Privilege routes ============================================= */
 
+    /**
+     * Return all the privileges user has gained in the {@code site}.
+     *
+     * @param accessToken the access token of the user.
+     * @return all the privileges user has gained in the {@code site}.
+     */
     private StackExchangeItems getStackExchangePrivilegeItems(String accessToken) throws Exception {
 
         StackExchangeUrl privilegeUrl =
@@ -308,16 +325,24 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         return getStackExchangeItems(privilegeUrl);
     }
 
-    private <T> void setListLikePropertyInSystem(String propertyName, T[] array) {
+    /**
+     * Set list like property values in the given properties instance.
+     *
+     * @param properties the property instance.
+     * @param propertyName the name of the property.
+     * @param array the data array.
+     */
+    private <T> void setListLikeProperties(Properties properties, String propertyName, T[] array) {
 
-        stackExchangeProperties.setProperty(propertyName, getTArrayAsSemicolonDelimitedString(array));
+        properties.setProperty(propertyName, getTArrayAsSemicolonDelimitedString(array));
     }
 
-    private <T> void setListLikePropertyInConnector(String propertyName, T[] array) {
-
-        connectorProperties.setProperty(propertyName, getTArrayAsSemicolonDelimitedString(array));
-    }
-
+    /**
+     * Return an array of data as a semicolon delimited string.
+     *
+     * @param array the data array.
+     * @return an array of data as a semicolon delimited string.
+     */
     private <T> String getTArrayAsSemicolonDelimitedString(T[] array) {
 
         StringBuilder builder = new StringBuilder();
@@ -333,17 +358,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= getUsersByIds ======================================= */
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {getUsersByIds} test with invalid parameters")
     public void testUsersByIdsWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("getUsersByIds", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "getUsersByIds", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {getUsersByIds} test with mandatory parameters")
     public void testGetUsersByIdsWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getUsersByIds", TestType.MANDATORY);
@@ -355,17 +381,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= addQuestion ======================================= */
 
     @StackExchange
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {addQuestion} test with invalid parameters")
     public void testAddQuestionWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("addQuestion", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "addQuestion", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {addQuestion} test with mandatory parameters")
     public void testAddQuestionWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("addQuestion", TestType.MANDATORY);
@@ -377,17 +404,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= deleteQuestionById ======================================= */
 
     @StackExchange(needMyQuestion = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {deleteQuestionById} test with invalid parameters")
     public void testDeleteQuestionByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("deleteQuestionById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "deleteQuestionById", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(needMyQuestion = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {deleteQuestionById} test with mandatory parameters")
     public void testDeleteQuestionByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("deleteQuestionById", TestType.MANDATORY);
@@ -399,17 +427,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= downvoteQuestionById ======================================= */
 
     @StackExchange(privilege = "vote down")
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {downvoteQuestionById} test with invalid parameters")
     public void testDownvoteQuestionByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("downvoteQuestionById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "downvoteQuestionById", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(privilege = "vote down")
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {downvoteQuestionById} test with mandatory parameters")
     public void testDownvoteQuestionByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("downvoteQuestionById", TestType.MANDATORY);
@@ -421,17 +450,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= editQuestionById ======================================= */
 
     @StackExchange(needMyQuestion = true, skipPrivilegeCheck = true, privilege = "edit questions and answers")
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {editQuestionById} test with invalid parameters")
     public void testEditQuestionByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("editQuestionById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "editQuestionById", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(needMyQuestion = true, skipPrivilegeCheck = true, privilege = "edit questions and answers")
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {editQuestionById} test with mandatory parameters")
     public void testEditQuestionByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("editQuestionById", TestType.MANDATORY);
@@ -443,17 +473,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= upvoteQuestionById ======================================= */
 
     @StackExchange(privilege = "vote up")
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {upvoteQuestionById} test with invalid parameters")
     public void testUpvoteQuestionByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("upvoteQuestionById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "upvoteQuestionById", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(privilege = "vote up")
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {upvoteQuestionById} test with mandatory parameters")
     public void testUpvoteQuestionByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("upvoteQuestionById", TestType.MANDATORY);
@@ -465,17 +496,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= getQuestionsByUserIds ======================================= */
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {getQuestionsByUserIds} test with invalid parameters")
     public void testGetQuestionsByUserIdsWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "getQuestionsByUserIds", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {getQuestionsByUserIds} test with mandatory parameters")
     public void testGetQuestionsByUserIdsWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.MANDATORY);
@@ -485,7 +517,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     }
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {getQuestionsByUserIds} test with paging parameters")
     public void testGetQuestionsByUserIdsWithPaging() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsByUserIds", TestType.PAGING);
@@ -497,17 +529,19 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= getQuestionsWithNoAnswers ======================================= */
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {getQuestionsWithNoAnswers} test with invalid parameters")
     public void testGetQuestionsWithNoAnswersWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "getQuestionsWithNoAnswers", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"},
+            description = "stackexchange {getQuestionsWithNoAnswers} test with mandatory parameters")
     public void testGetQuestionsWithNoAnswersWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.MANDATORY);
@@ -517,7 +551,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     }
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {getQuestionsWithNoAnswers} test with optional parameters")
     public void testGetQuestionsWithNoAnswersWithOptional() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.OPTIONAL);
@@ -527,7 +561,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     }
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {getQuestionsWithNoAnswers} test with paging parameters")
     public void testGetQuestionsWithNoAnswersWithPaging() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getQuestionsWithNoAnswers", TestType.PAGING);
@@ -539,17 +573,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= acceptAnswerById ======================================= */
 
     @StackExchange(needMyQuestionWithAnswers = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {acceptAnswerById} test with invalid parameters")
     public void testAcceptAnswerByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("acceptAnswerById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "acceptAnswerById", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(needMyQuestionWithAnswers = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {acceptAnswerById} test with mandatory parameters")
     public void testAcceptAnswerByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("acceptAnswerById", TestType.MANDATORY);
@@ -561,17 +596,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= addAnswer ======================================= */
 
     @StackExchange
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {acceptAnswerById} test with invalid parameters")
     public void testAddAnswerWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("addAnswer", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "addAnswer", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {acceptAnswerById} test with mandatory parameters")
     public void testAddAnswerWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("addAnswer", TestType.MANDATORY);
@@ -583,17 +619,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= deleteAnswerById ======================================= */
 
     @StackExchange(needMyAnswer = true, needUnacceptedAnswer = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {deleteAnswerById} test with invalid parameters")
     public void testDeleteAnswerByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("deleteAnswerById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "deleteAnswerById", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(needMyAnswer = true, needUnacceptedAnswer = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {deleteAnswerById} test with mandatory parameters")
     public void testDeleteAnswerByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("deleteAnswerById", TestType.MANDATORY);
@@ -605,7 +642,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= editAnswerById ======================================= */
 
     @StackExchange(needMyAnswer = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {editAnswerById} test with invalid parameters")
     public void testEditAnswerByIdWithInvalid() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("editAnswerById", TestType.INVALID, "missingParameter");
@@ -615,7 +652,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     }
 
     @StackExchange(needMyAnswer = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {editAnswerById} test with mandatory parameters")
     public void testEditAnswerByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("editAnswerById", TestType.MANDATORY);
@@ -627,17 +664,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= downvoteAnswerById ======================================= */
 
     @StackExchange(privilege = "vote down")
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {downvoteAnswerById} test with invalid parameters")
     public void testDownvoteAnswerByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("downvoteAnswerById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "downvoteAnswerById", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(privilege = "vote down")
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {downvoteAnswerById} test with mandatory parameters")
     public void testDownvoteAnswerByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("downvoteAnswerById", TestType.MANDATORY);
@@ -649,17 +687,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= upvoteAnswerById ======================================= */
 
     @StackExchange(privilege = "vote up")
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {upvoteAnswerById} test with mandatory parameters")
     public void testUpvoteAnswerByIdWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("upvoteAnswerById", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "upvoteAnswerById", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(privilege = "vote up")
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {upvoteAnswerById} test with mandatory parameters")
     public void testUpvoteAnswerByIdWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("upvoteAnswerById", TestType.MANDATORY);
@@ -671,17 +710,18 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     /* ======================================= getAnswersByIds ======================================= */
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {getAnswersByIds} test with invalid parameters")
     public void testGetAnswersByIdsWithInvalid() throws IOException, JSONException {
 
-        RestResponse<JSONObject> response = sendJsonPostReqToEi("getAnswersByIds", TestType.INVALID, "missingParameter");
+        RestResponse<JSONObject> response = sendJsonPostReqToEi(
+                "getAnswersByIds", TestType.INVALID, "missingParameter");
 
         Assert.assertEquals(response.getHttpStatusCode(), 400);
         Assert.assertEquals(stackExchangeCommonWrapper.fetchWrapperType(response.getBody()), WrapperType.ERROR);
     }
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {getAnswersByIds} test with mandatory parameters")
     public void testGetAnswersByIdsWithMandatory() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getAnswersByIds", TestType.MANDATORY);
@@ -691,7 +731,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
     }
 
     @StackExchange(skipPrivilegeCheck = true)
-    @Test(groups = {"wso2.ei"})
+    @Test(groups = {"wso2.ei"}, description = "stackexchange {getAnswersByIds} test with paging parameters")
     public void testGetAnswersByIdsWithPaging() throws IOException, JSONException {
 
         RestResponse<JSONObject> response = sendJsonPostReqToEi("getAnswersByIds", TestType.PAGING);
@@ -702,19 +742,37 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ======================================= Helpers  ======================================= */
 
+    /**
+     * Send a http POST request to EI and return the response as a JSONObject.
+     *
+     * @param method the name of the method.
+     * @param type the type of the test.
+     * @param suffix the suffix of the filename.
+     * @return the response as a JSONObject.
+     * @throws IOException if we have a trouble opening the parameter value file.
+     * @throws JSONException if underline method have troible converting the response to JSON.
+     */
     private RestResponse<JSONObject> sendJsonPostReqToEi(String method, TestType type)
             throws IOException, JSONException {
 
         return sendJsonPostReqToEi(method, type, null);
     }
 
+    /**
+     * Send a http POST request to EI and return the response as a JSONObject.
+     *
+     * @param method the name of the method.
+     * @param type the type of the test.
+     * @param suffix the suffix of the filename.
+     * @return the response as a JSONObject.
+     * @throws IOException if we have a trouble opening the parameter value file.
+     * @throws JSONException if underline method have troible converting the response to JSON.
+     */
     private RestResponse<JSONObject> sendJsonPostReqToEi(String method, TestType type, String suffix)
             throws IOException, JSONException {
 
         eiRequestHeadersMap.put("Action", String.format("urn:%s", method));
-        return sendJsonRestRequest(proxyUrl,
-                "POST",
-                eiRequestHeadersMap,
-                getFilenameOfPayload(method, type, suffix));
+        return sendJsonRestRequest(
+                proxyUrl, "POST", eiRequestHeadersMap, getFilenameOfPayload(method, type, suffix));
     }
 }
