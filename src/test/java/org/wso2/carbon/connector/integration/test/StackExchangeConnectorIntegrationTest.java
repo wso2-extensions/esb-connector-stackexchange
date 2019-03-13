@@ -210,6 +210,13 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         }
     }
 
+    /**
+     * Return whether the answer given by answer id is accepted.
+     *
+     * @param answerId the id the answer.
+     * @param site the site answer id belong to.
+     * @return whether the answer given by answer id is accepted.
+     */
     private boolean hasAnswerAccepted(int answerId, String site) throws Exception {
         StackExchangeUrl answerUrl =
                 new StackExchangeUrl.Builder(apiVersion, "/answers/" + answerId)
@@ -227,6 +234,9 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
      *
     /* ============================================= Tag routes ============================================= */
 
+    /**
+     * @return the Tag items belong to the {@code site}
+     */
     private StackExchangeItems getStackExchangeTagItems() throws Exception {
 
         StackExchangeUrl tagUrl =
@@ -238,6 +248,12 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ============================================= Filter routes ============================================= */
 
+    /**
+     * Return filter items to the given filter.
+     *
+     * @param filterName the name of the filter
+     * @return the filter items to the given filter.
+     */
     private StackExchangeItems getStackExchangeFilterItems(String filterName) throws Exception {
 
         StackExchangeUrl filterUrl =
@@ -247,6 +263,11 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
 
     /* ============================================= Question routes ============================================= */
 
+    /**
+     *
+     * @return
+     * @throws Exception
+     */
     private StackExchangeItems getStackExchangeQuestionItems() throws Exception {
 
         StackExchangeUrl questionUrl =
