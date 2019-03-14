@@ -18,8 +18,6 @@
 package org.wso2.carbon.connector.integration.test;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.Assert;
@@ -125,7 +123,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         /* Save few tags specific to the site */
         StackExchangeItems tagItems = getStackExchangeTagItems();
         String[] tagNameArray = tagItems.getAll(SE_RES_KEY_NAME, String.class);
-        setListLikeProperties(connectorProperties, PROP_KEY_SITE_TAGS, tagNameArray);
+        setProperties(connectorProperties, PROP_KEY_SITE_TAGS, tagNameArray);
 
         /* Create a common wrapper using filter route */
         StackExchangeItems filterItems = getStackExchangeFilterItems(filterName);
@@ -180,7 +178,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
         Integer answerId = answerItems.getRandom(SE_RES_KEY_ANSWER_ID, Integer.class);
         Integer[] answerIdArray = answerItems.getAll(SE_RES_KEY_ANSWER_ID, Integer.class);
         connectorProperties.setProperty(PROP_KEY_ANSWER_ID, String.valueOf(answerId));
-        setListLikeProperties(connectorProperties, PROP_KEY_ANSWER_ID_LIST, answerIdArray);
+        setProperties(connectorProperties, PROP_KEY_ANSWER_ID_LIST, answerIdArray);
 
         /* Save availability of Placeholder answer id */
         if (StringUtils.isEmpty(placeHolderAId)) {
@@ -201,7 +199,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
             StackExchangeItems privilegeItems = getStackExchangePrivilegeItems(accessToken);
             String[] privilegeShortDescriptionArray =
                     privilegeItems.getAll(SE_RES_KEY_SHORT_DESCRIPTION, String.class);
-            setListLikeProperties(stackExchangeProperties, STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
+            setProperties(stackExchangeProperties, STACKEXCHANGE_PRIVILEGES, privilegeShortDescriptionArray);
         } else {
             /* Set defaults */
             stackExchangeProperties.setProperty(STACKEXCHANGE_PRIVILEGES, StackExchange.PRIVILEGE_DEFAULT);
@@ -332,7 +330,7 @@ public class StackExchangeConnectorIntegrationTest extends ConnectorIntegrationT
      * @param propertyName the name of the property.
      * @param array the data array.
      */
-    private <T> void setListLikeProperties(Properties properties, String propertyName, T[] array) {
+    private <T> void setProperties(Properties properties, String propertyName, T[] array) {
 
         properties.setProperty(propertyName, getTArrayAsSemicolonDelimitedString(array));
     }
