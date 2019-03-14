@@ -83,11 +83,7 @@ public class StackExchangeUrl {
          */
         public Builder queryParam(String key, String val) {
 
-            queryParamBuilder
-                    .append("&")
-                    .append(key)
-                    .append("=")
-                    .append(val);
+            queryParamBuilder.append("&").append(key).append("=").append(val);
             return this;
         }
 
@@ -112,12 +108,8 @@ public class StackExchangeUrl {
     private StackExchangeUrl(Builder builder) throws MalformedURLException {
 
         String queryParams = builder.queryParamBuilder.toString();
-        StringBuilder urlBuilder = new StringBuilder()
-                .append("https://")
-                .append(API_DOMAIN)
-                .append("/")
-                .append(builder.version)
-                .append(builder.path);
+        StringBuilder urlBuilder = new StringBuilder().append("https://").append(API_DOMAIN).append("/")
+                .append(builder.version).append(builder.path);
         if (!queryParams.isEmpty()) {
             urlBuilder.append("?").append(queryParams);
         }
