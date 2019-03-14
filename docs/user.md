@@ -91,3 +91,83 @@ Following is a sample REST request that can be handled by the getUsersByIds oper
 **Related StackExchange API documentations**
 * [https://api.stackexchange.com/docs/users-by-ids](https://api.stackexchange.com/docs/users-by-ids)
 * [https://api.stackexchange.com/docs/me](https://api.stackexchange.com/docs/me)
+
+## Sample configuration
+
+Following example illustrates how to connect to StackExchange with the init operation and getUsersByIds operation.
+
+1. Create a sample proxy as below :
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<proxy name="stackexchange_getUsersByIds" startOnLoad="true" statistics="disable" trace="disable" transports="http,https" xmlns="http://ws.apache.org/ns/synapse">
+  <target>
+    <inSequence>
+      <property expression="json-eval($.ids)" name="ids"/>
+      <property expression="json-eval($.accessToken)" name="accessToken"/>
+      <property expression="json-eval($.key)" name="key"/>
+      <property expression="json-eval($.site)" name="site"/>
+      <stackexchange.init>
+        <site>{$ctx:site}</site>
+        <key>{$ctx:key}</key>
+        <accessToken>{$ctx:accessToken}</accessToken>
+      </stackexchange.init>
+      <stackexchange.getUsersByIds>
+        <ids>{$ctx:ids}</ids>
+      </stackexchange.getUsersByIds>
+      <respond/>
+    </inSequence>
+    <outSequence/>
+    <faultSequence/>
+  </target>
+</proxy>
+```
+
+2. Create a json file called `stackexchange_getUsersByIds.json` containing the following json:
+```json
+{
+  "key": "<key>",
+  "accessToken": "<access_token>",
+  "site": "<site>",
+  "ids": "me"
+}
+```
+
+3. Replace site, key, access_token with your values.
+
+4. Execute the following cURL command:
+```
+curl http://sujanan-ThinkPad-T530:8280/services/stackexchange_getUsersByIds -H 'Content-Type: application/json' -d @stackexchange_getUsersByIds.json
+```
+
+5. StackExchange will returns an json response as below :
+```json
+{
+  "items": [
+    {
+      "badge_counts": {
+        "bronze": 0,
+        "silver": 0,
+        "gold": 0
+      },
+      "account_id": 12508075,
+      "is_employee": false,
+      "last_access_date": 1552368972,
+      "reputation_change_year": 0,
+      "reputation_change_quarter": 0,
+      "reputation_change_month": 0,
+      "reputation_change_week": 0,
+      "reputation_change_day": 0,
+      "reputation": 1,
+      "creation_date": 1536978020,
+      "user_type": "registered",
+      "user_id": 55362,
+      "link": "https://stackapps.com/users/55362/dhanu",
+      "profile_image": "https://lh6.googleusercontent.com/-fxyNTmd3fOc/AAAAAAAAAAI/AAAAAAAAADw/jTw3x-DCCJs/photo.jpg?sz=128",
+      "display_name": "Dhanu"
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9956
+}
+```

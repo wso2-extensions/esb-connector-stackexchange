@@ -5,7 +5,24 @@ through WSO2 Enterprise Integrator (WSO2 EI). StackExchange is a network of ques
 diverse fields, each site covering a specific topic, where questions, answers, and users are subject to a reputation 
 award process. The reputation system allows the sites to be self-moderating.
 
+## Compatibility
+
+| Connector version | StackExchange API version | Supported WSO2 EI version |
+| ------------- | ------------- | ------------- |
+| [1.0.0](https://github.com/wso2-extensions/esb-connector-stackexchange/releases/tag/org.wso2.carbon.connector.stackexchange-1.0.0) | 2.2 | EI 6.4.0 |
+
 ## Getting started
+
+###### Download and install the connector
+
+1. Download the connector from [WSO2 Store](https://store.wso2.com/store/assets/esbconnector/details/7181a316-bcac-4cbe-a617-a795abe4dcf3) by clicking the Download Connector button.
+2. Then you can follow this [Documentation](https://docs.wso2.com/display/EI640/Working+with+Connectors+via+the+Management+Console) to add and enable the connector via the Management Console in your EI instance.
+3. For more information on using connectors and their operations in your EI configurations, see [Using a Connector](https://docs.wso2.com/display/EI640/Using+a+Connector).
+4. If you want to work with connectors via EI tooling, see [Working with Connectors via Tooling](https://docs.wso2.com/display/EI640/Working+with+Connectors+via+Tooling).
+
+###### Configuring the connector operations
+
+To get started with google spreadsheet connector and their operations, see [Configuring StackExchnge Operations](docs/config.md).
 
 ## Building From the Source
 

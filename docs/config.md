@@ -29,3 +29,11 @@ Add the following <stackexchange.init> method in your configuration:
 * site:  Site you wish to access in StackExchange network. e.g. stackoverflow, askubuntu
 * key: API key related to your App.
 * accessToken: OAuth2.0 access token.
+
+<br>
+
+Now that you have connected to StackExchange, use the information in the following topics to perform various operations with the StackExchange connector.
+
+* To work with answers, See [Working with Answer operations](answer.md).
+* To work with questions, See [Working with Question Operations](question.md).
+* To work with users, see [Working with User Operations](user.md).

@@ -491,3 +491,94 @@ Following is a sample REST request that can be handled by the downvoteQuestionBy
 
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/downvote-question](https://api.stackexchange.com/docs/downvote-question)
+
+## Sample configuration
+
+Following example illustrates how to connect to StackExchange with the init operation and addQuestion operation.
+
+1. Create a sample proxy as below :
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<proxy name="stackexchange_addQuestion" 
+       startOnLoad="true" 
+       statistics="disable" 
+       trace="disable" 
+       transports="http,https" xmlns="http://ws.apache.org/ns/synapse">
+  <target>
+    <inSequence>
+      <property expression="json-eval($.postBody)" name="postBody"/>
+      <property expression="json-eval($.title)" name="title"/>
+      <property expression="json-eval($.preview)" name="preview"/>
+      <property expression="json-eval($.site)" name="site"/>
+      <property expression="json-eval($.tags)" name="tags"/>
+      <property expression="json-eval($.accessToken)" name="accessToken"/>
+      <property expression="json-eval($.site)" name="site"/>
+      <property expression="json-eval($.key)" name="key"/>
+      <stackexchange.init>
+        <key>{$ctx:key}</key>
+        <site>{$ctx:site}</site>
+        <accessToken>{$ctx:accessToken}</accessToken>
+      </stackexchange.init>
+      <stackexchange.addQuestion>
+        <tags>{$ctx:tags}</tags>
+        <site>{$ctx:site}</site>
+        <preview>{$ctx:preview}</preview>
+        <title>{$ctx:title}</title>
+        <postBody>{$ctx:postBody}</postBody>
+      </stackexchange.addQuestion>
+      <respond/>
+    </inSequence>
+    <outSequence/>
+    <faultSequence/>
+  </target>
+</proxy>
+```
+
+2. Create a json file called `stackexchange_addQuestion.json` containing the following json:
+```json
+{
+  "key": "<key>",
+  "accessToken": "<access_token>",
+  "site": "<site>",
+  "title": "URLConnection does not decompress Gzip",
+  "postBody": "A simple compressed response from URLConnection instance should be decompressed if Accept-Encoding headers are set correctly. But doesn't do that. Have you experienced this type of problem?",
+  "tags": "java",
+  "preview": true
+}
+```
+
+3. Replace site, key, access_token with your values.
+
+4. Execute the following cURL command:
+```
+curl http://sujanan-ThinkPad-T530:8280/services/stackexchange_addQuestion -H 'Content-Type: application/json' -d @stackexchange_addQuestion.json
+```
+
+5. StackExchange will returns an json response as below :
+```json
+{
+  "items": [
+    {
+      "tags": [
+        "java"
+      ],
+      "owner": {
+        "reputation": 16,
+        "user_id": 9104301,
+        "user_type": "registered",
+        "profile_image": "https://lh6.googleusercontent.com/-fxyNTmd3fOc/AAAAAAAAAAI/AAAAAAAAADw/jTw3x-DCCJs/photo.jpg?sz=128",
+        "display_name": "Dhanu",
+        "link": "https://stackoverflow.com/users/9104301/dhanu"
+      },
+      "is_answered": false,
+      "score": 0,
+      "last_activity_date": 1552540897,
+      "creation_date": 1552540897,
+      "title": "URLConnection does not decompress Gzip"
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9958
+}
+```

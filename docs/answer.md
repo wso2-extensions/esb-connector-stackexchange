@@ -439,3 +439,89 @@ Following is a sample REST request that can be handled by the acceptAnswerById o
 
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/accept-answer](https://api.stackexchange.com/docs/accept-answer)
+
+## Sample configuration
+
+Following example illustrates how to connect to StackExchange with the init operation and addAnswer operation.
+
+1. Create a sample proxy as below :
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy xmlns="http://ws.apache.org/ns/synapse"
+       name="stackexchange_addAnswer"
+       startOnLoad="true"
+       statistics="disable"
+       trace="disable"
+       transports="http,https">
+   <target>
+      <inSequence>
+         <property expression="json-eval($.preview)" name="preview"/>
+         <property expression="json-eval($.postBody)" name="postBody"/>
+         <property expression="json-eval($.id)" name="id"/>
+         <property expression="json-eval($.accessToken)" name="accessToken"/>
+         <property expression="json-eval($.key)" name="key"/>
+         <property expression="json-eval($.site)" name="site"/>
+         <stackexchange.init>
+            <site>{$ctx:site}</site>
+            <key>{$ctx:key}</key>
+            <accessToken>{$ctx:accessToken}</accessToken>
+         </stackexchange.init>
+         <stackexchange.addAnswer>
+            <id>{$ctx:id}</id>
+            <postBody>{$ctx:postBody}</postBody>
+            <preview>{$ctx:preview}</preview>
+         </stackexchange.addAnswer>
+         <respond/>
+      </inSequence>
+      <outSequence/>
+      <faultSequence/>
+   </target>
+   <description/>
+</proxy>
+```
+
+2. Create a json file called `stackexchange_addAnswer.json` containing the following json:
+```json
+{
+  "site": "<site>",
+  "key": "<key>",
+  "accessToken": "<access_token>",
+  "id": "<question_id>",
+  "postBody": "Branch prediction: With a sorted array, the condition data[c] >= 128 is first false for a streak of values, then becomes true for all later values. That's easy to predict. With an unsorted array, you pay for the branching cost",
+  "preview": true
+}
+```
+
+3. Replace site, key, access_token, question_id with your values.
+
+4. Execute the following cURL command:
+```
+curl http://sujanan-ThinkPad-T530:8280/services/stackexchange_addAnswer -H 'Content-Type: application/json' -d @stackexchange_addAnswer.json
+```
+
+5. StackExchange will returns an json response as below :
+```json
+{
+  "items": [
+    {
+      "owner": {
+        "reputation": 1,
+        "user_id": 55362,
+        "user_type": "registered",
+        "profile_image": "https://lh6.googleusercontent.com/-fxyNTmd3fOc/AAAAAAAAAAI/AAAAAAAAADw/jTw3x-DCCJs/photo.jpg?sz=128",
+        "display_name": "Dhanu",
+        "link": "https://stackapps.com/users/55362/dhanu"
+      },
+      "is_accepted": false,
+      "score": 0,
+      "last_activity_date": 1552540425,
+      "creation_date": 1552540425,
+      "answer_id": 0,
+      "question_id": 8267
+    }
+  ],
+  "has_more": false,
+  "quota_max": 10000,
+  "quota_remaining": 9960
+}
+```
