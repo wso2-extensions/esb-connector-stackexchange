@@ -1,0 +1,8 @@
+{
+  "site": "%s(site)",
+  "key": "%s(key)",
+  "accessToken": "%s(accessToken)",
+  "id": "%s(questionId)",
+  "postBody": "Branch prediction: With a sorted array, the condition data[c] >= 128 is first false for a streak of values, then becomes true for all later values. That's easy to predict. With an unsorted array, you pay for the branching cost",
+  "preview": true
+}

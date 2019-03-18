@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ you may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<proxy xmlns="http://ws.apache.org/ns/synapse" name="stackexchange"
+       transports="https,http" statistics="disable" trace="disable"
+       startOnLoad="true">
+    <target>
+        <inSequence>
+            <!-- Init parameters -->
+            <property expression="json-eval($.accessToken)" name="accessToken"/>
+            <property expression="json-eval($.site)" name="site"/>
+            <property expression="json-eval($.key)" name="key"/>
+            <!-- Paging parameters -->
+            <property expression="json-eval($.min)" name="min"/>
+            <property expression="json-eval($.order)" name="order"/>
+            <property expression="json-eval($.pagesize)" name="pagesize"/>
+            <property expression="json-eval($.page)" name="page"/>
+            <property expression="json-eval($.todate)" name="todate"/>
+            <property expression="json-eval($.fromdata)" name="fromdata"/>
+            <property expression="json-eval($.max)" name="max"/>
+            <property expression="json-eval($.sort)" name="sort"/>
+            <!-- Developer parameters -->
+            <property expression="json-eval($.preview)" name="preview"/>
+            <!-- Response Filter -->
+            <property expression="json-eval($.filter)" name="filter"/>
+            <stackexchange.init>
+                <key>{$ctx:key}</key>
+                <site>{$ctx:site}</site>
+                <accessToken>{$ctx:accessToken}</accessToken>
+            </stackexchange.init>
+            <switch source="get-property('transport', 'Action')">
+                <!--======================== User ========================-->
+                <case regex="urn:getUsersByIds">
+                    <stackexchange.getUsersByIds>
+                        <!-- Mandatory -->
+                        <ids>{$ctx:ids}</ids>
+                        <!-- Paging -->
+                        <page>{$ctx:page}</page>
+                        <pagesize>{$ctx:pagesize}</pagesize>
+                        <min>{$ctx:min}</min>
+                        <max>{$ctx:max}</max>
+                        <fromdate>{$ctx:fromdate}</fromdate>
+                        <todate>{$ctx:todate}</todate>
+                        <order>{$ctx:order}</order>
+                        <sort>{$ctx:sort}</sort>
+                    </stackexchange.getUsersByIds>
+                </case>
+                <!--======================== Question ========================-->
+                <case regex="urn:addQuestion">
+                    <property expression="json-eval($.title)" name="title"/>
+                    <property expression="json-eval($.postBody)" name="postBody"/>
+                    <property expression="json-eval($.tags)" name="tags"/>
+                    <stackexchange.addQuestion>
+                        <!-- Mandatory -->
+                        <title>{$ctx:title}</title>
+                        <postBody>{$ctx:postBody}</postBody>
+                        <tags>{$ctx:tags}</tags>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                    </stackexchange.addQuestion>
+                </case>
+                <case regex="urn:deleteQuestionById">
+                    <property expression="json-eval($.id)" name="id"/>
+                    <stackexchange.deleteQuestionById>
+                        <!-- Mandatory -->
+                        <id>{$ctx:id}</id>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                    </stackexchange.deleteQuestionById>
+                </case>
+                <case regex="urn:editQuestionById">
+                    <property expression="json-eval($.tags)" name="tags"/>
+                    <property expression="json-eval($.postBody)" name="postBody"/>
+                    <property expression="json-eval($.title)" name="title"/>
+                    <property expression="json-eval($.id)" name="id"/>
+                    <stackexchange.editQuestionById>
+                        <!-- Mandatory -->
+                        <id>{$ctx:id}</id>
+                        <title>{$ctx:title}</title>
+                        <postBody>{$ctx:postBody}</postBody>
+                        <tags>{$ctx:tags}</tags>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                    </stackexchange.editQuestionById>
+                </case>
+                <case regex="urn:downvoteQuestionById">
+                    <property expression="json-eval($.id)" name="id"/>
+                    <stackexchange.downvoteQuestionById>
+                        <!-- Mandatory -->
+                        <id>{$ctx:id}</id>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                    </stackexchange.downvoteQuestionById>
+                </case>
+                <case regex="urn:upvoteQuestionById">
+                    <property expression="json-eval($.id)" name="id"/>
+                    <stackexchange.upvoteQuestionById>
+                        <!-- Mandatory -->
+                        <id>{$ctx:id}</id>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                    </stackexchange.upvoteQuestionById>
+                </case>
+                <case regex="urn:getQuestionsByUserIds">
+                    <property expression="json-eval($.ids)" name="ids"/>
+                    <stackexchange.getQuestionsByUserIds>
+                        <!-- Mandatory -->
+                        <ids>{$ctx:ids}</ids>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <!-- Paging -->
+                        <page>{$ctx:page}</page>
+                        <pagesize>{$ctx:pagesize}</pagesize>
+                        <min>{$ctx:min}</min>
+                        <max>{$ctx:max}</max>
+                        <fromdate>{$ctx:fromdate}</fromdate>
+                        <todate>{$ctx:todate}</todate>
+                        <order>{$ctx:order}</order>
+                        <sort>{$ctx:sort}</sort>
+                    </stackexchange.getQuestionsByUserIds>
+                </case>
+                <case regex="urn:getQuestionsWithNoAnswers">
+                    <stackexchange.getQuestionsWithNoAnswers>
+                        <!-- Optional -->
+                        <tagged>{$ctx:tagged}</tagged>
+                        <filter>{$ctx:filter}</filter>
+                        <!-- Paging -->
+                        <page>{$ctx:page}</page>
+                        <pagesize>{$ctx:pagesize}</pagesize>
+                        <min>{$ctx:min}</min>
+                        <max>{$ctx:max}</max>
+                        <fromdate>{$ctx:fromdate}</fromdate>
+                        <todate>{$ctx:todate}</todate>
+                        <order>{$ctx:order}</order>
+                        <sort>{$ctx:sort}</sort>
+                    </stackexchange.getQuestionsWithNoAnswers>
+                </case>
+                <!--======================== Answer ========================-->
+                <case regex="urn:addAnswer">
+                    <property expression="json-eval($.postBody)" name="postBody"/>
+                    <property expression="json-eval($.id)" name="id"/>
+                    <stackexchange.addAnswer>
+                        <!-- Mandatory -->
+                        <id>{$ctx:id}</id>
+                        <postBody>{$ctx:postBody}</postBody>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                    </stackexchange.addAnswer>
+                </case>
+                <case regex="urn:editAnswerById">
+                    <property expression="json-eval($.postBody)" name="postBody"/>
+                    <property expression="json-eval($.id)" name="id"/>
+                    <stackexchange.editAnswerById>
+                        <!-- Mandatory -->
+                        <id>{$ctx:id}</id>
+                        <postBody>{$ctx:postBody}</postBody>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                    </stackexchange.editAnswerById>
+                </case>
+                <case regex="urn:deleteAnswerById">
+                    <property expression="json-eval($.id)" name="id"/>
+                    <stackexchange.deleteAnswerById>
+                        <!-- Mandatory -->
+                        <id>{$ctx:id}</id>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                    </stackexchange.deleteAnswerById>
+                </case>
+                <case regex="urn:downvoteAnswerById">
+                    <property expression="json-eval($.id)" name="id"/>
+                    <stackexchange.downvoteAnswerById>
+                        <!-- Mandatory -->
+                        <id>{$ctx:id}</id>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                    </stackexchange.downvoteAnswerById>
+                </case>
+                <case regex="urn:upvoteAnswerById">
+                    <property expression="json-eval($.id)" name="id"/>
+                    <stackexchange.upvoteAnswerById>
+                        <!-- Mandatory -->
+                        <id>{$ctx:id}</id>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                    </stackexchange.upvoteAnswerById>
+                </case>
+                <case regex="urn:getAnswersByIds">
+                    <property expression="json-eval($.ids)" name="ids"/>
+                    <stackexchange.getAnswersByIds>
+                        <!-- Mandatory -->
+                        <ids>{$ctx:ids}</ids>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                        <!-- Paging -->
+                        <page>{$ctx:page}</page>
+                        <pagesize>{$ctx:pagesize}</pagesize>
+                        <min>{$ctx:min}</min>
+                        <max>{$ctx:max}</max>
+                        <fromdate>{$ctx:fromdate}</fromdate>
+                        <todate>{$ctx:todate}</todate>
+                        <order>{$ctx:order}</order>
+                        <sort>{$ctx:sort}</sort>
+                    </stackexchange.getAnswersByIds>
+                </case>
+                <case regex="urn:acceptAnswerById">
+                    <property expression="json-eval($.id)" name="id"/>
+                    <stackexchange.acceptAnswerById>
+                        <!-- Mandatory -->
+                        <id>{$ctx:id}</id>
+                        <!-- Optional -->
+                        <filter>{$ctx:filter}</filter>
+                        <preview>{$ctx:preview}</preview>
+                    </stackexchange.acceptAnswerById>
+                </case>
+            </switch>
+            <respond/>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+    </target>
+    <description/>
+</proxy>

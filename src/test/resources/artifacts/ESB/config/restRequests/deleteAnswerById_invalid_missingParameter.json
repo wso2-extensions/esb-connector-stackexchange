@@ -1,0 +1,6 @@
+{
+  "site": "%s(placeHolderASite)",
+  "key": "%s(key)",
+  "accessToken": "%s(accessToken)",
+  "preview": true
+}

@@ -1,0 +1,85 @@
+<!--
+  ~ Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ you may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<template xmlns="http://ws.apache.org/ns/synapse" name="upvoteAnswerById">
+    <parameter name="id" description="Id of the answer"/>
+    <!-- OPTIONAL -->
+    <parameter name="filter" description="Response filter"/>
+    <parameter name="preview"
+               description="Preview parameter is used for development and testing purposes. When preview is set to true,
+                            request will only simulate whether it is a valid request or not and will not change
+                            anything on the site."/>
+    <sequence>
+        <property name="uri.var.id" expression="$func:id"/>
+        <!-- OPTIONAL -->
+        <property name="uri.var.filter" expression="$func:filter"/>
+        <property name="uri.var.preview" expression="$func:preview"/>
+
+        <payloadFactory media-type="json">
+            <format>
+                {
+                "site": "$1",
+                "access_token": "$2",
+                "key": "$3"
+                }
+            </format>
+            <args>
+                <arg evaluator="xml" expression="$ctx:uri.var.site"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.accessToken"/>
+                <arg evaluator="xml" expression="$ctx:uri.var.key"/>
+            </args>
+        </payloadFactory>
+        <script language="js">
+            <![CDATA[
+                var payload = mc.getPayloadJSON();
+
+                function isOptionalEmpty(optional) {
+                    if (typeof optional === 'undefined') {
+                        return true;
+                    }
+                    if (optional !== null && optional !== '') {
+                        return false;
+                    }
+                    return true;
+                }
+
+                function setNonNullOptional(payload, optionalName) {
+                    var optional = mc.getProperty('uri.var.' + optionalName);
+                    if (!isOptionalEmpty(optional)) {
+                        payload[optionalName] = String(optional);
+                    }
+                }
+
+                setNonNullOptional(payload, 'preview');
+                setNonNullOptional(payload, 'filter');
+
+                mc.setPayloadJSON(payload);
+            ]]>
+        </script>
+        <!-- Sets header before conversion -->
+        <header name="Content-Type" scope="transport" value="application/x-www-form-urlencoded"/>
+        <!-- Converts request -->
+        <property name="messageType" value="application/x-www-form-urlencoded" scope="axis2" type="STRING"/>
+        <call>
+            <endpoint>
+                <http method="POST"
+                      uri-template="{uri.var.apiDomain}/{uri.var.apiVersion}/answers/{uri.var.id}/upvote"/>
+            </endpoint>
+        </call>
+        <class name="org.wso2.carbon.connector.DecompressMediator"/>
+    </sequence>
+</template>

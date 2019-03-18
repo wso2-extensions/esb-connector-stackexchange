@@ -1,0 +1,89 @@
+<!--
+  ~ Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ you may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<template xmlns="http://ws.apache.org/ns/synapse" name="getQuestionsByUserIds">
+    <parameter name="ids" description="Semicolon delimited user ids"/>
+    <!-- OPTIONAL -->
+    <parameter name="filter" description="Response filter"/>
+    <parameter name="pagesize" description="Number of items should be stored in a single page"/>
+    <parameter name="page" description="Which page to send among many pages in the response"/>
+    <parameter name="fromdate" description="Starting date in fromdate to todate window"/>
+    <parameter name="todate" description="Ending date in fromdate to todate window"/>
+    <parameter name="min" description="Min value in min to max window"/>
+    <parameter name="max" description="Max value in min to max window"/>
+    <parameter name="sort"
+               description="According to which field item list should be sorted (activity, creation, votes)"/>
+    <parameter name="order" description="Sorting order ascending (asc) or descending (desc)"/>
+    <sequence>
+        <property name="uri.var.ids" expression="$func:ids"/>
+        <!-- OPTIONAL -->
+        <property name="uri.var.filter" expression="$func:filter"/>
+        <property name="uri.var.pagesize" expression="$func:pagesize"/>
+        <property name="uri.var.page" expression="$func:page"/>
+        <property name="uri.var.fromdate" expression="$func:fromtdate"/>
+        <property name="uri.var.todate" expression="$func:todate"/>
+        <property name="uri.var.min" expression="$func:min"/>
+        <property name="uri.var.max" expression="$func:max"/>
+        <property name="uri.var.sort" expression="$func:sort"/>
+        <property name="uri.var.order" expression="$func:order"/>
+        <script language="js">
+            <![CDATA[
+                function isOptionalEmpty(optional) {
+                    if (typeof optional === 'undefined') {
+                        return true;
+                    }
+                    if (optional !== null && optional !== '') {
+                        return false;
+                    }
+                    return true;
+                }
+
+                var optionals = {
+                    'key': mc.getProperty('uri.var.key'),
+                    'pagesize': mc.getProperty('uri.var.pagesize'),
+                    'page': mc.getProperty('uri.var.page'),
+                    'fromdate': mc.getProperty('uri.var.fromdate'),
+                    'todate': mc.getProperty('uri.var.todate'),
+                    'min': mc.getProperty('uri.var.min'),
+                    'max': mc.getProperty('uri.var.max'),
+                    'sort': mc.getProperty('uri.var.sort'),
+                    'order': mc.getProperty('uri.var.order'),
+                    'filter': mc.getProperty('uri.var.filter')
+                };
+                var uriVarOptionals = '';
+
+                for (opt in optionals) {
+                    if (optionals.hasOwnProperty(opt) && !isOptionalEmpty(optionals[opt])) {
+                        uriVarOptionals = String(uriVarOptionals + opt + '=' + String(optionals[opt]) + '&');
+                    }
+                }
+                if (uriVarOptionals !== '') {
+                    uriVarOptionals = uriVarOptionals.substring(0, uriVarOptionals.length - 1);
+                }
+                mc.setProperty('uri.var.optionals', uriVarOptionals);
+            ]]>
+        </script>
+        <call>
+            <endpoint>
+                <http method="GET"
+                      uri-template="{uri.var.apiDomain}/{uri.var.apiVersion}/users/{uri.var.ids}/questions?site={uri.var.site}&amp;{uri.var.optionals}"/>
+            </endpoint>
+        </call>
+        <!-- Forces response decompression -->
+        <class name="org.wso2.carbon.connector.DecompressMediator"/>
+    </sequence>
+</template>

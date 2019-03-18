@@ -1,0 +1,8 @@
+{
+  "site": "%s(placeHolderQSite)",
+  "filter": "%s(filterName)",
+  "accessToken": "%s(accessToken)",
+  "key": "%s(key)",
+  "id": "%s(placeHolderQId)",
+  "preview": true
+}

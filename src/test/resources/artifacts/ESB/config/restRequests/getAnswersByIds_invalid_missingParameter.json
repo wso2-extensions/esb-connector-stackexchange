@@ -1,0 +1,5 @@
+{
+  "ids": "%s(answerIdList)",
+  "key": "%s(key)",
+  "filter": "%s(filterName)"
+}
