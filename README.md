@@ -30,7 +30,7 @@ Follow the steps given below to build the StackExchange connector from the sourc
 
 1. Get a clone or download the source from [Github](https://github.com/wso2-extensions/esb-connector-stackexchange).
 2. Run the following Maven command from the `esb-connector-stackexchange` directory: `mvn clean install`.
-3. The `stackexchange-connector-X.X.X-SNAPSHOT.zip` file is created in the `esb-connector-stackexchange/target` directory
+3. The `stackexchange-connector-X.X.X.zip` file is created in the `esb-connector-stackexchange/target` directory
 
 ## How You Can Contribute
 
