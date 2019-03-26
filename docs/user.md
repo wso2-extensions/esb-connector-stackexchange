@@ -8,7 +8,7 @@ For a sample proxy service that illustrates how to work with users, see [Sample 
 
 | Operation | Description |
 | ------------- |-------------|
-| [getUsersByIds](#getting-the-set-of-users-identified-by-ids) | Return the information about about set of users. |
+| [getUsersByIds](#getting-the-set-of-users-identified-by-ids) | Return the information about set of users. |
 
 ## Operation details
 This section provides details on each of the operations.
