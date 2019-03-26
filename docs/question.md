@@ -99,7 +99,7 @@ Following is a sample REST request that can be handled by the getQuestionsByUser
 **Related StackExchange API documentation**
 [https://api.stackexchange.com/docs/questions-by-ids](https://api.stackexchange.com/docs/questions-by-ids)
 
-### getting all the questions with no answers
+### getting the set of questions identified by user ids
 Return set of question with no answers.
 
 **getQuestionsByUserIds**

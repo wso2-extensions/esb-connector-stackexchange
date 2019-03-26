@@ -8,13 +8,13 @@ For a sample proxy service that illustrates how to work with users, see [Sample 
 
 | Operation | Description |
 | ------------- |-------------|
-| [getUsersByIds](#getting-the-set-of-users-identified-by-ids) | Return the information about set of users. |
+| [getUsersByIds](#getting-the-set-of-users-identified-by-ids) | Return the information about about set of users. |
 
 ## Operation details
 This section provides details on each of the operations.
 
-### getting the set of users identified by ids
-Return the information about set of users.
+### Getting the information about about set of users
+Return the information about about set of users.
 
 ```xml
 <stackexchange.getUsersByIds>
@@ -32,7 +32,7 @@ Return the information about set of users.
 ```
 
 **Properties**
-* ids: Semicolon delimited user ids or 'me' if you want to get information about yourself.
+* ids: Semicolon delimited user ids or 'me' if you want get information about yourself.
 * filter: Filter you have chosen to filter fields in the response. e.g. default
 * pagesize: Number of items should be stored in a single page.
 * page: Which page to send among many pages in the response.

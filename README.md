@@ -1,4 +1,4 @@
-# StackExchange EI Connector
+# esb-connector-stackexchange
 
 The StackExchange [Connector](https://docs.wso2.com/display/EI640/Working+with+Connectors) allows you to access the [StackExchange REST API](https://api.stackexchange.com/docs) 
 through WSO2 Enterprise Integrator (WSO2 EI). StackExchange is a network of question-and-answer websites on topics in 
@@ -9,7 +9,7 @@ award process. The reputation system allows the sites to be self-moderating.
 
 | Connector version | StackExchange API version | Supported WSO2 EI version |
 | ------------- | ------------- | ------------- |
-| [1.0.0](https://github.com/wso2-extensions/esb-connector-stackexchange/tree/org.wso2.carbon.connector.stackexchange-1.0.0) | 2.2 | EI 6.4.0 |
+| [1.0.0](https://github.com/wso2-extensions/esb-connector-stackexchange/releases/tag/org.wso2.carbon.connector.stackexchange-1.0.0) | 2.2 | EI 6.4.0 |
 
 ## Getting started
 
