@@ -24,7 +24,7 @@ award process. The reputation system allows the sites to be self-moderating.
 
 To get started with google spreadsheet connector and their operations, see [Configuring StackExchnge Operations](docs/config.md).
 
-## Building From the Source
+## Building from the Source
 
 Follow the steps given below to build the StackExchange connector from the source code:
 
@@ -32,7 +32,7 @@ Follow the steps given below to build the StackExchange connector from the sourc
 2. Run the following Maven command from the `esb-connector-stackexchange` directory: `mvn clean install`.
 3. The `stackexchange-connector-X.X.X.zip` file is created in the `esb-connector-stackexchange/target` directory
 
-## How You Can Contribute
+## How you can contribute
 
 As an open source project, WSO2 extensions welcome contributions from the community.
 Check the [issue tracker](https://github.com/wso2-extensions/esb-connector-stackexchange/issues) for open issues that interest you. We look forward to receiving your contributions.
