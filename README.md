@@ -15,16 +15,16 @@ award process. The reputation system allows the sites to be self-moderating.
 
 ###### Download and install the connector
 
-1. Download the connector from [WSO2 Store](https://store.wso2.com/store/assets/esbconnector/details/511c00f9-8529-4e50-b058-032deecdc802) by clicking the Download Connector button.
-2. Then you can follow this [Documentation](https://docs.wso2.com/display/EI640/Working+with+Connectors+via+the+Management+Console) to add and enable the connector via the Management Console in your EI instance.
-3. For more information on using connectors and their operations in your EI configurations, see [Using a Connector](https://docs.wso2.com/display/EI640/Using+a+Connector).
-4. If you want to work with connectors via EI tooling, see [Working with Connectors via Tooling](https://docs.wso2.com/display/EI640/Working+with+Connectors+via+Tooling).
+1. Download the connector from the [WSO2 Store](https://store.wso2.com/store/assets/esbconnector/details/511c00f9-8529-4e50-b058-032deecdc802) by clicking the **Download Connector** button.
+2. Then you can follow this [Documentation](https://docs.wso2.com/display/EI640/Working+with+Connectors+via+the+Management+Console) to add and enable the connector via the management console in your WSO2 EI instance.
+3. For more information on using connectors and their operations in your WSO2 EI configurations, see [Using a Connector](https://docs.wso2.com/display/EI640/Using+a+Connector).
+4. If you want to work with connectors via WSO2 EI Tooling, see [Working with Connectors via Tooling](https://docs.wso2.com/display/EI640/Working+with+Connectors+via+Tooling).
 
 ###### Configuring the connector operations
 
 To get started with google spreadsheet connector and their operations, see [Configuring StackExchnge Operations](docs/config.md).
 
-## Building From the Source
+## Building from the Source
 
 Follow the steps given below to build the StackExchange connector from the source code:
 
@@ -32,7 +32,7 @@ Follow the steps given below to build the StackExchange connector from the sourc
 2. Run the following Maven command from the `esb-connector-stackexchange` directory: `mvn clean install`.
 3. The `stackexchange-connector-X.X.X.zip` file is created in the `esb-connector-stackexchange/target` directory
 
-## How You Can Contribute
+## How you can contribute
 
 As an open source project, WSO2 extensions welcome contributions from the community.
 Check the [issue tracker](https://github.com/wso2-extensions/esb-connector-stackexchange/issues) for open issues that interest you. We look forward to receiving your contributions.
