@@ -5,13 +5,17 @@
     "documentationUrl": "https://github.com/wso2-extensions/esb-connector-stackexchange/blob/release-1.0.0/README.md",
     "description": "The StackExchange connector allows you to access the StackExchange REST API through WSO2 Enterprise Integrator (WSO2 EI). StackExchange is a network of question-and-answer websites on topics in diverse fields, each site covering a specific topic, where questions, answers, and users are subject to a reputation award process. The reputation system allows the sites to be self-moderating.",
     "status": "Active",
-    "labels": [],
+    "labels": [
+        "QnA",
+        "stackexchange"
+    ],
     "releases": [
         {
-            "tagName": "1.0.0",
+            "tagName": "v1.0.0",
             "products": [
                 "EI 6.4.0"
-            ]
+            ],
+            "isHidden": false
         }
     ]
 }
